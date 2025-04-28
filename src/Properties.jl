@@ -1,38 +1,54 @@
-is_toplevel(  node::Node) = kind(node) == K"toplevel"
-is_module(    node::Node) = kind(node) == K"module"
-is_assignment(node::Node) = kind(node) == K"="
+module Properties
 
-function is_op_call(node::Node)
-    return  JSx.is_prefix_op_call(node) ||
+import JuliaSyntax as JS
+using JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, kind
+
+export opens_scope, closes_module, closes_scope, find_child_of_kind,
+    is_assignment, is_function, is_infix_operator, is_module, is_operator,
+    is_toplevel, get_assignee, get_func_arguments, get_func_name, report_violation
+
+function report_violation(node::JS.SyntaxNode, problem::String, rule::String)
+    line, column = JS.source_location(node)
+    printstyled("\n'$(JS.filename(node))', line $line, column $(column+1):\n";
+                underline=true)
+    JS.highlight(stdout, node; note=problem, notecolor=:yellow,
+                                context_lines_after=0, context_lines_before=0)
+    printstyled("\n$rule\n"; color=:cyan)
+    # @debug "\n" * sprint(show, MIME("text/plain"), op_call)
+    @debug "\n" print(op_call)
+end
+
+is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
+is_module(    node::SyntaxNode) = kind(node) == K"module"
+is_assignment(node::SyntaxNode) = kind(node) == K"="
+
+function is_operator(node::SyntaxNode)
+    return  JS.is_prefix_op_call(node) ||
             is_infix_operator(node)  ||
-            JSx.is_postfix_op_call(node)
+            JS.is_postfix_op_call(node)
 end
-function is_infix_operator(node::Node)
-    return JSx.is_infix_op_call(node) ||
-           kind(node) in KSet"= == === != !== && || ->"
-end
-
-function is_function(node::Node)
-    return kind(node) == K"function" ||
-           is_assignment(node) && kind(children(node)[1]) == K"call"
+function is_infix_operator(node::SyntaxNode)
+    A = JS.is_infix_op_call(node)
+    B = JS.is_operator(node)
+    C = kind(node) in KSet"= == === != !== && || ->"
+    return A || B || C
 end
 
-function opens_scope(node::Node)
-    # @debug "{\n" length(nested_modules) length(symbols_table)
+is_function(node::SyntaxNode) = kind(node) == K"function"
+
+function opens_scope(node::SyntaxNode)
     return is_function(node) ||
-           kind(head(node)) ∈ [KSet"for while try do let macro generator"]
+           kind(node) ∈ [KSet"for while try do let macro generator"]
                                 # comprehensions contain a generator
 end
-function closes_scope(node::Node, parent::Node)
-    # @debug "}\n" length(nested_modules) length(symbols_table)
-    return kind(head(node)) == K"end" && opens_scope(parent)
+function closes_scope(node::SyntaxNode)
+    return kind(node) == K"end" && opens_scope(node.parent)
+end
+function closes_module(node::SyntaxNode)
+    return kind(node) == K"end" && is_module(node.parent)
 end
 
-function closes_module(node::Node, parent::Node)
-    return kind(node) == K"end" && kind(parent) == K"module"
-end
-
-function get_func_name(node::Node)
+function get_func_name(node::SyntaxNode)::String
     @assert is_function(node) "Not a [function] node!"
     call = find_child_of_kind(K"call", node)
     return if !isnothing(call)
@@ -43,7 +59,7 @@ function get_func_name(node::Node)
                 "-function?-"
             end
 end
-function get_func_arguments(node::Node)
+function get_func_arguments(node::SyntaxNode)
     @assert is_function(node) "Not a [function] node!"
     call = find_child_of_kind(K"call", children(node)[1])
     if isnothing(call)
@@ -60,7 +76,7 @@ function get_func_arguments(node::Node)
     end
     return fun_args
 end
-#= function get_parameters(node::Node)
+#= function get_parameters(node::SyntaxNode)
     @assert kind(node) == K"parameters" "Not a [parameters] node!"
     @assert all(x -> kind(x) == K"=", children(node)) """
         Not all children of a [parameters] node turned out to be [=]:
@@ -70,10 +86,10 @@ end
 end
 =#
 
-get_assignee(node::Node) = children(node)[1]
+get_assignee(node::SyntaxNode) = children(node)[1]
 
 # TODO make unit tests for this (and thus start having tests)
-function find_child_of_kind(node_kind::Kind, node::Node)
+function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
     # First, check the node itself
     if kind(node) == node_kind return node end
     # If not, check its direct children
@@ -95,4 +111,6 @@ function find_child_of_kind(node_kind::Kind, node::Node)
         end
         return nothing
     end
+end
+
 end

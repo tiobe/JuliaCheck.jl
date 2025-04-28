@@ -1,0 +1,8 @@
+name = "JuliaCheck"
+uuid = "7b5e9987-6321-4ad2-a98c-8fb2c158333b"
+authors = ["Juanma Bellon <juan.bellon@tiobe.com>"]
+version = "0.1.0"
+
+[deps]
+DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+JuliaSyntax = "70703baa-626e-46a2-a12c-08ffd08c73b4"
