@@ -4,9 +4,12 @@ import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, head, kind,
     untokenize, JuliaSyntax as JS
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
-    is_assignment, is_function, is_infix_operator, is_literal, is_module,
-    is_operator, is_toplevel, get_assignee, get_func_arguments, get_func_name,
-    report_violation
+    is_assignment, is_function, is_infix_operator, is_literal, is_lower_snake,
+    is_module, is_operator, is_toplevel, get_assignee, get_func_arguments,
+    get_func_name, report_violation
+
+include("../src/Utils.jl")
+import .Utils: to_string
 
 function report_violation(node::JS.SyntaxNode, problem::String, rule::String)
     line, column = JS.source_location(node)
@@ -15,7 +18,6 @@ function report_violation(node::JS.SyntaxNode, problem::String, rule::String)
     JS.highlight(stdout, node; note=problem, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
     printstyled("\n$rule\n"; color=:cyan)
-    @debug "\n" * to_string(node)
 end
 
 is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
@@ -50,16 +52,25 @@ function closes_module(node::SyntaxNode)
 end
 
 
-function get_func_name(node::SyntaxNode)::String
+function get_func_name(node::SyntaxNode)
     @assert is_function(node) "Not a [function] node!"
-    call = find_child_of_kind(K"call", node)
-    return if !isnothing(call)
-                children(call)[1]
-            else
-                @debug "No [call] node found for a [function] node:\n" *
-                        sprint(show, MIME("text/plain"), node)
-                "-function?-"
-            end
+    # The function's name is the first child of the [call] node. In a very plain
+    # function, that would be the first child of the [function] node. However,
+    # if the function's return type is specified, and/or the function is has a
+    # `where` specification, then that [call] node will be the 1st child of one
+    # or two intermediate nodes, so it has to be searched for.
+    # Even more, since anything goes: an empty function may not have signature
+    # at all, thus no [call] node. In such case, the identifier is (or may be)
+    # found as the first child of the [function] node.
+    first_child = children(node)[1]
+    if kind(first_child) == K"Identifier"
+        return first_child
+    else while kind(first_child) != K"call"
+            @assert JS.haschildren(first_child) to_string(node)
+            first_child = children(first_child)[1]
+        end
+    end
+    return children(first_child)[1]
 end
 
 function get_func_arguments(node::SyntaxNode)
@@ -115,6 +126,8 @@ function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
         return nothing
     end
 end
+
+is_lower_snake(s::AbstractString) = !occursin(r"[[:upper:]]", s)
 
 
 end

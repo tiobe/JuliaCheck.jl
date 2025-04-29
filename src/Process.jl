@@ -100,7 +100,9 @@ function process_operator(node::SyntaxNode)
 end
 
 function process_function(node::SyntaxNode)
-    #SymbolTable.declare(get_func_name(node))
+    fname = get_func_name(node)
+    Checks.FunctionIdentifiersCasing.check(fname)
+    #SymbolTable.declare(fname)
     #SymbolTable.enter_scope()
     #foreach(SymbolTable.declare, get_func_arguments(node))
 end
