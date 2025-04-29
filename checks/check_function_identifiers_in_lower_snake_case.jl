@@ -8,7 +8,7 @@ function check(func_name::SyntaxNode)
     fname = string(func_name)
     if ! is_lower_snake(fname)
         report_violation(func_name,
-                         "Function name '$fname' is wrongly formatted.",
+                         "Function name `$fname` should be written in lower_snake_case.",
                          "Function names are written in lower_snake_case.")
     end
 end
