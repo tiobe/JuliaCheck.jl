@@ -5,7 +5,7 @@ using JuliaSyntax: @K_str, @KSet_str, kind, SyntaxNode
 include("../src/SymbolTable.jl")
 using .SymbolTable: is_global
 
-using ...Properties: is_assignment, get_assignee
+using ...Properties: is_assignment, get_assignee, report_violation
 
 export check
 

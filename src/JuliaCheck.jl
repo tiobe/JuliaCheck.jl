@@ -4,15 +4,9 @@ module JuliaCheck
 import JuliaSyntax as JS
 export display, to_string
 
-## Functions ##
-display(branch::JS.SyntaxNode) = show(stdout, MIME"text/plain"(), branch)
-display(branch::JS.GreenNode)  = show(stdout, MIME"text/plain"(), branch)
-
-to_string(branch::JS.SyntaxNode) = sprint(show, MIME("text/plain"), branch)
-to_string(branch::JS.GreenNode)  = sprint(show, MIME("text/plain"), branch)
-
 include("Process.jl")
 import .Process
+
 
 function main(args::Array{String})
     for argument in args

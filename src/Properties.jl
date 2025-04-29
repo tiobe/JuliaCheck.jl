@@ -1,26 +1,28 @@
 module Properties
 
-import JuliaSyntax as JS
-using JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, kind
+import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, head, kind,
+    untokenize, JuliaSyntax as JS
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
-    is_assignment, is_function, is_infix_operator, is_module, is_operator,
-    is_toplevel, get_assignee, get_func_arguments, get_func_name, report_violation
+    is_assignment, is_function, is_infix_operator, is_literal, is_module,
+    is_operator, is_toplevel, get_assignee, get_func_arguments, get_func_name,
+    report_violation
 
 function report_violation(node::JS.SyntaxNode, problem::String, rule::String)
     line, column = JS.source_location(node)
     printstyled("\n'$(JS.filename(node))', line $line, column $(column+1):\n";
                 underline=true)
     JS.highlight(stdout, node; note=problem, notecolor=:yellow,
-                                context_lines_after=0, context_lines_before=0)
+                               context_lines_after=0, context_lines_before=0)
     printstyled("\n$rule\n"; color=:cyan)
-    # @debug "\n" * sprint(show, MIME("text/plain"), op_call)
-    @debug "\n" print(op_call)
+    @debug "\n" * to_string(node)
 end
 
 is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
 is_module(    node::SyntaxNode) = kind(node) == K"module"
 is_assignment(node::SyntaxNode) = kind(node) == K"="
+is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
+is_function(  node::SyntaxNode) = kind(node) == K"function"
 
 function is_operator(node::SyntaxNode)
     return  JS.is_prefix_op_call(node) ||
@@ -34,7 +36,6 @@ function is_infix_operator(node::SyntaxNode)
     return A || B || C
 end
 
-is_function(node::SyntaxNode) = kind(node) == K"function"
 
 function opens_scope(node::SyntaxNode)
     return is_function(node) ||
@@ -48,6 +49,7 @@ function closes_module(node::SyntaxNode)
     return kind(node) == K"end" && is_module(node.parent)
 end
 
+
 function get_func_name(node::SyntaxNode)::String
     @assert is_function(node) "Not a [function] node!"
     call = find_child_of_kind(K"call", node)
@@ -59,6 +61,7 @@ function get_func_name(node::SyntaxNode)::String
                 "-function?-"
             end
 end
+
 function get_func_arguments(node::SyntaxNode)
     @assert is_function(node) "Not a [function] node!"
     call = find_child_of_kind(K"call", children(node)[1])
@@ -112,5 +115,6 @@ function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
         return nothing
     end
 end
+
 
 end

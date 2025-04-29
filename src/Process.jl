@@ -1,20 +1,19 @@
 module Process
 
-import JuliaSyntax as JS
-using JuliaSyntax: SourceFile, SyntaxNode, ParseError, children
+import JuliaSyntax: SourceFile, SyntaxNode, ParseError, @K_str, children, kind,
+    untokenize, JuliaSyntax as JS
 
-using ..JuliaCheck: display, to_string
-
-include("SymbolTable.jl")
-import .SymbolTable: declare, enter_module, exit_module, is_declared
+# include("SymbolTable.jl")
+# import .SymbolTable
 
 include("Properties.jl")
-import .Properties: closes_module, closes_scope, is_assignment, is_function,
-    is_infix_operator, is_module, is_operator, is_toplevel, get_assignee,
-    get_func_arguments, get_func_name
+using .Properties
 
 include("Checks.jl")
 import .Checks
+
+include("Utils.jl")
+import .Utils: to_string
 
 export check
 
@@ -22,7 +21,7 @@ export check
 function check(file_name::String)
     sf = SourceFile(; filename=file_name)
     process(parse(sf), file_name)
-    exit_module()   # leave `Main`
+    #SymbolTable.exit_module()   # leave `Main`
 end
 
 function parse(sf::SourceFile)
@@ -46,15 +45,15 @@ function process(node::SyntaxNode, file_name::String)
         if is_toplevel(node)
             @debug "\n" * to_string(node)     # Print the AST
             # @debug "\n" * to_string(node.raw) # print the Green-tree
-            enter_module()  # There is always the `Main` module
+            #SymbolTable.enter_module()  # There is always the `Main` module
             # TODO: a file can be `include`d into another, thus into another
-            # module, which is most important from the point of view of the
+            # module and, what is most important from the point of view of the
             # symbols table and declarations: something can be declared outside
             # the file under analysis, and we will surely get confused about its
             # scope.
 
         elseif is_module(node)
-            enter_module(node)
+            #SymbolTable.enter_module(node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -75,9 +74,11 @@ function process(node::SyntaxNode, file_name::String)
         # end
     else
         if closes_module(node)
-            exit_module(node.parent)
+            #SymbolTable.exit_module(node.parent)
         elseif closes_scope(node)
-            exit_scope()
+            #SymbolTable.exit_scope()
+        elseif is_literal(node)
+            process_literal(node)
         end
     end
 end
@@ -87,7 +88,7 @@ function process_operator(node::SyntaxNode)
         # something with prefix operators
 
     elseif is_infix_operator(node)
-        Checks.SpaceAroundInfixOperators.check(node)
+        #Checks.SpaceAroundInfixOperators.check(node)
 
         if is_assignment(node)
             process_assignment(node)
@@ -99,17 +100,24 @@ function process_operator(node::SyntaxNode)
 end
 
 function process_function(node::SyntaxNode)
-    declare(get_func_name(node))
-    enter_scope()
-    foreach(declare, get_func_arguments(node))
+    #SymbolTable.declare(get_func_name(node))
+    #SymbolTable.enter_scope()
+    #foreach(SymbolTable.declare, get_func_arguments(node))
 end
 
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
-    if !is_declared(lhs)
-        declare(lhs)
+    # if !SymbolTable.is_declared(lhs)
+    #     SymbolTable.declare(lhs)
+    # end
+    # Checks.AvoidGlobals.check(node)
+end
+
+function process_literal(node::SyntaxNode)
+    if     (kind(node) == K"Integer")
+    elseif (kind(node) == K"Float")
+        Checks.LeadingAndTrailingDigits.check(node)
     end
-    Checks.AvoidGlobals.check(node)
 end
 
 end

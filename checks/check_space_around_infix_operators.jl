@@ -1,9 +1,12 @@
 module SpaceAroundInfixOperators
 
 using JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, kind, is_whitespace,
-    span, untokenize
+    span, untokenize, JuliaSyntax as JS
 
-using ....JuliaCheck: to_string
+include("../src/Utils.jl")
+import .Utils: to_string
+
+using ...Properties: report_violation
 
 export check
 
@@ -29,7 +32,7 @@ function check(op_call::SyntaxNode)
             "There should be " * (
                 exceptional ? "no spaces around that operator."
                     : "exactly one space on either side of that operator."
-            ) 
+            )
         )
     end
 end
