@@ -10,7 +10,7 @@ using ...Properties: is_assignment, get_assignee, report_violation
 export check
 
 function check(assign_node::SyntaxNode)
-    # @assert is_assignment(assign_node) "Not an assignment [=] node!"
+    @assert is_assignment(assign_node) "Expected a [=] node (assignment), got [$(kind(node))]."
     lhs = get_assignee(assign_node)
     is_constant = kind(assign_node.parent) == K"const"
     if is_global(lhs)

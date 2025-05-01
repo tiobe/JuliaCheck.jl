@@ -12,20 +12,26 @@ using .Properties
 include("Checks.jl")
 import .Checks
 
-include("Utils.jl")
-import .Utils: to_string
-
 export check
 
 
 function check(file_name::String)
     sf = SourceFile(; filename=file_name)
-    process(parse(sf), file_name)
-    #SymbolTable.exit_module()   # leave `Main`
+    ast = parse(sf)
+    if isnothing(ast)
+        @error "Couldn't parse file '$file_name'"
+    else
+        @debug "Full AST for the file:" ast
+        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
+        # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
+        process(ast)
+        #SymbolTable.exit_module()   # leave `Main`
+    end
 end
 
 function parse(sf::SourceFile)
-    return  try JS.parseall(SyntaxNode, JS.sourcetext(sf); ignore_trivia=false)
+    return  try JS.parseall(SyntaxNode, JS.sourcetext(sf);
+                            filename=sf.filename, ignore_trivia=false)
             catch xspt
                 if xspt isa ParseError
                     foreach(dg->println(dg), xspt.diagnostics)
@@ -36,15 +42,10 @@ function parse(sf::SourceFile)
             end
 end
 
-function process(_::Nothing, file_name::String)
-    @error "Couldn't parse file '$file_name'"
-end
 
-function process(node::SyntaxNode, file_name::String)
+function process(node::SyntaxNode)
     if JS.haschildren(node)
         if is_toplevel(node)
-            @debug "\n" * to_string(node)     # Print the AST
-            # @debug "\n" * to_string(node.raw) # print the Green-tree
             #SymbolTable.enter_module()  # There is always the `Main` module
             # TODO: a file can be `include`d into another, thus into another
             # module and, what is most important from the point of view of the
@@ -61,17 +62,16 @@ function process(node::SyntaxNode, file_name::String)
         elseif is_function(node)
             process_function(node)
 
+        elseif is_struct(node)
+            process_struct(node)
+
         # elseif is_doc(node)
             # process_docstrings(node)
 
         #elseif is_body(node)
         end
 
-        foreach(x -> process(x, file_name), children(node))
-        # guajes = children(node)
-        # for guaje in guajes
-        #     process(guaje, file_name)
-        # end
+        foreach(x -> process(x), children(node))
     else
         if closes_module(node)
             #SymbolTable.exit_module(node.parent)
@@ -101,8 +101,10 @@ end
 
 function process_function(node::SyntaxNode)
     fname = get_func_name(node)
-    Checks.FunctionIdentifiersCasing.check(fname)
-    #SymbolTable.declare(fname)
+    if ! isnothing(fname)
+        Checks.FunctionIdentifiersCasing.check(fname)
+        #SymbolTable.declare(fname)
+    end
     #SymbolTable.enter_scope()
     #foreach(SymbolTable.declare, get_func_arguments(node))
 end
@@ -120,6 +122,11 @@ function process_literal(node::SyntaxNode)
     elseif (kind(node) == K"Float")
         Checks.LeadingAndTrailingDigits.check(node)
     end
+end
+
+function process_struct(node::SyntaxNode)
+    # struct_name = get_struct_name(node)
+    foreach(Checks.StructMembersCasing.check, get_struct_members(node))
 end
 
 end

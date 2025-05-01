@@ -1,30 +1,34 @@
 module Properties
 
-import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, head, kind,
-    untokenize, JuliaSyntax as JS
+import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
+    head, kind, untokenize, JuliaSyntax as JS
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
     is_assignment, is_function, is_infix_operator, is_literal, is_lower_snake,
-    is_module, is_operator, is_toplevel, get_assignee, get_func_arguments,
-    get_func_name, report_violation
+    is_module, is_operator, is_struct, is_toplevel, find_first_of_kind,
+    get_assignee, get_func_arguments, get_func_name, get_struct_members, get_struct_name,
+    report_violation
 
-include("../src/Utils.jl")
-import .Utils: to_string
 
-function report_violation(node::JS.SyntaxNode, problem::String, rule::String)
+function report_violation(node::SyntaxNode, severity::Int; user_msg::String, summary::String)
     line, column = JS.source_location(node)
-    printstyled("\n'$(JS.filename(node))', line $line, column $(column+1):\n";
+    printstyled("\n$(JS.filename(node)) ($line, $(column+1)):\n";
                 underline=true)
-    JS.highlight(stdout, node; note=problem, notecolor=:yellow,
+    JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
-    printstyled("\n$rule\n"; color=:cyan)
+    printstyled("\n$summary\nSeverity: $severity\n"; color=:cyan)
 end
+
+
+is_lower_snake(s::AbstractString) = !occursin(r"[[:upper:]]", s)
+
 
 is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
 is_module(    node::SyntaxNode) = kind(node) == K"module"
 is_assignment(node::SyntaxNode) = kind(node) == K"="
 is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
 is_function(  node::SyntaxNode) = kind(node) == K"function"
+is_struct(    node::SyntaxNode) = kind(node) == K"struct"
 
 function is_operator(node::SyntaxNode)
     return  JS.is_prefix_op_call(node) ||
@@ -53,32 +57,26 @@ end
 
 
 function get_func_name(node::SyntaxNode)
-    @assert is_function(node) "Not a [function] node!"
-    # The function's name is the first child of the [call] node. In a very plain
-    # function, that would be the first child of the [function] node. However,
-    # if the function's return type is specified, and/or the function is has a
-    # `where` specification, then that [call] node will be the 1st child of one
-    # or two intermediate nodes, so it has to be searched for.
-    # Even more, since anything goes: an empty function may not have signature
-    # at all, thus no [call] node. In such case, the identifier is (or may be)
-    # found as the first child of the [function] node.
-    first_child = children(node)[1]
-    if kind(first_child) == K"Identifier"
-        return first_child
-    else while kind(first_child) != K"call"
-            @assert JS.haschildren(first_child) to_string(node)
-            first_child = children(first_child)[1]
-        end
+    @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
+    fname = find_first_of_kind(K"Identifier", node)
+    if isnothing(fname)
+        @debug "Unprocessed corner case:" node
+        return nothing
     end
-    return children(first_child)[1]
+    if  kind(fname.parent) == K"."  # In this case, the 1st child is a module name
+        fname = children(fname.parent)[2]
+    end
+    if kind(fname) == K"quote"  # Overloading an operator, which comes next
+        fname = children(fname)[1]
+    end
+    return fname
 end
 
 function get_func_arguments(node::SyntaxNode)
-    @assert is_function(node) "Not a [function] node!"
+    @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     call = find_child_of_kind(K"call", children(node)[1])
     if isnothing(call)
-        @debug "No [call] node found for a [function] node:\n" *
-                sprint(show, MIME("text/plain"), node)
+        @debug "No [call] node found for a [function] node:\n" node
         return []
     end
     items_in_function_signature = children(call)
@@ -100,7 +98,34 @@ end
 end
 =#
 
-get_assignee(node::SyntaxNode) = children(node)[1]
+function get_assignee(node::SyntaxNode)
+    @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
+    children(node)[1]   # FIXME
+end
+
+function get_struct_name(node::SyntaxNode)
+    @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
+    return find_first_of_kind(K"Identifier", node)
+end
+
+function get_struct_members(node::SyntaxNode)
+    @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
+    if length(children(node)) < 2 || kind(children(node)[2]) != K"block"
+        @debug "[block] not found where expected:\n" node
+        return nothing
+    end
+    # Return the children of that [block] node:
+    return children(children(node)[2])
+end
+
+
+function find_first_of_kind(node_kind::Kind, node::SyntaxNode)
+    child = node
+    while kind(child) != node_kind && haschildren(child)
+        child = children(child)[1]
+    end
+    return kind(child) == node_kind ? child : nothing
+end
 
 # TODO make unit tests for this (and thus start having tests)
 function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
@@ -126,8 +151,6 @@ function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
         return nothing
     end
 end
-
-is_lower_snake(s::AbstractString) = !occursin(r"[[:upper:]]", s)
 
 
 end

@@ -3,16 +3,13 @@ module SpaceAroundInfixOperators
 using JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, kind, is_whitespace,
     span, untokenize, JuliaSyntax as JS
 
-include("../src/Utils.jl")
-import .Utils: to_string
-
 using ...Properties: report_violation
 
 export check
 
 function check(op_call::SyntaxNode)
-    @debug "\n" * to_string(op_call)
-    @debug "\n" * to_string(op_call.raw)
+    # @debug "\n" op_call
+    # @debug "\n" op_call.raw
 
     # In the general case, we want (only) one space on either side of the operator,
     # while in the exceptional cases (type operators TODO:?and within brackets?),
@@ -22,8 +19,7 @@ function check(op_call::SyntaxNode)
 
     op_index = findfirst(x -> kind(x) == kind(op_call), children(op_call.raw))
     if isnothing(op_index)
-        @error "No operator found among the children of the given node:\n" *
-                to_string(op_call)
+        @error "No operator found among the children of the given node:\n" op_call
         return nothing
     end
     (lhs, rhs) = _get_op_surrounds(op_call, op_index)
