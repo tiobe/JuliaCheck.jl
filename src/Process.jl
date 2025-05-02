@@ -109,7 +109,6 @@ function process_function(node::SyntaxNode)
     end
     #SymbolTable.enter_scope()
     arguments = get_func_arguments(node)
-    @show arguments
     for arg in arguments
         # SymbolTable.declare(arg)
         Checks.FunctionArgumentsCasing.check(fname, arg)

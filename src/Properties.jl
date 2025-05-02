@@ -18,7 +18,11 @@ function report_violation(node::SyntaxNode;
                 underline=true)
     JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
-    printstyled("\n$summary\nRule: $rule_id. Severity: $severity\n"; color=:cyan)
+    printstyled("\n$summary"; color=:cyan)
+    printstyled("\nRule:"; underline=true)
+    printstyled(" $rule_id. ")
+    printstyled("Severity:"; underline=true)
+    printstyled(" $severity\n")
 end
 
 

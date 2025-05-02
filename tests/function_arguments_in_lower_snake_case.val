@@ -1,12 +1,9 @@
 
 >> Processing file 'tests/function_arguments_in_lower_snake_case.jl'...
-arguments = JuliaSyntax.SyntaxNode[(::-i HamList (curly Vector (<:-pre Real)))]
 
 tests/function_arguments_in_lower_snake_case.jl(1, 15):
 function foo1(HamList::Vector{<:Real}) println(HamList) end
 #             └─────┘ ── Argument 'HamList' of function 'foo1' must be written in "lower_snake_case".
 Function arguments are written in lower_snake_case.
 Rule: function_arguments_in_lower_snake_case. Severity: 7
-arguments = JuliaSyntax.SyntaxNode[(::-i ham_list (curly Vector (<:-pre Real)))]
-arguments = JuliaSyntax.SyntaxNode[x, y]
 
