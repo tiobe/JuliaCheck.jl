@@ -1,7 +1,7 @@
 module Process
 
-import JuliaSyntax: SourceFile, SyntaxNode, ParseError, @K_str, children, kind,
-    untokenize, JuliaSyntax as JS
+import JuliaSyntax: SourceFile, SyntaxNode, ParseError, @K_str, children, haschildren,
+    kind, untokenize, JuliaSyntax as JS
 
 # include("SymbolTable.jl")
 # import .SymbolTable
@@ -22,7 +22,7 @@ function check(file_name::String)
         @error "Couldn't parse file '$file_name'"
     else
         @debug "Full AST for the file:" ast
-        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
+        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
         #SymbolTable.exit_module()   # leave `Main`
@@ -71,7 +71,7 @@ function process(node::SyntaxNode)
         #elseif is_body(node)
         end
 
-        foreach(x -> process(x), children(node))
+        for x in children(node) process(x) end
     else
         if closes_module(node)
             #SymbolTable.exit_module(node.parent)
@@ -101,12 +101,28 @@ end
 
 function process_function(node::SyntaxNode)
     fname = get_func_name(node)
-    if ! isnothing(fname)
-        Checks.FunctionIdentifiersCasing.check(fname)
-        #SymbolTable.declare(fname)
+    if isnothing(fname)
+        # There is nothing left to check, except the debug logging output, where
+        # we might see a clue of what we are dealing with.
+        return nothing
     end
+    Checks.FunctionIdentifiersCasing.check(fname)
+    #SymbolTable.declare(fname)
     #SymbolTable.enter_scope()
-    #foreach(SymbolTable.declare, get_func_arguments(node))
+    named_arguments = []
+    for arg in get_func_arguments(node)
+        if kind(arg) == K"parameters" && haschildren(arg)
+            # The last argument in the list is itself a list, of named arguments,
+            # which we are going to process next.
+            named_arguments = children(arg)
+        else
+            # SymbolTable.declare(arg)
+            Checks.FunctionArgumentsCasing.check(fname, arg)
+        end
+    end
+    for arg in named_arguments
+        Checks.FunctionArgumentsCasing.check(fname, arg)
+    end
 end
 
 function process_assignment(node::SyntaxNode)
