@@ -3,6 +3,7 @@ module Checks
 include("../checks/check_leading_and_trailing_digits.jl")
 include("../checks/check_function_identifiers_in_lower_snake_case.jl")
 include("../checks/check_struct_members_are_in_lower_snake_case.jl")
+include("../checks/check_module_name_casing.jl")
 # include("../checks/check_avoid_globals.jl")
 # include("../checks/check_space_around_infix_operators.jl")
 
