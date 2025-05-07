@@ -67,6 +67,9 @@ function process(node::SyntaxNode)
         elseif is_struct(node)
             process_struct(node)
 
+        elseif is_abstract(node)
+            process_type_declaration(node)
+
         # elseif is_doc(node)
             # process_docstrings(node)
 
@@ -146,5 +149,10 @@ function process_struct(node::SyntaxNode)
     # struct_name = get_struct_name(node)
     foreach(Checks.StructMembersCasing.check, get_struct_members(node))
 end
+
+function process_type_declaration(node)
+    Checks.AbstractTypeNames.check(node)
+end
+
 
 end
