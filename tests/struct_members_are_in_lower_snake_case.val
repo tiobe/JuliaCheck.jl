@@ -1,0 +1,21 @@
+
+>> Processing file 'tests/struct_members_are_in_lower_snake_case.jl'...
+
+tests/struct_members_are_in_lower_snake_case.jl(10, 5):
+    Dir::Direction
+#   └─┘ ── 'struct' members are implemented in "lower_snake_case".
+Members of 'struct's are defined in "lower_snake_case".
+Rule: struct_members_are_in_lower_snake_case. Severity: 8
+
+tests/struct_members_are_in_lower_snake_case.jl(11, 5):
+    NominalPosition::Point
+#   └─────────────┘ ── 'struct' members are implemented in "lower_snake_case".
+Members of 'struct's are defined in "lower_snake_case".
+Rule: struct_members_are_in_lower_snake_case. Severity: 8
+
+tests/struct_members_are_in_lower_snake_case.jl(12, 5):
+    IntrafieldPosition::Point
+#   └────────────────┘ ── 'struct' members are implemented in "lower_snake_case".
+Members of 'struct's are defined in "lower_snake_case".
+Rule: struct_members_are_in_lower_snake_case. Severity: 8
+
