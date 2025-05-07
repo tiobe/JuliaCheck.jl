@@ -22,7 +22,7 @@ function check(file_name::String)
         @error "Couldn't parse file '$file_name'"
     else
         @debug "Full AST for the file:" ast
-        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
+        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
         #SymbolTable.exit_module()   # leave `Main`
@@ -71,7 +71,7 @@ function process(node::SyntaxNode)
         #elseif is_body(node)
         end
 
-        foreach(x -> process(x), children(node))
+        for x in children(node) process(x) end
     else
         if closes_module(node)
             #SymbolTable.exit_module(node.parent)
@@ -125,8 +125,10 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    # struct_name = get_struct_name(node)
-    foreach(Checks.StructMembersCasing.check, get_struct_members(node))
+    Checks.TypeNamesCasing.check(node)
+    for field in get_struct_members(node)
+        Checks.StructMembersCasing.check(field)
+    end
 end
 
 end

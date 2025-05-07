@@ -5,9 +5,9 @@ import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
     is_assignment, is_function, is_infix_operator, is_literal, is_lower_snake,
-    is_module, is_operator, is_struct, is_toplevel, find_first_of_kind,
-    get_assignee, get_func_arguments, get_func_name, get_struct_members, get_struct_name,
-    report_violation
+    is_module, is_operator, is_struct, is_toplevel, is_upper_camel_case,
+    find_first_of_kind, get_assignee, get_func_arguments, get_func_name,
+    get_struct_members, get_struct_name, report_violation
 
 
 function report_violation(node::SyntaxNode, severity::Int; user_msg::String, summary::String)
@@ -20,7 +20,13 @@ function report_violation(node::SyntaxNode, severity::Int; user_msg::String, sum
 end
 
 
-is_lower_snake(s::AbstractString) = !occursin(r"[[:upper:]]", s)
+function is_lower_snake(s::AbstractString)
+    return isnothing(match(r"[[:upper:]]", s))
+end
+function is_upper_camel_case(s::AbstractString)
+    m = match(r"([[:upper:]][[:lower:][:digit:]]+)+", s)
+    return !isnothing(m) && length(m.match) == length(s)
+end
 
 
 is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
