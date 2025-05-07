@@ -21,7 +21,13 @@ end
 
 
 is_lower_snake(s::AbstractString) = !occursin(r"[[:upper:]]", s)
-
+function is_upper_camel_case(s::AbstractString)
+    # Let's assume that UpperCamelCase is: starting with an upper-case letter,
+    # followed by any number of lower-case letters, then repeat the same schema
+    # until the end of the string.
+    m = match(r"^([[:upper:]][[:lower:]]*)+$", s)
+    return ! isnothing(m)
+end
 
 is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
 is_module(    node::SyntaxNode) = kind(node) == K"module"

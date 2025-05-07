@@ -55,6 +55,7 @@ function process(node::SyntaxNode)
 
         elseif is_module(node)
             #SymbolTable.enter_module(node)
+            Checks.ModuleNameCasing.check(node)
 
         elseif is_operator(node)
             process_operator(node)
