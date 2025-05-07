@@ -70,6 +70,9 @@ function process(node::SyntaxNode)
         elseif is_abstract(node)
             process_type_declaration(node)
 
+        elseif is_constant(node)
+            Checks.DocumentConstants.check(node)
+
         # elseif is_doc(node)
             # process_docstrings(node)
 
