@@ -1,0 +1,27 @@
+
+>> Processing file 'tests/type_names_upper_camel_case.jl'...
+
+tests/type_names_upper_camel_case.jl(2, 8):
+struct myStruct end     # Bad
+#      └──────┘ ── Type names such as myStruct should be written in Upper Camel Case.
+Type names in UpperCamelCase.
+Rule: asml-type-names-upper-camel-case. Severity: 3
+
+tests/type_names_upper_camel_case.jl(3, 8):
+struct MYSTRUCT end     # Bad
+#      └──────┘ ── Type names such as MYSTRUCT should be written in Upper Camel Case.
+Type names in UpperCamelCase.
+Rule: asml-type-names-upper-camel-case. Severity: 3
+
+tests/type_names_upper_camel_case.jl(7, 14):
+    function MyStruct(x::AbstractString)
+#            └──────┘ ── Field 'MyStruct' should be written in lower_snake_case.
+Struct members are implemented in lower_snake_case.
+Rule: struct-members-are-in-lower-snake-case. Severity: 8
+
+tests/type_names_upper_camel_case.jl(7, 14):
+    function MyStruct(x::AbstractString)
+#            └──────┘ ── Function name `MyStruct` should be written in lower_snake_case.
+Function names are written in lower_snake_case.
+Rule: asml-function-identifiers-in-lower-snake-case. Severity: 8
+

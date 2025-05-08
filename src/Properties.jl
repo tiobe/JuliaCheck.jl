@@ -4,19 +4,25 @@ import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
     head, kind, untokenize, JuliaSyntax as JS
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
-    is_assignment, is_function, is_infix_operator, is_literal, is_lower_snake,
-    is_module, is_operator, is_struct, is_toplevel, is_upper_camel_case,
-    find_first_of_kind, get_assignee, get_func_arguments, get_func_name,
-    get_struct_members, get_struct_name, report_violation
+    is_abstract, is_assignment, is_function, is_infix_operator, is_literal,
+    is_lower_snake, is_module, is_operator, is_struct, is_toplevel,
+    is_upper_camel_case, find_first_of_kind, get_assignee, get_func_arguments,
+    get_func_name, get_struct_members, get_struct_name, report_violation
 
 
-function report_violation(node::SyntaxNode, severity::Int; user_msg::String, summary::String)
+function report_violation(node::SyntaxNode;
+                          severity::Int, user_msg::String,
+                          summary::String, rule_id::String)
     line, column = JS.source_location(node)
     printstyled("\n$(JS.filename(node))($line, $(column)):\n";
                 underline=true)
     JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
-    printstyled("\n$summary\nSeverity: $severity\n"; color=:cyan)
+    printstyled("\n$summary"; color=:cyan)
+    printstyled("\nRule:"; underline=true)
+    printstyled(" $rule_id. ")
+    printstyled("Severity:"; underline=true)
+    printstyled(" $severity\n")
 end
 
 
@@ -35,6 +41,7 @@ is_assignment(node::SyntaxNode) = kind(node) == K"="
 is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
 is_function(  node::SyntaxNode) = kind(node) == K"function"
 is_struct(    node::SyntaxNode) = kind(node) == K"struct"
+is_abstract(  node::SyntaxNode) = kind(node) == K"abstract"
 
 function is_operator(node::SyntaxNode)
     return  JS.is_prefix_op_call(node) ||
@@ -80,34 +87,20 @@ end
 
 function get_func_arguments(node::SyntaxNode)
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
-    call = find_child_of_kind(K"call", children(node)[1])
+    call = find_first_of_kind(K"call", children(node)[1])
     if isnothing(call)
         @debug "No [call] node found for a [function] node:\n" node
         return []
     end
-    items_in_function_signature = children(call)
-    fun_args = filter(x -> kind(x) == K"Identifier", items_in_function_signature
-                     )[2:end]   # discard the function's name (1st identifier in this list)
-    if (kind(last(items_in_function_signature)) == K"parameters")
-        map(x -> push!(fun_args, children(x)[1]),   # TODO better way to merge lists?
-            children(last(items_in_function_signature)))
-    end
-    return fun_args
+    return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
-#= function get_parameters(node::SyntaxNode)
-    @assert kind(node) == K"parameters" "Not a [parameters] node!"
-    @assert all(x -> kind(x) == K"=", children(node)) """
-        Not all children of a [parameters] node turned out to be [=]:
-        $node
-        """
-    return map(x -> child(x, 1), children(node))
-end
-=#
+
 
 function get_assignee(node::SyntaxNode)
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
     children(node)[1]   # FIXME
 end
+
 
 function get_struct_name(node::SyntaxNode)
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
@@ -138,6 +131,9 @@ function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
     # First, check the node itself
     if kind(node) == node_kind return node end
     # If not, check its direct children
+    if ! haschildren(node)
+        return nothing
+    end
     n = findfirst(x -> kind(x) == node_kind, children(node))
     if !isnothing(n)
         return children(node)[n]

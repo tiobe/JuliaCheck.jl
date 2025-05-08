@@ -1,0 +1,21 @@
+
+>> Processing file 'tests/struct_members_are_in_lower_snake_case.jl'...
+
+tests/struct_members_are_in_lower_snake_case.jl(10, 5):
+    Dir::Direction
+#   └─┘ ── Field 'Dir' should be written in lower_snake_case.
+Struct members are implemented in lower_snake_case.
+Rule: struct-members-are-in-lower-snake-case. Severity: 8
+
+tests/struct_members_are_in_lower_snake_case.jl(11, 5):
+    NominalPosition::Point
+#   └─────────────┘ ── Field 'NominalPosition' should be written in lower_snake_case.
+Struct members are implemented in lower_snake_case.
+Rule: struct-members-are-in-lower-snake-case. Severity: 8
+
+tests/struct_members_are_in_lower_snake_case.jl(12, 5):
+    IntrafieldPosition::Point
+#   └────────────────┘ ── Field 'IntrafieldPosition' should be written in lower_snake_case.
+Struct members are implemented in lower_snake_case.
+Rule: struct-members-are-in-lower-snake-case. Severity: 8
+
