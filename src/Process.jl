@@ -149,8 +149,10 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    # struct_name = get_struct_name(node)
-    foreach(Checks.StructMembersCasing.check, get_struct_members(node))
+    Checks.TypeNamesCasing.check(node)
+    for field in get_struct_members(node)
+        Checks.StructMembersCasing.check(field)
+    end
 end
 
 function process_type_declaration(node)
