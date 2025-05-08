@@ -70,6 +70,9 @@ function process(node::SyntaxNode)
         elseif is_abstract(node)
             process_type_declaration(node)
 
+        elseif is_union_decl(node)
+            process_unions(node)
+
         # elseif is_doc(node)
             # process_docstrings(node)
 
@@ -156,5 +159,8 @@ function process_type_declaration(node)
     Checks.AbstractTypeNames.check(node)
 end
 
+function process_unions(node::SyntaxNode)
+    Checks.TooManyTypesInUnions.check(node)
+end
 
 end
