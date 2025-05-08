@@ -1,0 +1,21 @@
+
+>> Processing file 'tests/document_constants.jl'...
+
+tests/document_constants.jl(3, 1):
+const MAG_THRESHOLD1::Float64 = 3.00 # In ppm
+└──────────────────────────────────┘ ── Const value (const (= (::-i MAG_THRESHOLD1 Float64) 3.0)) has no docstring.
+Constants must have a docstring.
+Rule: asml-xxxx-document-constants. Severity: 7
+
+tests/document_constants.jl(4, 1):
+const MAG_THRESHOLD2::Float64 = 1.00 # Dimensionless
+└──────────────────────────────────┘ ── Const value (const (= (::-i MAG_THRESHOLD2 Float64) 1.0)) has no docstring.
+Constants must have a docstring.
+Rule: asml-xxxx-document-constants. Severity: 7
+
+tests/document_constants.jl(5, 1):
+const MAG_THRESHOLD3::Float64 = 0.00 # Dimensionless
+└──────────────────────────────────┘ ── Const value (const (= (::-i MAG_THRESHOLD3 Float64) 0.0)) has no docstring.
+Constants must have a docstring.
+Rule: asml-xxxx-document-constants. Severity: 7
+

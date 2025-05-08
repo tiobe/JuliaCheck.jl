@@ -14,7 +14,8 @@ function check(const_node::SyntaxNode)
         if haschildren(assignment) && kind(children(assignment)[2]) == K"Float"
             # Yes, it is a real number. Then, it must have a docstring with it.
             if kind(const_node.parent) != K"doc"
-                report_violation(const_node, 7;
+                report_violation(const_node; severity=7,
+                        rule_id="asml-xxxx-document-constants",
                         user_msg="Const value $const_node has no docstring.",
                         summary="Constants must have a docstring.")
             end
