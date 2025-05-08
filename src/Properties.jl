@@ -7,7 +7,8 @@ export opens_scope, closes_module, closes_scope, find_child_of_kind,
     is_abstract, is_assignment, is_function, is_infix_operator, is_literal,
     is_lower_snake, is_module, is_operator, is_struct, is_toplevel, is_union_decl,
     is_upper_camel_case, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_name, get_struct_members, get_struct_name, report_violation
+    get_func_body, get_func_name, get_struct_members, get_struct_name,
+    report_violation
 
 
 function report_violation(node::SyntaxNode;
@@ -103,6 +104,15 @@ function get_func_arguments(node::SyntaxNode)
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 
+function get_func_body(node::SyntaxNode)
+    @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
+    if ! haschildren(node) || length(children(node)) < 2
+        @debug "Strange function node. Cannot return its body." node
+        return nothing
+    end
+    return children(node)[2]
+end
+
 
 function get_assignee(node::SyntaxNode)
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
@@ -118,7 +128,7 @@ end
 function get_struct_members(node::SyntaxNode)
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
     if length(children(node)) < 2 || kind(children(node)[2]) != K"block"
-        @debug "[block] not found where expected:\n" node
+        @debug "[block] not found where expected." node
         return nothing
     end
     # Return the children of that [block] node:

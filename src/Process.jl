@@ -73,10 +73,6 @@ function process(node::SyntaxNode)
         elseif is_union_decl(node)
             process_unions(node)
 
-        # elseif is_doc(node)
-            # process_docstrings(node)
-
-        #elseif is_body(node)
         end
 
         for x in children(node) process(x) end
@@ -131,6 +127,7 @@ function process_function(node::SyntaxNode)
     for arg in named_arguments
         Checks.FunctionArgumentsCasing.check(fname, arg)
     end
+    Checks.LongFormFunctionsHaveReturnStatement.check(get_func_body(node))
 end
 
 function process_assignment(node::SyntaxNode)
