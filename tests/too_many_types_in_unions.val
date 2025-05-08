@@ -1,0 +1,9 @@
+
+>> Processing file 'tests/too_many_types_in_unions.jl'...
+
+tests/too_many_types_in_unions.jl(2, 21):
+const ReturnTypes = Union{Nothing, String, Int32, Int64, Float64}
+#                   └───────────────────────────────────────────┘ ── Detected a union with too many types.
+Too many types in Unions.
+Rule: asml-too-many-types-in-unions. Severity: 6
+
