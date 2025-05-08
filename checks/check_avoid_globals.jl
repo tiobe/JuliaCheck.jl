@@ -14,10 +14,11 @@ function check(assign_node::SyntaxNode)
     lhs = get_assignee(assign_node)
     is_constant = kind(assign_node.parent) == K"const"
     if is_global(lhs)
-        report_violation(lhs,
-            "Avoid using global variables when possible",
-            is_constant ? "Consider if usage of that global can be avoided." :
-                "If a global cannot be avoided, at least it must be declared `const`.")
+        report_violation(lhs; severity=3,
+            summary="Avoid using global variables when possible",
+            user_msg= is_constant ? "Consider if usage of that global can be avoided." :
+                "If a global cannot be avoided, at least it must be declared `const`.",
+            rule_id="avoid-global-variables")
     end
 end
 

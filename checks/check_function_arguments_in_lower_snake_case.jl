@@ -10,9 +10,10 @@ function check(f_name::SyntaxNode, f_arg::SyntaxNode)
     end
     arg_name = string(f_arg)
     if ! is_lower_snake(arg_name)
-        report_violation(f_arg, 7;
-                         user_msg="Argument '$arg_name' of function '$f_name' must be written in \"lower_snake_case\".",
-                         summary="Function arguments are written in lower_snake_case.")
+        report_violation(f_arg; severity=7,
+                rule_id="asml-function-arguments-lower-snake-case",
+                user_msg="Argument '$arg_name' of function '$f_name' must be written in \"lower_snake_case\".",
+                summary="Function arguments are written in lower_snake_case.")
     end
 end
 
