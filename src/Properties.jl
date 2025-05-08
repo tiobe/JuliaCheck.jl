@@ -10,13 +10,19 @@ export opens_scope, closes_module, closes_scope, find_child_of_kind,
     get_func_name, get_struct_members, get_struct_name, report_violation
 
 
-function report_violation(node::SyntaxNode, severity::Int; user_msg::String, summary::String)
+function report_violation(node::SyntaxNode;
+                          severity::Int, user_msg::String,
+                          summary::String, rule_id::String)
     line, column = JS.source_location(node)
     printstyled("\n$(JS.filename(node))($line, $(column)):\n";
                 underline=true)
     JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
-    printstyled("\n$summary\nSeverity: $severity\n"; color=:cyan)
+    printstyled("\n$summary"; color=:cyan)
+    printstyled("\nRule:"; underline=true)
+    printstyled(" $rule_id. ")
+    printstyled("Severity:"; underline=true)
+    printstyled(" $severity\n")
 end
 
 

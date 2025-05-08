@@ -13,9 +13,9 @@ function check(modjule::SyntaxNode)
     end
     name = string(mod_id)
     if ! is_upper_camel_case(name)
-        report_violation(mod_id, 5;
-                        user_msg="Module name `$name` should be written in UpperCamelCase.",
-                        summary="Package and module names should be written in UpperCamelCase.")
+        report_violation(mod_id; severity=5, rule_id="asml-module-name-casing",
+                user_msg="Module name `$name` should be written in UpperCamelCase.",
+                summary="Package and module names should be written in UpperCamelCase.")
     end
 end
 
