@@ -10,7 +10,7 @@ function check(union_decl::SyntaxNode)
         report_violation(union_decl; severity=6,
                 rule_id="asml-too-many-types-in-unions",
                 user_msg="Detected a union with too many types.",
-                summary="Too many types in Unions.")
+                summary="Too many types: there should be no more than 4 types in a Union.")
     end
 end
 

@@ -4,6 +4,6 @@
 tests/too_many_types_in_unions.jl(2, 21):
 const ReturnTypes = Union{Nothing, String, Int32, Int64, Float64}
 #                   └───────────────────────────────────────────┘ ── Detected a union with too many types.
-Too many types in Unions.
+Too many types: there should be no more than 4 types in a Union.
 Rule: asml-too-many-types-in-unions. Severity: 6
 
