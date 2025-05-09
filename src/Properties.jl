@@ -5,10 +5,10 @@ import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
     is_abstract, is_assignment, is_function, is_infix_operator, is_literal,
-    is_lower_snake, is_module, is_operator, is_struct, is_toplevel, is_union_decl,
-    is_upper_camel_case, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_struct_members, get_struct_name,
-    report_violation
+    is_loop, is_lower_snake, is_module, is_operator, is_struct, is_toplevel,
+    is_union_decl, is_upper_camel_case, find_first_of_kind, get_assignee,
+    get_func_arguments, get_func_body, get_func_name, get_struct_members,
+    get_struct_name, report_violation
 
 
 function report_violation(node::SyntaxNode;
@@ -43,6 +43,7 @@ is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
 is_function(  node::SyntaxNode) = kind(node) == K"function"
 is_struct(    node::SyntaxNode) = kind(node) == K"struct"
 is_abstract(  node::SyntaxNode) = kind(node) == K"abstract"
+is_loop(      node::SyntaxNode) = kind(node) in KSet"while for"
 
 function is_union_decl(node::SyntaxNode)
     if kind(node) == K"curly" && haschildren(node)
