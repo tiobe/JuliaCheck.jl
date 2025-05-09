@@ -133,7 +133,12 @@ function process_function(node::SyntaxNode)
     for arg in named_arguments
         Checks.FunctionArgumentsCasing.check(fname, arg)
     end
-    Checks.LongFormFunctionsHaveReturnStatement.check(get_func_body(node))
+
+    body = get_func_body(node)
+    if ! isnothing(body)
+        Checks.LongFormFunctionsHaveReturnStatement.check(body)
+        Checks.ShortHandFunctionTooComplicated.check(body)
+    end
 end
 
 function process_assignment(node::SyntaxNode)
