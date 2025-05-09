@@ -61,6 +61,9 @@ function process(node::SyntaxNode)
         elseif is_operator(node)
             process_operator(node)
 
+        elseif is_loop(node)
+            process_loop(node)
+
         elseif is_function(node)
             process_function(node)
 
@@ -162,5 +165,10 @@ end
 function process_unions(node::SyntaxNode)
     Checks.TooManyTypesInUnions.check(node)
 end
+
+function process_loop(node::SyntaxNode)
+    if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
+end
+
 
 end
