@@ -1,7 +1,7 @@
 module Process
 
-import JuliaSyntax: SourceFile, SyntaxNode, ParseError, @K_str, children, haschildren,
-    kind, untokenize, JuliaSyntax as JS
+import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
+    children, haschildren, is_whitespace, kind, untokenize, JuliaSyntax as JS
 
 # include("SymbolTable.jl")
 # import .SymbolTable
@@ -22,9 +22,12 @@ function check(file_name::String)
         @error "Couldn't parse file '$file_name'"
     else
         @debug "Full AST for the file:" ast
-        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
+        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
+        #if trivia_checks_enabled
+        process_trivia(ast.raw)
+        #end
         #SymbolTable.exit_module()   # leave `Main`
     end
 end
@@ -44,7 +47,7 @@ end
 
 
 function process(node::SyntaxNode)
-    if JS.haschildren(node)
+    if haschildren(node)
         if is_toplevel(node)
             #SymbolTable.enter_module()  # There is always the `Main` module
             # TODO: a file can be `include`d into another, thus into another
@@ -158,6 +161,16 @@ end
 
 function process_unions(node::SyntaxNode)
     Checks.TooManyTypesInUnions.check(node)
+end
+
+function process_trivia(node::GreenNode)
+    if haschildren(node)
+        for x in children(node) process_trivia(x) end
+    else
+        if is_whitespace(node)
+            Checks.UseSpacesInsteadOfTabs.check(node)
+        end
+    end
 end
 
 end
