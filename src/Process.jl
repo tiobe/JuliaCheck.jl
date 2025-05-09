@@ -73,10 +73,9 @@ function process(node::SyntaxNode)
         elseif is_constant(node)
             Checks.DocumentConstants.check(node)
 
-        # elseif is_doc(node)
-            # process_docstrings(node)
+        elseif is_union_decl(node)
+            process_unions(node)
 
-        #elseif is_body(node)
         end
 
         for x in children(node) process(x) end
@@ -131,6 +130,7 @@ function process_function(node::SyntaxNode)
     for arg in named_arguments
         Checks.FunctionArgumentsCasing.check(fname, arg)
     end
+    Checks.LongFormFunctionsHaveReturnStatement.check(get_func_body(node))
 end
 
 function process_assignment(node::SyntaxNode)
@@ -149,13 +149,18 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    # struct_name = get_struct_name(node)
-    foreach(Checks.StructMembersCasing.check, get_struct_members(node))
+    Checks.TypeNamesCasing.check(node)
+    for field in get_struct_members(node)
+        Checks.StructMembersCasing.check(field)
+    end
 end
 
 function process_type_declaration(node)
     Checks.AbstractTypeNames.check(node)
 end
 
+function process_unions(node::SyntaxNode)
+    Checks.TooManyTypesInUnions.check(node)
+end
 
 end
