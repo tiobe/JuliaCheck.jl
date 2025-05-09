@@ -1,6 +1,7 @@
 module Checks
 
 # include("../checks/check_avoid_globals.jl")
+include("../checks/check_document_constants.jl")
 include("../checks/check_function_arguments_in_lower_snake_case.jl")
 include("../checks/check_function_identifiers_in_lower_snake_case.jl")
 include("../checks/check_infinite_while_loop.jl")
