@@ -4,11 +4,11 @@ import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
     head, kind, untokenize, JuliaSyntax as JS
 
 export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, is_abstract,
-    is_assignment, is_function, is_infix_operator, is_literal, is_lower_snake,
-    is_module, is_operator, is_struct, is_toplevel, is_union_decl,
-    is_upper_camel_case, expr_depth, expr_size, find_first_of_kind,
-    get_assignee, get_func_arguments, get_func_body, get_func_name,
-    get_struct_members, get_struct_name, report_violation
+    is_assignment, is_constant, is_function, is_infix_operator, is_loop,
+    is_literal, is_lower_snake, is_module, is_operator, is_struct, is_toplevel,
+    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
+    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
+    get_func_name, get_struct_members, get_struct_name, report_violation
 
 
 ## Global definitions
@@ -50,6 +50,8 @@ is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
 is_function(  node::SyntaxNode) = kind(node) == K"function"
 is_struct(    node::SyntaxNode) = kind(node) == K"struct"
 is_abstract(  node::SyntaxNode) = kind(node) == K"abstract"
+is_loop(      node::SyntaxNode) = kind(node) in KSet"while for"
+is_constant(  node::SyntaxNode) = kind(node) == K"const"
 
 function is_union_decl(node::SyntaxNode)
     if kind(node) == K"curly" && haschildren(node)
