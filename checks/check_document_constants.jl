@@ -1,8 +1,8 @@
 module DocumentConstants
 
-using JuliaSyntax: SyntaxNode, @K_str, children, haschildren, kind
+using JuliaSyntax: SyntaxNode, @K_str, children, kind
 
-using ...Properties: report_violation
+using ...Properties: haschildren, report_violation
 
 export check
 

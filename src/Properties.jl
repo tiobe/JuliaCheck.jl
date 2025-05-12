@@ -1,12 +1,12 @@
 module Properties
 
-import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
+import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children,
     head, kind, untokenize, JuliaSyntax as JS
 
-export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, is_abstract,
-    is_assignment, is_constant, is_function, is_infix_operator, is_loop,
-    is_literal, is_lower_snake, is_module, is_operator, is_struct, is_toplevel,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
+export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, haschildren,
+    is_abstract, is_assignment, is_constant, is_function, is_infix_operator,
+    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_struct,
+    is_toplevel, is_union_decl, is_upper_camel_case, expr_depth, expr_size,
     find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
     get_func_name, get_struct_members, get_struct_name, report_violation
 
@@ -33,6 +33,8 @@ function report_violation(node::SyntaxNode;
     printstyled(" $severity\n")
 end
 
+
+haschildren(node::JS.TreeNode) = JS.haschildren(node) && length(children(node)) > 0
 
 function is_lower_snake(s::AbstractString)
     return isnothing(match(r"[[:upper:]]", s))

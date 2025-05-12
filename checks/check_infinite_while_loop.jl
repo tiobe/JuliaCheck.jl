@@ -1,7 +1,7 @@
 module InfiniteWhileLoop
 
-import JuliaSyntax: SyntaxNode, @K_str, kind, children, haschildren
-using ...Properties: report_violation
+import JuliaSyntax: SyntaxNode, @K_str, kind, children
+using ...Properties: haschildren, report_violation
 
 function check(wyle::SyntaxNode)
     @assert kind(wyle) == K"while" "Expected a [while], got $(kind(wyle))"
