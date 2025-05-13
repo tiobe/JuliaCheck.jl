@@ -1,8 +1,7 @@
 module Process
 
 import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
-    children, haschildren, is_whitespace, kind, span, untokenize,
-    JuliaSyntax as JS
+    children, is_whitespace, kind, span, untokenize, JuliaSyntax as JS
 
 # include("SymbolTable.jl")
 # import .SymbolTable
@@ -65,6 +64,9 @@ function process(node::SyntaxNode)
         elseif is_operator(node)
             process_operator(node)
 
+        elseif is_loop(node)
+            process_loop(node)
+
         elseif is_function(node)
             process_function(node)
 
@@ -73,6 +75,9 @@ function process(node::SyntaxNode)
 
         elseif is_abstract(node)
             process_type_declaration(node)
+
+        elseif is_constant(node)
+            Checks.DocumentConstants.check(node)
 
         elseif is_union_decl(node)
             process_unions(node)
@@ -131,7 +136,12 @@ function process_function(node::SyntaxNode)
     for arg in named_arguments
         Checks.FunctionArgumentsCasing.check(fname, arg)
     end
-    Checks.LongFormFunctionsHaveReturnStatement.check(get_func_body(node))
+
+    body = get_func_body(node)
+    if ! isnothing(body)
+        Checks.LongFormFunctionsHaveReturnStatement.check(body)
+        Checks.ShortHandFunctionTooComplicated.check(body)
+    end
 end
 
 function process_assignment(node::SyntaxNode)
@@ -164,6 +174,10 @@ function process_unions(node::SyntaxNode)
     Checks.TooManyTypesInUnions.check(node)
 end
 
+function process_loop(node::SyntaxNode)
+    if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
+end
+
 function process_trivia(node::GreenNode)
     if haschildren(node)
         if kind(node) == K"toplevel" reset_counters() end
@@ -175,5 +189,6 @@ function process_trivia(node::GreenNode)
         increase_counters(node)
     end
 end
+
 
 end

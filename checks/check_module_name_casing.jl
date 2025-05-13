@@ -1,7 +1,7 @@
 module ModuleNameCasing
 
-import JuliaSyntax: SyntaxNode, @K_str, children, haschildren, kind
-using ...Properties: is_upper_camel_case, report_violation
+import JuliaSyntax: SyntaxNode, @K_str, children, kind
+using ...Properties: haschildren, is_upper_camel_case, report_violation
 
 function check(modjule::SyntaxNode)
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(node))]."

@@ -1,7 +1,7 @@
 module SingleModuleFile
 
-import JuliaSyntax: SyntaxNode, @K_str, children, haschildren, filename, kind
-using ...Properties: is_module, report_violation
+import JuliaSyntax: SyntaxNode, @K_str, children, filename, kind
+using ...Properties: haschildren, is_module, report_violation
 
 function check(modjule::SyntaxNode)
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(node))]."

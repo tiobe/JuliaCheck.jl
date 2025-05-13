@@ -17,9 +17,16 @@ err_code=0
 for test_file in tests/*.jl; do
     val_file=${test_file%.jl}.val
     [ -r "$val_file" ] || continue
-    if diff $val_file <( julia $JuliaCheck $test_file ); then
+    outfile=$( mktemp )
+    julia $JuliaCheck $test_file > $outfile
+    # This used to be done with `diff -q $val_file <( julia ... )`, but it caused
+    # an error with one of the input files. See here:
+    # https://github.com/julia-vscode/SymbolServer.jl/pull/120#issuecomment-2871798605
+    if diff -q $val_file $outfile > /dev/null 2>&1
+    then
         echo "File '$test_file' checked."
     else
+        echo " -- Test failed for file '$test_file'."
         ((err_code++))
     fi
 done

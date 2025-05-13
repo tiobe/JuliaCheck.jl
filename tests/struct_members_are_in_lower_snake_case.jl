@@ -1,4 +1,4 @@
-struct point{T}
+struct Point{T}
     x::T
     y::T
 end
