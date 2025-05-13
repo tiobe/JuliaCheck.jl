@@ -1,15 +1,23 @@
 module Properties
 
-import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children, haschildren,
-    head, kind, untokenize, JuliaSyntax as JS
+import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
+    children, haschildren, head, kind, span, untokenize, JuliaSyntax as JS
 
 export opens_scope, closes_module, closes_scope, find_child_of_kind,
-    is_abstract, is_assignment, is_function, is_infix_operator, is_literal,
-    is_lower_snake, is_module, is_operator, is_struct, is_toplevel, is_union_decl,
-    is_upper_camel_case, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_struct_members, get_struct_name,
-    report_violation
+    increase_counters, is_abstract, is_assignment, is_function,
+    is_infix_operator, is_literal, is_lower_snake, is_module, is_operator,
+    is_struct, is_toplevel, is_union_decl, is_upper_camel_case,
+    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
+    get_func_name, get_struct_members, get_struct_name, lines_count,
+    report_violation, reset_counters, SF, source_index
 
+
+## Globals
+global SOURCE_INDEX::Int
+global SOURCE_LINE::Int
+global SF::SourceFile
+
+## Functions
 
 function report_violation(node::SyntaxNode;
                           severity::Int, user_msg::String,
@@ -19,6 +27,19 @@ function report_violation(node::SyntaxNode;
                 underline=true)
     JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
+    _report_common(severity, rule_id, summary)
+end
+function report_violation(; index::Int, len::Int, line::Int, col::Int,
+                            severity::Int, user_msg::String,
+                            summary::String, rule_id::String)
+    printstyled("\n$(JS.filename(SF))($line, $col):\n";
+                underline=true)
+    JS.highlight(stdout, SF, index:len;
+                 note=user_msg, notecolor=:yellow,
+                 context_lines_after=0, context_lines_before=0)
+    _report_common(severity, rule_id, summary)
+end
+function _report_common(severity::Int, rule_id::String, summary::String)
     printstyled("\n$summary"; color=:cyan)
     printstyled("\nRule:"; underline=true)
     printstyled(" $rule_id. ")
@@ -171,6 +192,21 @@ function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
         return nothing
     end
 end
+
+
+reset_counters() = global SOURCE_INDEX = 1; global SOURCE_LINE = 1
+function increase_counters(node::GreenNode)
+    if kind(node) == K"NewlineWs"
+        global SOURCE_LINE += line_breaks(node)     # with the current SOURCE_INDEX
+    end
+    global SOURCE_INDEX += span(node)
+end
+function sourcetext(node::GreenNode)
+    JS.sourcetext(SF)[SOURCE_INDEX : SOURCE_INDEX + span(node) - 1]
+end
+line_breaks(node::GreenNode) = count(r"\n", sourcetext(node))
+source_index() = SOURCE_INDEX
+lines_count() = SOURCE_LINE
 
 
 end

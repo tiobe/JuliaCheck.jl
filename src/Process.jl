@@ -16,15 +16,8 @@ import .Checks
 export check
 
 
-## Globals
-
-LOC::Int = 0
-
-
-## Functions
-
 function check(file_name::String)
-    global SF = SourceFile(; filename=file_name)
+    Properties.SF = SourceFile(; filename=file_name)
     ast = parse(SF)
     if isnothing(ast)
         @error "Couldn't parse file '$file_name'"
@@ -173,15 +166,13 @@ end
 
 function process_trivia(node::GreenNode)
     if haschildren(node)
-        if kind(node) == K"toplevel"
-            LOC = 1
-        end
+        if kind(node) == K"toplevel" reset_counters() end
         for x in children(node) process_trivia(x) end
     else
         if is_whitespace(node)
-            Checks.UseSpacesInsteadOfTabs.check(node, SF, LOC)
+            Checks.UseSpacesInsteadOfTabs.check(node)
         end
-        global LOC += span(node)
+        increase_counters(node)
     end
 end
 
