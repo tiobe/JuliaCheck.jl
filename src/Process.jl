@@ -1,7 +1,8 @@
 module Process
 
 import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
-    children, haschildren, is_whitespace, kind, untokenize, JuliaSyntax as JS
+    children, haschildren, is_whitespace, kind, span, untokenize,
+    JuliaSyntax as JS
 
 # include("SymbolTable.jl")
 # import .SymbolTable
@@ -15,18 +16,25 @@ import .Checks
 export check
 
 
+## Globals
+
+LOC::Int = 0
+
+
+## Functions
+
 function check(file_name::String)
-    sf = SourceFile(; filename=file_name)
-    ast = parse(sf)
+    global SF = SourceFile(; filename=file_name)
+    ast = parse(SF)
     if isnothing(ast)
         @error "Couldn't parse file '$file_name'"
     else
         @debug "Full AST for the file:" ast
-        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(sf)))
+        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
         #if trivia_checks_enabled
-        process_trivia(ast.raw)
+            process_trivia(ast.raw)
         #end
         #SymbolTable.exit_module()   # leave `Main`
     end
@@ -165,11 +173,15 @@ end
 
 function process_trivia(node::GreenNode)
     if haschildren(node)
+        if kind(node) == K"toplevel"
+            LOC = 1
+        end
         for x in children(node) process_trivia(x) end
     else
         if is_whitespace(node)
-            Checks.UseSpacesInsteadOfTabs.check(node)
+            Checks.UseSpacesInsteadOfTabs.check(node, SF, LOC)
         end
+        global LOC += span(node)
     end
 end
 
