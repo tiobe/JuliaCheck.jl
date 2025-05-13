@@ -1,6 +1,6 @@
 module Process
 
-import JuliaSyntax: SourceFile, SyntaxNode, ParseError, @K_str, children, haschildren,
+import JuliaSyntax: SourceFile, SyntaxNode, ParseError, @K_str, children,
     kind, untokenize, JuliaSyntax as JS
 
 # include("SymbolTable.jl")
@@ -44,7 +44,7 @@ end
 
 
 function process(node::SyntaxNode)
-    if JS.haschildren(node)
+    if haschildren(node)
         if is_toplevel(node)
             #SymbolTable.enter_module()  # There is always the `Main` module
             # TODO: a file can be `include`d into another, thus into another
