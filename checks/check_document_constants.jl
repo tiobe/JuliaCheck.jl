@@ -2,7 +2,7 @@ module DocumentConstants
 
 using JuliaSyntax: SyntaxNode, @K_str, children, kind
 
-using ...Properties: haschildren, report_violation
+using ...Properties: find_first_of_kind, haschildren, report_violation
 
 export check
 
@@ -11,12 +11,13 @@ function check(const_node::SyntaxNode)
     if haschildren(const_node) && kind(children(const_node)[1]) == K"="
         # This is a constant value declaration. Is it a real number?
         assignment = children(const_node)[1]
-        if haschildren(assignment) && kind(children(assignment)[2]) == K"Float"
+        if haschildren(assignment)
             # Yes, it is a real number. Then, it must have a docstring with it.
             if kind(const_node.parent) != K"doc"
+                const_id = find_first_of_kind(K"Identifier", const_node)
                 report_violation(const_node; severity=7,
                         rule_id="asml-xxxx-document-constants",
-                        user_msg="Const value $const_node has no docstring.",
+                        user_msg="Const value $(string(const_id)) has no docstring.",
                         summary="Constants must have a docstring.")
             end
         else
