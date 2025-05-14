@@ -1,19 +1,22 @@
 module Properties
 
-import JuliaSyntax: Kind, SyntaxNode, @K_str, @KSet_str, children,
-    head, kind, untokenize, JuliaSyntax as JS
+import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
+    children, head, kind, span, untokenize, JuliaSyntax as JS
 
 export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, haschildren,
-    is_abstract, is_assignment, is_constant, is_function, is_infix_operator,
-    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_struct,
-    is_toplevel, is_union_decl, is_upper_camel_case, expr_depth, expr_size,
-    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
-    get_func_name, get_struct_members, get_struct_name, report_violation
+    increase_counters, is_abstract, is_assignment, is_constant, is_function,
+    is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
+    is_operator, is_struct, is_toplevel, is_union_decl, is_upper_camel_case,
+    expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
+    get_func_body, get_func_name, get_struct_members, get_struct_name,
+    lines_count, report_violation, reset_counters, SF, source_index
 
 
 ## Global definitions
-
-MAX_LINE_LENGTH = 92
+global SF::SourceFile
+SOURCE_INDEX = 0
+SOURCE_LINE = 0
+const MAX_LINE_LENGTH = 92
 
 
 ## Functions
@@ -26,6 +29,19 @@ function report_violation(node::SyntaxNode;
                 underline=true)
     JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
+    _report_common(severity, rule_id, summary)
+end
+function report_violation(; index::Int, len::Int, line::Int, col::Int,
+                            severity::Int, user_msg::String,
+                            summary::String, rule_id::String)
+    printstyled("\n$(JS.filename(SF))($line, $col):\n";
+                underline=true)
+    JS.highlight(stdout, SF, index:len;
+                 note=user_msg, notecolor=:yellow,
+                 context_lines_after=0, context_lines_before=0)
+    _report_common(severity, rule_id, summary)
+end
+function _report_common(severity::Int, rule_id::String, summary::String)
     printstyled("\n$summary"; color=:cyan)
     printstyled("\nRule:"; underline=true)
     printstyled(" $rule_id. ")
@@ -34,7 +50,10 @@ function report_violation(node::SyntaxNode;
 end
 
 
-haschildren(node::JS.TreeNode) = JS.haschildren(node) && length(children(node)) > 0
+function haschildren(node)
+    subnodes = children(node)
+    return (! isnothing(subnodes)) && length(subnodes) > 0
+end
 
 function is_lower_snake(s::AbstractString)
     return isnothing(match(r"[[:upper:]]", s))
@@ -162,38 +181,27 @@ function find_first_of_kind(node_kind::Kind, node::SyntaxNode)
     return kind(child) == node_kind ? child : nothing
 end
 
-# TODO make unit tests for this (and thus start having tests)
-function find_child_of_kind(node_kind::Kind, node::SyntaxNode)
-    # First, check the node itself
-    if kind(node) == node_kind return node end
-    # If not, check its direct children
-    if ! haschildren(node)
-        return nothing
-    end
-    n = findfirst(x -> kind(x) == node_kind, children(node))
-    if !isnothing(n)
-        return children(node)[n]
-    else
-        # If that is also a no, pass the search to those children, one by one,
-        # until one returns a matching node. Otherwise, return `nothing`.
-        next = iterate(children(node))
-        while next !== nothing
-            (_, state) = next
-            child = children(node)[next]
-            grandchild = find_child_of_kind(node_kind, child)
-            if !isnothing(grandchild)
-                return grandchild
-            end
-            next = iterate(children(node), state)
-        end
-        return nothing
-    end
-end
-
 expr_depth(node::SyntaxNode) = (! haschildren(node)) ? 1 :
                                     (1 + maximum(expr_depth.(children(node))))
 expr_size(node::SyntaxNode) = (! haschildren(node)) ? 1 :
                                     (1 + sum(expr_size.(children(node))))
+
+
+reset_counters() = global SOURCE_INDEX = 1; global SOURCE_LINE = 1
+function increase_counters(node::GreenNode)
+    if kind(node) == K"NewlineWs"
+        global SOURCE_LINE += line_breaks(node)     # with the current SOURCE_INDEX
+    end
+    global SOURCE_INDEX += span(node)
+end
+function sourcetext(node::GreenNode)
+    start = SOURCE_INDEX
+    ending = SOURCE_INDEX + span(node) - 1
+    return JS.sourcetext(SF)[start : ending]
+end
+line_breaks(node::GreenNode) = count(r"\n", sourcetext(node))
+source_index() = SOURCE_INDEX
+lines_count() = SOURCE_LINE
 
 
 end
