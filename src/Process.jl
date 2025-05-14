@@ -185,6 +185,7 @@ function process_trivia(node::GreenNode)
     else
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
+            Checks.IndentationLevelsAreFourSpaces.check(node)
         end
         increase_counters(node)
     end
