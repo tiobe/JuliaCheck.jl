@@ -7,17 +7,15 @@ function check(node::GreenNode)
     if kind(node) != K"NewlineWs"
         return nothing
     end
-    len = span(node)
     textual = sourcetext(node)
     match = findfirst("\t", textual)
     if match !== nothing
-        pos = match.start
-        text_before = textual[1:pos-1]
-        line = lines_count() + count(r"\n", text_before)
-        col = pos - findlast("\n", text_before).start
-        report_violation(index=source_index()+pos-1, len=1, line=line, col=col,
-                         severity=7, rule_id="asml-xxxx-use-spaces-instead-of-tabs",
-                         user_msg="Use spaces instead of tabs for indentation.",
+        report_violation(index = source_index() + match.start - 1,
+                         line = lines_count() + 1,
+                         col = match.start - 1,
+                         len=1, severity=7,
+                         rule_id="asml-xxxx-use-spaces-instead-of-tabs",
+                         user_msg="There are tab characters here.",
                          summary="Use spaces instead of tabs for indentation.")
     end
 end

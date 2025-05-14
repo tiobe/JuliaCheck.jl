@@ -8,7 +8,10 @@ function check(node::GreenNode)
         return nothing
     end
     textual = sourcetext(node)
-    indentation = length(chomp(reverse(textual)))
+    indentext = chomp(reverse(textual))
+    # Tabs are flagged by another rule. To prevent double report, account for
+    # their presence here, counting 4-1 extra spaces for each tab.
+    indentation = length(indentext) + 3 * count(r"\t", indentext)
     if rem(indentation, 4) > 0
         report_violation(index=source_index()+1, len=indentation,
                          line=lines_count()+1, col=1,
