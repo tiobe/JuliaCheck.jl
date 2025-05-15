@@ -7,15 +7,16 @@ module SecondModuleNotOK
 Implement a maximum of one module per Julia file.
 Rule: asml-single-module-file. Severity: 5
 
-tests/single_module_file.jl(14, 8):
+tests/single_module_file.jl(15, 8):
 module ThirdInFile
 #      └─────────┘ ── Module 'ThirdInFile' should be inside 'single_module_file' or in its own file.
 Implement a maximum of one module per Julia file.
 Rule: asml-single-module-file. Severity: 5
 
 tests/single_module_file.jl(11, 1):
-┌────────────────────────────
-function OutOfModuleIsWrong()
+┌────────────────────────────────
+function out_of_module_is_wrong()
+    return nothing
 end
 #─┘ ── Move this code into module 'single_module_file'.
 All code must be inside a module.
@@ -45,13 +46,7 @@ module SecondModuleNotOK
 Package and module names should be written in UpperCamelCase.
 Rule: asml-module-name-casing. Severity: 5
 
-tests/single_module_file.jl(11, 10):
-function OutOfModuleIsWrong()
-#        └────────────────┘ ── Function name `OutOfModuleIsWrong` should be written in lower_snake_case.
-Function names are written in lower_snake_case.
-Rule: asml-function-identifiers-in-lower-snake-case. Severity: 8
-
-tests/single_module_file.jl(14, 8):
+tests/single_module_file.jl(15, 8):
 module ThirdInFile
 #      └─────────┘ ── Module name, ThirdInFile, should match its file name, single_module_file.
 A file in which a module is implemented should have the name of the module it contains.
