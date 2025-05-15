@@ -36,7 +36,7 @@ function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             summary::String, rule_id::String)
     printstyled("\n$(JS.filename(SF))($line, $col):\n";
                 underline=true)
-    JS.highlight(stdout, SF, index:len;
+    JS.highlight(stdout, SF, index:index+len-1;
                  note=user_msg, notecolor=:yellow,
                  context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
@@ -189,7 +189,7 @@ expr_size(node::SyntaxNode) = (! haschildren(node)) ? 1 :
 
 reset_counters() = global SOURCE_INDEX = 1; global SOURCE_LINE = 1
 function increase_counters(node::GreenNode)
-    if kind(node) == K"NewlineWs"
+    if kind(node) in KSet"NewlineWs String"
         global SOURCE_LINE += line_breaks(node)     # with the current SOURCE_INDEX
     end
     global SOURCE_INDEX += span(node)
