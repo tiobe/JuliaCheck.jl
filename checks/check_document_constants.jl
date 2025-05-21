@@ -9,10 +9,9 @@ export check
 function check(const_node::SyntaxNode)
     @assert kind(const_node) == K"const" "Expected a [const] const_node, got $(kind(const_node))."
     if haschildren(const_node) && kind(children(const_node)[1]) == K"="
-        # This is a constant value declaration. Is it a real number?
+        # This is a constant value declaration.
         assignment = children(const_node)[1]
         if haschildren(assignment)
-            # Yes, it is a real number. Then, it must have a docstring with it.
             if kind(const_node.parent) != K"doc"
                 const_id = find_first_of_kind(K"Identifier", const_node)
                 report_violation(const_node; severity=7,
