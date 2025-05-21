@@ -1,5 +1,17 @@
 module Checks
 
+# TODO: Do rule filtering here? Get the list/set of enabled/disabled rules and...
+# Then what?
+# 1. Get the disabled rules and overload their `check` function to return nothing
+#   * Need to map rule id to the right module/function
+#
+# 2. Don't change the functions but let them know which one is disabled, by
+#    passing the list/set and let each of them figure out.
+#
+# 3. Change the `check` functions to take a Bool flag. Here, export new overloads
+#    of those functions created by partial application, fixing those flags to
+#    either true or false to enable or disable them.
+
 # include("../checks/check_avoid_globals.jl")
 include("../checks/check_document_constants.jl")
 include("../checks/check_function_arguments_in_lower_snake_case.jl")
