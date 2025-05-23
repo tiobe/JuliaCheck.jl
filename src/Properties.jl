@@ -3,19 +3,25 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     children, head, kind, span, untokenize, JuliaSyntax as JS
 
-export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, haschildren,
-    increase_counters, is_abstract, is_assignment, is_constant, is_function,
-    is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
-    is_operator, is_struct, is_toplevel, is_union_decl, is_upper_camel_case,
-    expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_struct_members, get_struct_name,
-    lines_count, report_violation, reset_counters, SF, source_index
+export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
+    haschildren, increase_counters, is_abstract, is_assignment, is_constant,
+    is_function, is_infix_operator, is_loop, is_literal, is_lower_snake,
+    is_module, is_operator, is_struct, is_toplevel, is_type_op, is_union_decl,
+    is_upper_camel_case, expr_depth, expr_size, find_first_of_kind,
+    get_assignee, get_func_arguments, get_func_body, get_func_name,
+    get_struct_members, get_struct_name, lines_count, report_violation,
+    reset_counters, SF, source_column, source_index
+
+
+## Types
+const AnyTree = Union{SyntaxNode, GreenNode}
 
 
 ## Global definitions
 global SF::SourceFile
 SOURCE_INDEX = 0
 SOURCE_LINE = 0
+SOURCE_COL = 0
 const MAX_LINE_LENGTH = 92
 
 
@@ -50,7 +56,7 @@ function _report_common(severity::Int, rule_id::String, summary::String)
 end
 
 
-function haschildren(node)
+function haschildren(node::AnyTree)
     subnodes = children(node)
     return (! isnothing(subnodes)) && length(subnodes) > 0
 end
@@ -66,7 +72,7 @@ end
 
 is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
 is_module(    node::SyntaxNode) = kind(node) == K"module"
-is_assignment(node::SyntaxNode) = kind(node) == K"="
+is_assignment(node::AnyTree)    = kind(node) == K"="
 is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
 is_function(  node::SyntaxNode) = kind(node) == K"function"
 is_struct(    node::SyntaxNode) = kind(node) == K"struct"
@@ -82,17 +88,16 @@ function is_union_decl(node::SyntaxNode)
     return false
 end
 
-function is_operator(node::SyntaxNode)
+function is_operator(node::AnyTree)
     return  JS.is_prefix_op_call(node) ||
-            is_infix_operator(node)  ||
-            JS.is_postfix_op_call(node)
+    is_infix_operator(node)  ||
+    JS.is_postfix_op_call(node)
 end
-function is_infix_operator(node::SyntaxNode)
-    A = JS.is_infix_op_call(node)
-    B = JS.is_operator(node)
-    C = kind(node) in KSet"= == === != !== && || ->"
-    return A || B || C
+function is_infix_operator(node::AnyTree)
+    return JS.is_infix_op_call(node) || JS.is_operator(node)
 end
+
+is_type_op(node::AnyTree) = kind(node) in KSet":: <: >:"
 
 
 function inside(node::SyntaxNode, predicate::Function)::Bool
@@ -173,7 +178,7 @@ function get_struct_members(node::SyntaxNode)
 end
 
 
-function find_first_of_kind(node_kind::Kind, node::SyntaxNode)
+function find_first_of_kind(node_kind::Kind, node::AnyTree)
     child = node
     while kind(child) != node_kind && haschildren(child)
         child = children(child)[1]
@@ -187,12 +192,31 @@ expr_size(node::SyntaxNode) = (! haschildren(node)) ? 1 :
                                     (1 + sum(expr_size.(children(node))))
 
 
-reset_counters() = global SOURCE_INDEX = 1; global SOURCE_LINE = 1
+function reset_counters()
+    global SOURCE_COL = 1
+    global SOURCE_INDEX = 1
+    global SOURCE_LINE = 1
+end
 function increase_counters(node::GreenNode)
-    if kind(node) in KSet"NewlineWs String"
-        global SOURCE_LINE += line_breaks(node)     # with the current SOURCE_INDEX
+    global SOURCE_COL
+    global SOURCE_INDEX
+    global SOURCE_LINE
+    if kind(node) == K"NewlineWs"
+        SOURCE_LINE += SOURCE_COL = 1
+    elseif kind(node) == K"String"
+        txt = sourcetext(node)
+        n = count(r"\n", txt)
+        SOURCE_LINE += n
+        if n > 0
+            if n > 1
+                @debug "String with $n line breaks:" txt    # TODO Delete me!
+            end
+            SOURCE_COL = length(txt) - findlast('\n', txt)
+        end
+    else
+        SOURCE_COL += span(node)
     end
-    global SOURCE_INDEX += span(node)
+    SOURCE_INDEX += span(node)
 end
 function sourcetext(node::GreenNode)
     start = SOURCE_INDEX
@@ -202,6 +226,7 @@ end
 line_breaks(node::GreenNode) = count(r"\n", sourcetext(node))
 source_index() = SOURCE_INDEX
 lines_count() = SOURCE_LINE
+source_column() = SOURCE_COL
 
 
 end
