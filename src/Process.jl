@@ -22,11 +22,11 @@ function check(file_name::String)
         @error "Couldn't parse file '$file_name'"
     else
         @debug "Full AST for the file:" ast
-        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
+        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
         #if trivia_checks_enabled
-            process_trivia(ast.raw)
+            process_trivia(ast.raw, ast.raw)
         #end
         #SymbolTable.exit_module()   # leave `Main`
     end
@@ -86,6 +86,8 @@ function process(node::SyntaxNode)
 
         for x in children(node) process(x) end
     else
+        # FIXME: [end] nodes belong in GreenNode trees only! Thus, the following
+        # functions 'closes_module' and 'closes_scope' are useless!
         if closes_module(node)
             #SymbolTable.exit_module(node.parent)
         elseif closes_scope(node)
@@ -179,10 +181,12 @@ function process_loop(node::SyntaxNode)
     if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
 end
 
-function process_trivia(node::GreenNode)
+function process_trivia(node::GreenNode, parent::GreenNode)
     if haschildren(node)
-        if kind(node) == K"toplevel" reset_counters() end
-        for x in children(node) process_trivia(x) end
+        if     is_toplevel(node) reset_counters()
+        elseif is_module(node) Checks.ModuleEndComment.check(node, parent)
+        end
+        for x in children(node) process_trivia(x, node) end
     else
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
