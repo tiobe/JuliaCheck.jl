@@ -26,7 +26,7 @@ function check(file_name::String)
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
         #if trivia_checks_enabled
-            process_trivia(ast.raw)
+            process_with_trivia(ast.raw)
         #end
         #SymbolTable.exit_module()   # leave `Main`
     end
@@ -96,20 +96,22 @@ function process(node::SyntaxNode)
     end
 end
 
-function process_operator(node::SyntaxNode)
+function process_operator(node::AnyTree)
     if JS.is_prefix_op_call(node)
         # something with prefix operators
 
     elseif is_infix_operator(node)
         #Checks.SpaceAroundInfixOperators.check(node)
 
-        if is_assignment(node)
-            process_assignment(node)
-        end
+        if is_assignment(node) process_assignment(node) end
 
     elseif JS.is_postfix_op_call(node)
         # something with postfix operators
     end
+
+    # Two of these type operators (<: >:) can appear not only as infix, but also
+    # as prefix or postfix operators
+    if is_type_op(node) process_type_restriction(node) end
 end
 
 function process_function(node::SyntaxNode)
@@ -151,6 +153,7 @@ function process_assignment(node::SyntaxNode)
     # end
     # Checks.AvoidGlobals.check(node)
 end
+process_assignment(_::GreenNode) = nothing
 
 function process_literal(node::SyntaxNode)
     if     (kind(node) == K"Integer")
@@ -166,8 +169,13 @@ function process_struct(node::SyntaxNode)
     end
 end
 
-function process_type_declaration(node)
+function process_type_declaration(node::SyntaxNode)
     Checks.AbstractTypeNames.check(node)
+end
+
+function process_type_restriction(_::SyntaxNode) return nothing end
+function process_type_restriction(node::GreenNode)
+    Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
@@ -179,10 +187,14 @@ function process_loop(node::SyntaxNode)
     if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
 end
 
-function process_trivia(node::GreenNode)
+function process_with_trivia(node::GreenNode)
     if haschildren(node)
-        if kind(node) == K"toplevel" reset_counters() end
-        for x in children(node) process_trivia(x) end
+        if kind(node) == K"toplevel"
+            reset_counters()
+        elseif is_operator(node)
+            process_operator(node)
+        end
+        for x in children(node) process_with_trivia(x) end
     else
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
