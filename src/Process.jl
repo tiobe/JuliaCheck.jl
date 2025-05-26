@@ -60,6 +60,7 @@ function process(node::SyntaxNode)
             #SymbolTable.enter_module(node)
             Checks.SingleModuleFile.check(node)
             Checks.ModuleNameCasing.check(node)
+            Checks.ModuleEndComment.check(node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -83,7 +84,6 @@ function process(node::SyntaxNode)
             process_unions(node)
 
         end
-
         for x in children(node) process(x) end
     else
         # FIXME: [end] nodes belong in GreenNode trees only! Thus, the following
@@ -189,13 +189,12 @@ function process_loop(node::SyntaxNode)
     if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
 end
 
-function process_with_trivia(node::GreenNode)
+function process_with_trivia(node::GreenNode, parent::GreenNode)
     if haschildren(node)
         if     is_toplevel(node) reset_counters()
         elseif is_operator(node) process_operator(node)
-        elseif is_module(node)   Checks.ModuleEndComment.check(node, parent)
         end
-        for x in children(node) process_with_trivia(x) end
+        for x in children(node) process_with_trivia(x, node) end
     else
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)

@@ -1,13 +1,13 @@
 module IndentationLevelsAreFourSpaces
 
 import JuliaSyntax: GreenNode, SourceFile, @K_str, kind, children, span
-using ...Properties: lines_count, report_violation, source_index, sourcetext
+using ...Properties: lines_count, report_violation, source_index, source_text
 
 function check(node::GreenNode)
     if kind(node) != K"NewlineWs"
         return nothing
     end
-    textual = sourcetext(node)
+    textual = source_text(node)
     indentext = chomp(reverse(textual))
     # Tabs are flagged by another rule. To prevent double report, account for
     # their presence here, counting 4-1 extra spaces for each tab.

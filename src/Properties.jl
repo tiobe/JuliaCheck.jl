@@ -9,8 +9,9 @@ export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     is_module, is_operator, is_struct, is_toplevel, is_type_op, is_union_decl,
     is_upper_camel_case, expr_depth, expr_size, find_first_of_kind,
     get_assignee, get_func_arguments, get_func_body, get_func_name,
-    get_struct_members, get_struct_name, lines_count, report_violation,
-    reset_counters, SF, source_column, source_index
+    get_module_name, get_struct_members, get_struct_name, lines_count,
+    report_violation, reset_counters, SF, source_column, source_index,
+    source_text
 
 
 ## Types
@@ -70,15 +71,15 @@ function is_upper_camel_case(s::AbstractString)
 end
 
 
-is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
-is_module(    node::SyntaxNode) = kind(node) == K"module"
-is_assignment(node::AnyTree)    = kind(node) == K"="
-is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
-is_function(  node::SyntaxNode) = kind(node) == K"function"
-is_struct(    node::SyntaxNode) = kind(node) == K"struct"
-is_abstract(  node::SyntaxNode) = kind(node) == K"abstract"
-is_loop(      node::SyntaxNode) = kind(node) in KSet"while for"
-is_constant(  node::SyntaxNode) = kind(node) == K"const"
+is_toplevel(  node::AnyTree) = kind(node) == K"toplevel"
+is_module(    node::AnyTree) = kind(node) == K"module"
+is_assignment(node::AnyTree) = kind(node) == K"="
+is_literal(   node::AnyTree) = kind(node) in KSet"Float Integer"
+is_function(  node::AnyTree) = kind(node) == K"function"
+is_struct(    node::AnyTree) = kind(node) == K"struct"
+is_abstract(  node::AnyTree) = kind(node) == K"abstract"
+is_loop(      node::AnyTree) = kind(node) in KSet"while for"
+is_constant(  node::AnyTree) = kind(node) == K"const"
 
 function is_union_decl(node::SyntaxNode)
     if kind(node) == K"curly" && haschildren(node)
@@ -177,6 +178,16 @@ function get_struct_members(node::SyntaxNode)
     return children(children(node)[2])
 end
 
+function get_module_name(node::SyntaxNode)
+    @assert kind(node) == K"module" "Expected a [module] node, got [$(kind(node))]."
+    @assert haschildren(node) "An empty module with no name? That can't be valid!"
+    id_node = children(node)[1]
+    @assert kind(id_node) == K"Identifier" """
+        The first child of a [module] node is not its identifier!
+    """
+    return (id_node, string(id_node))
+end
+
 
 function find_first_of_kind(node_kind::Kind, node::AnyTree)
     child = node
@@ -204,7 +215,7 @@ function increase_counters(node::GreenNode)
     if kind(node) == K"NewlineWs"
         SOURCE_LINE += SOURCE_COL = 1
     elseif kind(node) == K"String"
-        txt = sourcetext(node)
+        txt = source_text(node)
         n = count(r"\n", txt)
         SOURCE_LINE += n
         if n > 0
@@ -218,12 +229,14 @@ function increase_counters(node::GreenNode)
     end
     SOURCE_INDEX += span(node)
 end
-function sourcetext(node::GreenNode)
-    start = SOURCE_INDEX
-    ending = SOURCE_INDEX + span(node) - 1
-    return JS.sourcetext(SF)[start : ending]
+source_text() = JS.sourcetext(SF)
+function source_text(node::GreenNode, offset::Integer=0)
+    start = SOURCE_INDEX + offset
+    length = span(node) - 1
+    return source_text(start, length)
 end
-line_breaks(node::GreenNode) = count(r"\n", sourcetext(node))
+source_text(from::Integer, howmuch::Integer) = JS.sourcetext(SF)[from : from+howmuch]
+line_breaks(node::GreenNode) = count(r"\n", source_text(node))
 source_index() = SOURCE_INDEX
 lines_count() = SOURCE_LINE
 source_column() = SOURCE_COL
