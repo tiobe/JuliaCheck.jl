@@ -1,10 +1,14 @@
 module bad_module_name
-end
+end  # bad_module_name
+
 module GoodModuleName
-end
+end  # GoodModuleName
+
 module aBadModuleName
-end
+end  # aBadModuleName
+
 module Bad_Module_Name_I_Guess
-end
+end  # Bad_Module_Name_I_Guess
+
 module A    # Is this OK?
-end
+end  # A
