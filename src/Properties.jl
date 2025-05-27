@@ -5,13 +5,13 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     haschildren, increase_counters, is_abstract, is_assignment, is_constant,
-    is_function, is_infix_operator, is_loop, is_literal, is_lower_snake,
-    is_module, is_operator, is_struct, is_toplevel, is_type_op, is_union_decl,
-    is_upper_camel_case, expr_depth, expr_size, find_first_of_kind,
-    get_assignee, get_func_arguments, get_func_body, get_func_name,
-    get_module_name, get_struct_members, get_struct_name, lines_count,
-    report_violation, reset_counters, SF, source_column, source_index,
-    source_text
+    is_function, is_import, is_include, is_infix_operator, is_loop, is_literal,
+    is_lower_snake, is_module, is_operator, is_struct, is_toplevel, is_type_op,
+    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
+    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
+    get_func_name, get_module_name, get_struct_members, get_struct_name,
+    lines_count, report_violation, reset_counters, SF, source_column,
+    source_index, source_text
 
 
 ## Types
@@ -99,6 +99,15 @@ function is_infix_operator(node::AnyTree)
 end
 
 is_type_op(node::AnyTree) = kind(node) in KSet":: <: >:"
+
+function is_include(node::AnyTree)
+    if kind(node) == K"call" && haschildren(node)
+        id = children(node)[1]
+        return kind(id) == K"Identifier" && string(id) == "include"
+    end
+    return false
+end
+is_import(node::AnyTree) = kind(node) in KSet"import using" || is_include(node)
 
 
 function inside(node::SyntaxNode, predicate::Function)::Bool
