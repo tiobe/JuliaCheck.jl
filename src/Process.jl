@@ -22,7 +22,7 @@ function check(file_name::String)
         @error "Couldn't parse file '$file_name'"
     else
         @debug "Full AST for the file:" ast
-        @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
+        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
         process(ast)
         #if trivia_checks_enabled
@@ -61,6 +61,7 @@ function process(node::SyntaxNode)
             Checks.SingleModuleFile.check(node)
             Checks.ModuleNameCasing.check(node)
             Checks.ModuleEndComment.check(node)
+            Checks.ModuleImportLocation.check(node)
 
         elseif is_operator(node)
             process_operator(node)
