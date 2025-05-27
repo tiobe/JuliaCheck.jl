@@ -12,6 +12,7 @@ include("../checks/check_long_form_functions_have_a_terminating_return_statement
 include("../checks/check_module_end_comment.jl")
 include("../checks/check_module_import_location.jl")
 include("../checks/check_module_name_casing.jl")
+include("../checks/check_module_single_import_line.jl")
 include("../checks/check_no_whitespace_around_type_operators.jl")
 include("../checks/check_prefix_of_abstract_type_names.jl")
 include("../checks/check_short_hand_function_too_complicated.jl")

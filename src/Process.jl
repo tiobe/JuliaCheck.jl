@@ -62,6 +62,7 @@ function process(node::SyntaxNode)
             Checks.ModuleNameCasing.check(node)
             Checks.ModuleEndComment.check(node)
             Checks.ModuleImportLocation.check(node)
+            Checks.ModuleSingleImportLine.check(node)
 
         elseif is_operator(node)
             process_operator(node)
