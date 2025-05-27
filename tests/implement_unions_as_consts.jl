@@ -16,7 +16,7 @@ module BadStyle
         return MyStruct(my_struct.member_x, value)
     end
 
-end
+end   # module BadStyle
 
 module GoodStyle
 
@@ -37,6 +37,6 @@ module GoodStyle
         return MyStruct(my_struct.member_x, value)
     end
 
-end
+end  # module GoodStyle
 
-end
+end  # module implement_unions_as_consts
