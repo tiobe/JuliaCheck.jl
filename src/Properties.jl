@@ -201,28 +201,45 @@ end
 
 Return the first identifier of an imported package.
 
-Given an [import] or [using] node, it returns the first [Identifier] node found.
-Use `string` function to extract the text contained therein.
+Given an `import`, `using` or `include` node, it returns the first `Identifier`
+node found. Actually, it returns a tuple with that node and its textual
+representation, which would be:
+  * In case of an `include("path/to/Package.jl")`, it would be `Package`.
+  * In case of an `import` or `using` with a `..SubModule`, the text returned by
+    this function would be `SubModule`.
 
 If there are multiple packages being imported/used, only the first one is returned.
 """
-function get_imported_pkg(node::SyntaxNode)
+function get_imported_pkg(node::SyntaxNode)::Tuple{SyntaxNode, AbstractString}
     @assert is_import(node) "Expected a package import declaration, got [$(kind(node))]."
     @assert haschildren(node) "How can an [import] or [using] have nothing behind?"
     local pkg::SyntaxNode
     if is_include(node)
         pkg = children(node)[2]
+        if !( kind(pkg) == K"string" && haschildren(pkg) )
+            @debug "Unexpected morphology of an 'include':" node
+        else
+            pkg = children(pkg)[1]
+            if kind(pkg) != K"String"
+                @debug "Unexpected morphology of an 'include':" node
+            end
+        end
+        str = basename(string(pkg))
+        if startswith(str, '"') && endswith(str, ".jl\"")
+            str = str[2:end-4]
+        else
+            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'!" str
+        end
     else
         pkg = children(node)[1]
         if kind(pkg) == K":"    # importing/using items from a package
             pkg = children(pkg)[1]
         end
         @assert kind(pkg) == K"importpath"
-        pkg_pos = findfirst(x -> kind(x) != K".", children(pkg))
-        @assert pkg_pos !== nothing
-        pkg = children(pkg)[pkg_pos]
+        pkg = last(children(pkg))
+        str = string(pkg)
     end
-    return pkg
+    return (pkg, str)
 end
 
 
