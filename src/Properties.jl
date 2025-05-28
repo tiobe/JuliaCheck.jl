@@ -222,7 +222,8 @@ function increase_counters(node::GreenNode)
     global SOURCE_INDEX
     global SOURCE_LINE
     if kind(node) == K"NewlineWs"
-        SOURCE_LINE += SOURCE_COL = 1
+        SOURCE_LINE += 1
+        SOURCE_COL = span(node) - (Sys.iswindows() ? 1 : 0)
     elseif kind(node) == K"String"
         txt = source_text(node)
         n = count(r"\n", txt)
