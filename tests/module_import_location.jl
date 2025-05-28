@@ -2,7 +2,7 @@ module module_import_location
 
 module MyBadStylePackage
 
-    import Sys
+    import Base
 
     function foo()::Nothing
         return nothing
@@ -17,7 +17,7 @@ end # module MyBadStylePackage
 
 module MyGoodStylePackage
 
-    import Sys
+    import Base
     using Statistics
 
     include("SomeSubmodule.jl")
