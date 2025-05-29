@@ -7,11 +7,10 @@ export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     haschildren, increase_counters, is_abstract, is_assignment, is_constant,
     is_function, is_import, is_include, is_infix_operator, is_loop, is_literal,
     is_lower_snake, is_module, is_operator, is_struct, is_toplevel, is_type_op,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
-    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
-    get_func_name, get_module_name, get_struct_members, get_struct_name,
-    lines_count, report_violation, reset_counters, SF, source_column,
-    source_index, source_text
+    is_union_decl, is_upper_camel_case, expr_depth, expr_size, find_first_of_kind,
+    get_assignee, get_func_arguments, get_func_body, get_func_name, get_imported_pkg,
+    get_module_name, get_struct_members, get_struct_name, lines_count, report_violation,
+    reset_counters, SF, source_column, source_index, source_text
 
 
 ## Types
@@ -195,6 +194,52 @@ function get_module_name(node::SyntaxNode)
         The first child of a [module] node is not its identifier!
     """
     return (id_node, string(id_node))
+end
+
+"""
+    get_imported_pkg(node)
+
+Return the first identifier of an imported package.
+
+Given an `import`, `using` or `include` node, it returns the first `Identifier`
+node found. Actually, it returns a tuple with that node and its textual
+representation, which would be:
+  * In case of an `include("path/to/Package.jl")`, it would be `Package`.
+  * In case of an `import` or `using` with a `..SubModule`, the text returned by
+    this function would be `SubModule`.
+
+If there are multiple packages being imported/used, only the first one is returned.
+"""
+function get_imported_pkg(node::SyntaxNode)::Tuple{SyntaxNode, AbstractString}
+    @assert is_import(node) "Expected a package import declaration, got [$(kind(node))]."
+    @assert haschildren(node) "How can an [import] or [using] have nothing behind?"
+    local pkg::SyntaxNode
+    if is_include(node)
+        pkg = children(node)[2]
+        if !( kind(pkg) == K"string" && haschildren(pkg) )
+            @debug "Unexpected morphology of an 'include':" node
+        else
+            pkg = children(pkg)[1]
+            if kind(pkg) != K"String"
+                @debug "Unexpected morphology of an 'include':" node
+            end
+        end
+        str = basename(string(pkg))
+        if startswith(str, '"') && endswith(str, ".jl\"")
+            str = str[2:end-4]
+        else
+            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'!" str
+        end
+    else
+        pkg = children(node)[1]
+        if kind(pkg) == K":"    # importing/using items from a package
+            pkg = children(pkg)[1]
+        end
+        @assert kind(pkg) == K"importpath"
+        pkg = last(children(pkg))
+        str = string(pkg)
+    end
+    return (pkg, str)
 end
 
 
