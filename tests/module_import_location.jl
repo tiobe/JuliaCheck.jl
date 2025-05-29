@@ -3,12 +3,13 @@ module module_import_location
 module MyBadStylePackage
 
     import Base
+    import Statistics
 
     function foo()::Nothing
         return nothing
     end
 
-    using Statistics # Bad: other code appears before the import list
+    using Sys # Bad: other code appears before the import list
 
     include("SomeSubmodule.jl")
     import ..SomeSubmodule
@@ -19,6 +20,7 @@ module MyGoodStylePackage
 
     import Base
     using Statistics
+    import Sys
 
     include("SomeSubmodule.jl")
     import ..SomeSubmodule
