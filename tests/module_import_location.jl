@@ -2,7 +2,6 @@ module module_import_location
 
 module MyBadStylePackage
 
-    import Base
     import Statistics
 
     function foo()::Nothing
@@ -18,7 +17,6 @@ end # module MyBadStylePackage
 
 module MyGoodStylePackage
 
-    import Base
     using Statistics
     import Sys
 

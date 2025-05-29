@@ -13,9 +13,3 @@ tests/module_single_import_line.jl(6, 5):
 Lists of imported/used packages should only specify a single package per line.
 Rule: asml-module-single-import-line. Severity: 9
 
-tests/module_single_import_line.jl(16, 11):
-    using JuliaSyntax: GreenNode, SyntaxNode, children
-#         └─────────┘ ── Keep import/using declarations in alphabetic order.
-The list of packages should be in alphabetic order.
-Rule: asml-module-single-import-line. Severity: 9
-
