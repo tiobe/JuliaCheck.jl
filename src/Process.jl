@@ -15,15 +15,19 @@ import .Checks
 export check
 
 
-function check(file_name::String)
+function check(file_name::String; show_ast = false, show_llt = false)
     Properties.SF = SourceFile(; filename=file_name)
     ast = parse(SF)
     if isnothing(ast)
         @error "Couldn't parse file '$file_name'"
     else
-        @debug "Full AST for the file:" ast
-        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
-        # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
+        if show_ast
+            @info "Full AST for the file:" ast
+        end
+        if show_llt
+            @info "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
+        end
+
         process(ast)
         #if trivia_checks_enabled
             process_with_trivia(ast.raw, ast.raw)
