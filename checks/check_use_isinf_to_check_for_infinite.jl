@@ -2,13 +2,13 @@ module UseIsinfToCheckForInfinite
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
-using ...Properties: NullableString, find_first_of_kind, get_assignee,
-                haschildren, report_violation
+using ...Properties: NullableString, find_first_of_kind, haschildren,
+                report_violation
 
 """
     check(node::SyntaxNode)
 
-Check if a check for infinity is done by direct comparison.
+Report if a check for infinity is done by direct comparison.
 """
 function check(node::SyntaxNode)::Nothing
     inf_type = extract_inf_type(node)
