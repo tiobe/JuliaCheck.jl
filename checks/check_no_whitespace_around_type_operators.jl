@@ -9,7 +9,7 @@ function check(node::GreenNode)
     expr = children(node)
     op_node = findfirst(same_kind, expr)
     if isnothing(op_node)
-        # @assert op_node !== nothing "Operator token not found inside operator expression subtree."
+        @debug "Operator token not found inside operator expression subtree." node
         # Should be an assert, IMHO, but there is a bug(?); see here:
         # https://github.com/JuliaLang/JuliaSyntax.jl/issues/555
         # Not possible to solve at the moment, because we don't have a way to
@@ -19,21 +19,23 @@ function check(node::GreenNode)
         return nothing
     end
     if kind(node) == K"::"
-        @assert op_node != 1 && op_node != length(expr) """
-            Did not expect to find '::' on either end of the expression where it is involved.
-        """
-        before = expr[op_node - 1]
-        after  = expr[op_node + 1]
+        before = op_node == 1 ? K"(" : expr[op_node - 1]
+        after  = op_node == length(expr) ? K")" : expr[op_node + 1]
+        if kind(after) == K"curly"
+            after = children(after)[1]
+        end
+
     elseif kind(node) == K"<:"
         before = op_node == 1 ? K"{" : expr[op_node - 1]
         after  = expr[op_node + 1]
+
     elseif kind(node) == K">:"
         before = expr[op_node - 1]
         after = op_node == length(expr) ? K"}" : expr[op_node + 1]
     end
+
     if any(is_whitespace, [before, after])
         offset::Int = sum(span.(expr[1:op_node])) - 2   # accounts for length of operator itself
-        # report_violation(node; severity=7,
         report_violation(index = source_index() + offset, len=2,
                          line = lines_count(), col = source_column() + offset,
                          severity=7,
