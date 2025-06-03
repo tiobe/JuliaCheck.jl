@@ -162,6 +162,7 @@ end
 
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
+    Checks.DoNotSetVariablesToInf.check(node)
     Checks.DoNotSetVariablesToNan.check(node)
     # if !SymbolTable.is_declared(lhs)
     #     SymbolTable.declare(lhs)
