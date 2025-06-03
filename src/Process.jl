@@ -1,7 +1,8 @@
 module Process
 
 import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
-    children, is_whitespace, kind, span, untokenize, JuliaSyntax as JS
+    children, is_whitespace, kind, numchildren, span, untokenize,
+    JuliaSyntax as JS
 
 # include("SymbolTable.jl")
 # import .SymbolTable
@@ -109,6 +110,14 @@ function process_operator(node::AnyTree)
         #Checks.SpaceAroundInfixOperators.check(node)
 
         if is_assignment(node) process_assignment(node) end
+        if is_eq_comparison(node)
+            if numchildren(node) != 3
+                @debug "A comparison with a number of children != 3" node
+            else
+                lhs, _, rhs = children(node)
+                Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
+            end
+        end
 
     elseif JS.is_postfix_op_call(node)
         # something with postfix operators
