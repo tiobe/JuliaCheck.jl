@@ -15,6 +15,9 @@ export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
 
 ## Types
 const AnyTree = Union{SyntaxNode, GreenNode}
+const NullableString = Union{String, Nothing}
+const NullableNode = Union{AnyTree, Nothing}
+const NodeAndString = Tuple{AnyTree, NullableString}
 
 
 ## Global definitions
@@ -165,9 +168,15 @@ function get_func_body(node::SyntaxNode)
 end
 
 
-function get_assignee(node::SyntaxNode)
+function get_assignee(node::SyntaxNode)::NodeAndString
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    children(node)[1]   # FIXME
+    assignee = children(node)[1]   # FIXME
+    if kind(assignee) == K"Identifier"
+        return (assignee, string(assignee))
+    else
+        # TODO: Handle more complex cases like array indexing, field access, etc.
+        return (assignee, nothing)
+    end
 end
 
 
