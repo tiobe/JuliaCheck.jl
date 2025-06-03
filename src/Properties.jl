@@ -1,15 +1,16 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    children, head, kind, span, untokenize, JuliaSyntax as JS
+    children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
 
 export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     haschildren, increase_counters, is_abstract, is_assignment, is_constant,
-    is_function, is_import, is_include, is_infix_operator, is_loop, is_literal,
-    is_lower_snake, is_module, is_operator, is_struct, is_toplevel, is_type_op,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size, find_first_of_kind,
-    get_assignee, get_func_arguments, get_func_body, get_func_name, get_imported_pkg,
-    get_module_name, get_struct_members, get_struct_name, lines_count, report_violation,
+    is_eq_comparison, is_function, is_import, is_include, is_infix_operator,
+    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_struct,
+    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
+    expr_size, find_first_of_kind, get_assignee, get_func_arguments,
+    get_func_body, get_func_name, get_imported_pkg, get_module_name,
+    get_struct_members, get_struct_name, lines_count, report_violation,
     reset_counters, SF, source_column, source_index, source_text
 
 
@@ -59,31 +60,31 @@ function _report_common(severity::Int, rule_id::String, summary::String)
 end
 
 
-function haschildren(node::AnyTree)
+function haschildren(node::AnyTree)::Bool
     subnodes = children(node)
     return (! isnothing(subnodes)) && length(subnodes) > 0
 end
 
-function is_lower_snake(s::AbstractString)
+function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
 end
-function is_upper_camel_case(s::AbstractString)
+function is_upper_camel_case(s::AbstractString)::Bool
     m = match(r"([[:upper:]][[:lower:][:digit:]]+)+", s)
     return !isnothing(m) && length(m.match) == length(s)
 end
 
 
-is_toplevel(  node::AnyTree) = kind(node) == K"toplevel"
-is_module(    node::AnyTree) = kind(node) == K"module"
-is_assignment(node::AnyTree) = kind(node) == K"="
-is_literal(   node::AnyTree) = kind(node) in KSet"Float Integer"
-is_function(  node::AnyTree) = kind(node) == K"function"
-is_struct(    node::AnyTree) = kind(node) == K"struct"
-is_abstract(  node::AnyTree) = kind(node) == K"abstract"
-is_loop(      node::AnyTree) = kind(node) in KSet"while for"
-is_constant(  node::AnyTree) = kind(node) == K"const"
+is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
+is_module(    node::AnyTree)::Bool = kind(node) == K"module"
+is_assignment(node::AnyTree)::Bool = kind(node) == K"="
+is_literal(   node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
+is_function(  node::AnyTree)::Bool = kind(node) == K"function"
+is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
+is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
+is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
+is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
 
-function is_union_decl(node::SyntaxNode)
+function is_union_decl(node::SyntaxNode)::Bool
     if kind(node) == K"curly" && haschildren(node)
         first_child = children(node)[1]
         return kind(first_child) == K"Identifier" && string(first_child) == "Union"
@@ -91,25 +92,33 @@ function is_union_decl(node::SyntaxNode)
     return false
 end
 
-function is_operator(node::AnyTree)
+function is_operator(node::AnyTree)::Bool
     return  JS.is_prefix_op_call(node) ||
     is_infix_operator(node)  ||
     JS.is_postfix_op_call(node)
 end
-function is_infix_operator(node::AnyTree)
+function is_infix_operator(node::AnyTree)::Bool
     return JS.is_infix_op_call(node) || JS.is_operator(node)
 end
 
-is_type_op(node::AnyTree) = kind(node) in KSet":: <: >:"
+is_type_op(node::AnyTree)::Bool = kind(node) in KSet":: <: >:"
 
-function is_include(node::AnyTree)
+function is_eq_comparison(node::AnyTree)::Bool
+    if kind(node) == K"call" && numchildren(node) == 3
+        infix_op = children(node)[2]
+        return string(infix_op) ∈ ["==", "===", "≡", "!=", "≠", "!==", "≢"]
+    end
+    return false
+end
+
+function is_include(node::AnyTree)::Bool
     if kind(node) == K"call" && haschildren(node)
         id = children(node)[1]
         return kind(id) == K"Identifier" && string(id) == "include"
     end
     return false
 end
-is_import(node::AnyTree) = kind(node) in KSet"import using" || is_include(node)
+is_import(node::AnyTree)::Bool = kind(node) in KSet"import using" || is_include(node)
 
 
 function inside(node::SyntaxNode, predicate::Function)::Bool
