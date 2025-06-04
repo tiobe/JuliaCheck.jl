@@ -64,12 +64,12 @@ function process(node::SyntaxNode)
 
         elseif is_module(node)
             #SymbolTable.enter_module(node)
-            Checks.SingleModuleFile.check(node)
-            Checks.ModuleNameCasing.check(node)
-            Checks.ModuleEndComment.check(node)
-            Checks.ModuleImportLocation.check(node)
-            Checks.ModuleIncludeLocation.check(node)
-            Checks.ModuleSingleImportLine.check(node)
+            Checks.check("SingleModuleFile", node)
+            Checks.check("ModuleNameCasing", node)
+            Checks.check("ModuleEndComment", node)
+            Checks.check("ModuleImportLocation", node)
+            Checks.check("ModuleIncludeLocation", node)
+            Checks.check("ModuleSingleImportLine", node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -120,7 +120,7 @@ function process_operator(node::AnyTree)
                 @debug "A comparison with a number of children != 3" node
             else
                 lhs, _, rhs = children(node)
-                Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
+                Checks.check.("UseIsinfToCheckForInfinite", [lhs, rhs])
             end
         end
 
@@ -167,8 +167,8 @@ end
 
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
-    Checks.DoNotSetVariablesToInf.check(node)
-    Checks.DoNotSetVariablesToNan.check(node)
+    Checks.check("DoNotSetVariablesToInf", node)
+    Checks.check("DoNotSetVariablesToNan", node)
     # if !SymbolTable.is_declared(lhs)
     #     SymbolTable.declare(lhs)
     # end
@@ -196,12 +196,12 @@ end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
 function process_type_restriction(node::GreenNode)
-    Checks.NoWhitespaceAroundTypeOperators.check(node)
+    Checks.check("NoWhitespaceAroundTypeOperators", node)
 end
 
 function process_unions(node::SyntaxNode)
     Checks.check("TooManyTypesInUnions", node)
-    Checks.ImplementUnionsAsConsts.check(node)
+    Checks.check("ImplementUnionsAsConsts", node)
 end
 
 function process_loop(node::SyntaxNode)

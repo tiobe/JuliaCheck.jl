@@ -1,27 +1,23 @@
 module Checks
 
-using JuliaSyntax: SyntaxNode
-using ..Properties: to_pascal_case
+using ..Properties: AnyTree, to_pascal_case
 
 export setup_filter, check
 
+# Global repo of rules
 RULES::Vector{String} = []
 
 function setup_filter(rules::Vector{String})
-    RULES = map(to_pascal_case, rules)
+    global RULES = map(to_pascal_case, rules)
 end
 
-# TODO: Do rule filtering here? Get the list/set of enabled/disabled rules and...
-# Then what?
-# 1. Get the disabled rules and overload their `check` function to return nothing
-#   * Need to map rule id to the right module/function
-#
-# 2. Don't change the functions but let them know which one is disabled, by
-#    passing the list/set and let each of them figure out.
-#
-# 3. Change the `check` functions to take a Bool flag. Here, export new overloads
-#    of those functions created by partial application, fixing those flags to
-#    either true or false to enable or disable them.
+function check(rule_id::String, node...)
+    if isempty(RULES) || rule_id ∈ RULES
+        func = eval(Meta.parse("$rule_id.check"))
+        return func(node...)
+    end
+end
+
 
 # include("../checks/check_avoid_globals.jl")
 include("../checks/check_document_constants.jl")
@@ -49,19 +45,5 @@ include("../checks/check_too_many_types_in_unions.jl")
 include("../checks/check_type_names_upper_camel_case.jl")
 include("../checks/check_use_spaces_instead_of_tabs.jl")
 include("../checks/check_use_isinf_to_check_for_infinite.jl")
-
-function check(rule_id::String, node::SyntaxNode)
-    if isempty(RULES) || rule_id ∈ RULES
-        func = eval(Meta.parse("$rule_id.check"))
-        return func(node)
-    end
-end
-
-function check(rule_id::String, node::SyntaxNode, second::SyntaxNode)
-    if isempty(RULES) || rule_id ∈ RULES
-        func = eval(Meta.parse("$rule_id.check"))
-        return func(node, second)
-    end
-end
 
 end

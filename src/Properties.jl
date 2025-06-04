@@ -315,7 +315,7 @@ lines_count() = SOURCE_LINE
 source_column() = SOURCE_COL
 
 
-function to_pascal_case(s::String)
+function to_pascal_case(s::String)::String
     result::String = ""
     got_dash::Bool = true
     for c in s
@@ -326,6 +326,7 @@ function to_pascal_case(s::String)
             got_dash = false
         end
     end
+    return result
 end
 
 end

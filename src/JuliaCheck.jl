@@ -56,7 +56,6 @@ end
 
 function main()
     arguments = parse_commandline()
-    @info arguments
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "JuliaCheck"
         # TODO: allow more granularity, to use level 'info' before 'debug',
