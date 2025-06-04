@@ -63,8 +63,8 @@ function process(node::SyntaxNode)
 
         elseif is_module(node)
             #SymbolTable.enter_module(node)
-            Checks.SingleModuleFile.check(node)
-            Checks.ModuleNameCasing.check(node)
+            Checks.check("SingleModuleFile", node)
+            Checks.check("ModuleNameCasing", node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -82,7 +82,7 @@ function process(node::SyntaxNode)
             process_type_declaration(node)
 
         elseif is_constant(node)
-            Checks.DocumentConstants.check(node)
+            Checks.check("DocumentConstants", node)
 
         elseif is_union_decl(node)
             process_unions(node)
@@ -106,7 +106,7 @@ function process_operator(node::SyntaxNode)
         # something with prefix operators
 
     elseif is_infix_operator(node)
-        #Checks.SpaceAroundInfixOperators.check(node)
+        #Checks.check("SpaceAroundInfixOperators", node)
 
         if is_assignment(node)
             process_assignment(node)
@@ -124,7 +124,7 @@ function process_function(node::SyntaxNode)
         # we might see a clue of what we are dealing with.
         return nothing
     end
-    Checks.FunctionIdentifiersCasing.check(fname)
+    Checks.check("FunctionIdentifiersCasing", fname)
     #SymbolTable.declare(fname)
     #SymbolTable.enter_scope()
     named_arguments = []
@@ -135,17 +135,17 @@ function process_function(node::SyntaxNode)
             named_arguments = children(arg)
         else
             # SymbolTable.declare(arg)
-            Checks.FunctionArgumentsCasing.check(fname, arg)
+            Checks.check("FunctionArgumentsCasing", fname, arg)
         end
     end
     for arg in named_arguments
-        Checks.FunctionArgumentsCasing.check(fname, arg)
+        Checks.check("FunctionArgumentsCasing", fname, arg)
     end
 
     body = get_func_body(node)
     if ! isnothing(body)
-        Checks.LongFormFunctionsHaveReturnStatement.check(body)
-        Checks.ShortHandFunctionTooComplicated.check(body)
+        Checks.check("LongFormFunctionsHaveReturnStatement", body)
+        Checks.check("ShortHandFunctionTooComplicated", body)
     end
 end
 
@@ -154,33 +154,33 @@ function process_assignment(node::SyntaxNode)
     # if !SymbolTable.is_declared(lhs)
     #     SymbolTable.declare(lhs)
     # end
-    # Checks.AvoidGlobals.check(node)
+    # Checks.check("AvoidGlobals", node)
 end
 
 function process_literal(node::SyntaxNode)
     if     (kind(node) == K"Integer")
     elseif (kind(node) == K"Float")
-        Checks.LeadingAndTrailingDigits.check(node)
+        Checks.check("LeadingAndTrailingDigits", node)
     end
 end
 
 function process_struct(node::SyntaxNode)
-    Checks.TypeNamesCasing.check(node)
+    Checks.check("TypeNamesCasing", node)
     for field in get_struct_members(node)
-        Checks.StructMembersCasing.check(field)
+        Checks.check("StructMembersCasing", field)
     end
 end
 
 function process_type_declaration(node)
-    Checks.AbstractTypeNames.check(node)
+    Checks.check("AbstractTypeNames", node)
 end
 
 function process_unions(node::SyntaxNode)
-    Checks.TooManyTypesInUnions.check(node)
+    Checks.check("TooManyTypesInUnions", node)
 end
 
 function process_loop(node::SyntaxNode)
-    if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
+    if kind(node) == K"while" Checks.check("InfiniteWhileLoop", node) end
 end
 
 function process_trivia(node::GreenNode)
@@ -189,8 +189,8 @@ function process_trivia(node::GreenNode)
         for x in children(node) process_trivia(x) end
     else
         if is_whitespace(node)
-            Checks.UseSpacesInsteadOfTabs.check(node)
-            Checks.IndentationLevelsAreFourSpaces.check(node)
+            Checks.check("UseSpacesInsteadOfTabs", node)
+            Checks.check("IndentationLevelsAreFourSpaces", node)
         end
         increase_counters(node)
     end

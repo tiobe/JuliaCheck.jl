@@ -6,6 +6,8 @@ using ArgParse: ArgParseSettings, @project_version, @add_arg_table!, parse_args
 include("Process.jl")
 import .Process
 
+import .Process: Checks.setup_filter
+
 function parse_commandline()
     s = ArgParseSettings(
         description = "Code checker for Julia programming language.",
@@ -28,11 +30,11 @@ function parse_commandline()
             arg_type = String
             nargs = '+'
             dest_name = "rules"
-        "--disable"
-            help = "List of rules to skip on the given files."
-            arg_type = String
-            nargs = '+'
-            dest_name = "rules"
+        # "--disable"
+        #     help = "List of rules to skip on the given files."
+        #     arg_type = String
+        #     nargs = '+'
+        #     dest_name = "rules"
         "--verbose", "-v"
             help = "Print debugging information."
             action = :store_true
@@ -47,7 +49,6 @@ function parse_commandline()
             nargs = '+'
             arg_type = String
             required = true
-
     end
 
     return parse_args(s)
@@ -61,6 +62,7 @@ function main()
         # TODO: allow more granularity, to use level 'info' before 'debug',
         # or make an intermediate level (or one lower than 'debug').
     end
+    setup_filter(arguments["rules"])
     for in_file in arguments["infiles"]
         if !(Base.Filesystem.isfile(in_file))
             @error ">> Error: cannot read '$in_file' as a file."

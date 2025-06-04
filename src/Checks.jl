@@ -1,5 +1,16 @@
 module Checks
 
+using JuliaSyntax: SyntaxNode
+using ..Properties: to_pascal_case
+
+export setup_filter, check
+
+RULES::Vector{String} = []
+
+function setup_filter(rules::Vector{String})
+    RULES = map(to_pascal_case, rules)
+end
+
 # TODO: Do rule filtering here? Get the list/set of enabled/disabled rules and...
 # Then what?
 # 1. Get the disabled rules and overload their `check` function to return nothing
@@ -29,5 +40,19 @@ include("../checks/check_struct_members_are_in_lower_snake_case.jl")
 include("../checks/check_too_many_types_in_unions.jl")
 include("../checks/check_type_names_upper_camel_case.jl")
 include("../checks/check_use_spaces_instead_of_tabs.jl")
+
+function check(rule_id::String, node::SyntaxNode)
+    if isempty(RULES) || rule_id ∈ RULES
+        func = eval(Meta.parse("$rule_id.check"))
+        return func(node)
+    end
+end
+
+function check(rule_id::String, node::SyntaxNode, second::SyntaxNode)
+    if isempty(RULES) || rule_id ∈ RULES
+        func = eval(Meta.parse("$rule_id.check"))
+        return func(node, second)
+    end
+end
 
 end

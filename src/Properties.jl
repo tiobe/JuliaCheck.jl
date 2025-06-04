@@ -9,7 +9,8 @@ export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, haschildren,
     is_operator, is_struct, is_toplevel, is_union_decl, is_upper_camel_case,
     expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
     get_func_body, get_func_name, get_struct_members, get_struct_name,
-    lines_count, report_violation, reset_counters, SF, source_index
+    lines_count, report_violation, reset_counters, SF, source_index,
+    to_pascal_case
 
 
 ## Global definitions
@@ -203,5 +204,18 @@ line_breaks(node::GreenNode) = count(r"\n", sourcetext(node))
 source_index() = SOURCE_INDEX
 lines_count() = SOURCE_LINE
 
+
+function to_pascal_case(s::String)
+    result::String = ""
+    got_dash::Bool = true
+    for c in s
+        if c == '-'
+            got_dash = true
+        else
+            result *= got_dash ? uppercase(c) : c
+            got_dash = false
+        end
+    end
+end
 
 end
