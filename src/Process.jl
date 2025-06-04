@@ -110,12 +110,13 @@ function process_operator(node::AnyTree)
         #Checks.SpaceAroundInfixOperators.check(node)
 
         if is_assignment(node) process_assignment(node) end
-        if is_eq_comparison(node)
+        if is_eq_neq_comparison(node)
             if numchildren(node) != 3
                 @debug "A comparison with a number of children != 3" node
             else
                 lhs, _, rhs = children(node)
                 Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
+                Checks.UseIsnothingToCheckForNothingValues.check.([lhs, rhs])
             end
         end
 

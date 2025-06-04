@@ -5,7 +5,7 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     haschildren, increase_counters, is_abstract, is_assignment, is_constant,
-    is_eq_comparison, is_function, is_import, is_include, is_infix_operator,
+    is_eq_neq_comparison, is_function, is_import, is_include, is_infix_operator,
     is_loop, is_literal, is_lower_snake, is_module, is_operator, is_struct,
     is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
     expr_size, find_first_of_kind, get_assignee, get_func_arguments,
@@ -103,7 +103,7 @@ end
 
 is_type_op(node::AnyTree)::Bool = kind(node) in KSet":: <: >:"
 
-function is_eq_comparison(node::AnyTree)::Bool
+function is_eq_neq_comparison(node::AnyTree)::Bool
     if kind(node) == K"call" && numchildren(node) == 3
         infix_op = children(node)[2]
         return string(infix_op) ∈ ["==", "===", "≡", "!=", "≠", "!==", "≢"]

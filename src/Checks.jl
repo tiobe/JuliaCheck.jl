@@ -26,5 +26,6 @@ include("../checks/check_too_many_types_in_unions.jl")
 include("../checks/check_type_names_upper_camel_case.jl")
 include("../checks/check_use_spaces_instead_of_tabs.jl")
 include("../checks/check_use_isinf_to_check_for_infinite.jl")
+include("../checks/check_use_isnothing_to_check_for_nothing_values.jl")
 
 end
