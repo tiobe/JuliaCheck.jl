@@ -1,22 +1,31 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    children, head, kind, span, untokenize, JuliaSyntax as JS
+    children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
 
-export MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope, haschildren,
-    increase_counters, is_abstract, is_assignment, is_constant, is_function,
-    is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
-    is_operator, is_struct, is_toplevel, is_union_decl, is_upper_camel_case,
-    expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_struct_members, get_struct_name,
-    lines_count, report_violation, reset_counters, SF, source_index,
-    to_pascal_case
+export AnyTree, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
+    haschildren, increase_counters, is_abstract, is_assignment, is_constant,
+    is_eq_comparison, is_function, is_import, is_include, is_infix_operator,
+    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_struct,
+    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
+    expr_size, find_first_of_kind, get_assignee, get_func_arguments,
+    get_func_body, get_func_name, get_imported_pkg, get_module_name,
+    get_struct_members, get_struct_name, lines_count, report_violation,
+    reset_counters, SF, source_column, source_index, source_text, to_pascal_case
+
+
+## Types
+const AnyTree = Union{SyntaxNode, GreenNode}
+const NullableString = Union{String, Nothing}
+const NullableNode = Union{AnyTree, Nothing}
+const NodeAndString = Tuple{AnyTree, NullableString}
 
 
 ## Global definitions
 global SF::SourceFile
 SOURCE_INDEX = 0
 SOURCE_LINE = 0
+SOURCE_COL = 0
 const MAX_LINE_LENGTH = 92
 
 
@@ -51,31 +60,31 @@ function _report_common(severity::Int, rule_id::String, summary::String)
 end
 
 
-function haschildren(node)
+function haschildren(node::AnyTree)::Bool
     subnodes = children(node)
     return (! isnothing(subnodes)) && length(subnodes) > 0
 end
 
-function is_lower_snake(s::AbstractString)
+function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
 end
-function is_upper_camel_case(s::AbstractString)
+function is_upper_camel_case(s::AbstractString)::Bool
     m = match(r"([[:upper:]][[:lower:][:digit:]]+)+", s)
     return !isnothing(m) && length(m.match) == length(s)
 end
 
 
-is_toplevel(  node::SyntaxNode) = kind(node) == K"toplevel"
-is_module(    node::SyntaxNode) = kind(node) == K"module"
-is_assignment(node::SyntaxNode) = kind(node) == K"="
-is_literal(   node::SyntaxNode) = kind(node) in KSet"Float Integer"
-is_function(  node::SyntaxNode) = kind(node) == K"function"
-is_struct(    node::SyntaxNode) = kind(node) == K"struct"
-is_abstract(  node::SyntaxNode) = kind(node) == K"abstract"
-is_loop(      node::SyntaxNode) = kind(node) in KSet"while for"
-is_constant(  node::SyntaxNode) = kind(node) == K"const"
+is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
+is_module(    node::AnyTree)::Bool = kind(node) == K"module"
+is_assignment(node::AnyTree)::Bool = kind(node) == K"="
+is_literal(   node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
+is_function(  node::AnyTree)::Bool = kind(node) == K"function"
+is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
+is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
+is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
+is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
 
-function is_union_decl(node::SyntaxNode)
+function is_union_decl(node::SyntaxNode)::Bool
     if kind(node) == K"curly" && haschildren(node)
         first_child = children(node)[1]
         return kind(first_child) == K"Identifier" && string(first_child) == "Union"
@@ -83,17 +92,33 @@ function is_union_decl(node::SyntaxNode)
     return false
 end
 
-function is_operator(node::SyntaxNode)
+function is_operator(node::AnyTree)::Bool
     return  JS.is_prefix_op_call(node) ||
-            is_infix_operator(node)  ||
-            JS.is_postfix_op_call(node)
+    is_infix_operator(node)  ||
+    JS.is_postfix_op_call(node)
 end
-function is_infix_operator(node::SyntaxNode)
-    A = JS.is_infix_op_call(node)
-    B = JS.is_operator(node)
-    C = kind(node) in KSet"= == === != !== && || ->"
-    return A || B || C
+function is_infix_operator(node::AnyTree)::Bool
+    return JS.is_infix_op_call(node) || JS.is_operator(node)
 end
+
+is_type_op(node::AnyTree)::Bool = kind(node) in KSet":: <: >:"
+
+function is_eq_comparison(node::AnyTree)::Bool
+    if kind(node) == K"call" && numchildren(node) == 3
+        infix_op = children(node)[2]
+        return string(infix_op) ∈ ["==", "===", "≡", "!=", "≠", "!==", "≢"]
+    end
+    return false
+end
+
+function is_include(node::AnyTree)::Bool
+    if kind(node) == K"call" && haschildren(node)
+        id = children(node)[1]
+        return kind(id) == K"Identifier" && string(id) == "include"
+    end
+    return false
+end
+is_import(node::AnyTree)::Bool = kind(node) in KSet"import using" || is_include(node)
 
 
 function inside(node::SyntaxNode, predicate::Function)::Bool
@@ -152,9 +177,15 @@ function get_func_body(node::SyntaxNode)
 end
 
 
-function get_assignee(node::SyntaxNode)
+function get_assignee(node::SyntaxNode)::NodeAndString
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    children(node)[1]   # FIXME
+    assignee = children(node)[1]   # FIXME
+    if kind(assignee) == K"Identifier"
+        return (assignee, string(assignee))
+    else
+        # TODO: Handle more complex cases like array indexing, field access, etc.
+        return (assignee, nothing)
+    end
 end
 
 
@@ -173,8 +204,64 @@ function get_struct_members(node::SyntaxNode)
     return children(children(node)[2])
 end
 
+function get_module_name(node::SyntaxNode)
+    @assert kind(node) == K"module" "Expected a [module] node, got [$(kind(node))]."
+    @assert haschildren(node) "An empty module with no name? That can't be valid!"
+    id_node = children(node)[1]
+    @assert kind(id_node) == K"Identifier" """
+        The first child of a [module] node is not its identifier!
+    """
+    return (id_node, string(id_node))
+end
 
-function find_first_of_kind(node_kind::Kind, node::SyntaxNode)
+"""
+    get_imported_pkg(node)
+
+Return the first identifier of an imported package.
+
+Given an `import`, `using` or `include` node, it returns the first `Identifier`
+node found. Actually, it returns a tuple with that node and its textual
+representation, which would be:
+  * In case of an `include("path/to/Package.jl")`, it would be `Package`.
+  * In case of an `import` or `using` with a `..SubModule`, the text returned by
+    this function would be `SubModule`.
+
+If there are multiple packages being imported/used, only the first one is returned.
+"""
+function get_imported_pkg(node::SyntaxNode)::Tuple{SyntaxNode, AbstractString}
+    @assert is_import(node) "Expected a package import declaration, got [$(kind(node))]."
+    @assert haschildren(node) "How can an [import] or [using] have nothing behind?"
+    local pkg::SyntaxNode
+    if is_include(node)
+        pkg = children(node)[2]
+        if !( kind(pkg) == K"string" && haschildren(pkg) )
+            @debug "Unexpected morphology of an 'include':" node
+        else
+            pkg = children(pkg)[1]
+            if kind(pkg) != K"String"
+                @debug "Unexpected morphology of an 'include':" node
+            end
+        end
+        str = basename(string(pkg))
+        if startswith(str, '"') && endswith(str, ".jl\"")
+            str = str[2:end-4]
+        else
+            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'!" str
+        end
+    else
+        pkg = children(node)[1]
+        if kind(pkg) == K":"    # importing/using items from a package
+            pkg = children(pkg)[1]
+        end
+        @assert kind(pkg) == K"importpath"
+        pkg = last(children(pkg))
+        str = string(pkg)
+    end
+    return (pkg, str)
+end
+
+
+function find_first_of_kind(node_kind::Kind, node::AnyTree)
     child = node
     while kind(child) != node_kind && haschildren(child)
         child = children(child)[1]
@@ -188,21 +275,44 @@ expr_size(node::SyntaxNode) = (! haschildren(node)) ? 1 :
                                     (1 + sum(expr_size.(children(node))))
 
 
-reset_counters() = global SOURCE_INDEX = 1; global SOURCE_LINE = 1
+function reset_counters()
+    global SOURCE_COL = 1
+    global SOURCE_INDEX = 1
+    global SOURCE_LINE = 1
+end
 function increase_counters(node::GreenNode)
-    if kind(node) in KSet"NewlineWs String"
-        global SOURCE_LINE += line_breaks(node)     # with the current SOURCE_INDEX
+    global SOURCE_COL
+    global SOURCE_INDEX
+    global SOURCE_LINE
+    if kind(node) == K"NewlineWs"
+        SOURCE_LINE += 1
+        SOURCE_COL = span(node) - (Sys.iswindows() ? 1 : 0)
+    elseif kind(node) == K"String"
+        txt = source_text(node)
+        n = count(r"\n", txt)
+        SOURCE_LINE += n
+        if n > 0
+            if n > 1
+                @debug "String with $n line breaks:" txt    # TODO Delete me!
+            end
+            SOURCE_COL = length(txt) - findlast('\n', txt)
+        end
+    else
+        SOURCE_COL += span(node)
     end
-    global SOURCE_INDEX += span(node)
+    SOURCE_INDEX += span(node)
 end
-function sourcetext(node::GreenNode)
-    start = SOURCE_INDEX
-    ending = SOURCE_INDEX + span(node) - 1
-    return JS.sourcetext(SF)[start : ending]
+source_text() = JS.sourcetext(SF)
+function source_text(node::GreenNode, offset::Integer=0)
+    start = SOURCE_INDEX + offset
+    length = span(node) - 1
+    return source_text(start, length)
 end
-line_breaks(node::GreenNode) = count(r"\n", sourcetext(node))
+source_text(from::Integer, howmuch::Integer) = JS.sourcetext(SF)[from : from+howmuch]
+line_breaks(node::GreenNode) = count(r"\n", source_text(node))
 source_index() = SOURCE_INDEX
 lines_count() = SOURCE_LINE
+source_column() = SOURCE_COL
 
 
 function to_pascal_case(s::String)

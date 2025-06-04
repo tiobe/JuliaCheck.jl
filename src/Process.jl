@@ -1,7 +1,8 @@
 module Process
 
 import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
-    children, is_whitespace, kind, span, untokenize, JuliaSyntax as JS
+    children, is_whitespace, kind, numchildren, span, untokenize,
+    JuliaSyntax as JS
 
 # include("SymbolTable.jl")
 # import .SymbolTable
@@ -31,7 +32,7 @@ function check(file_name::String; print_ast = false, print_llt = false)
         end
         process(ast)
         #if trivia_checks_enabled
-            process_trivia(ast.raw)
+            process_with_trivia(ast.raw, ast.raw)
         #end
         #SymbolTable.exit_module()   # leave `Main`
     end
@@ -63,8 +64,12 @@ function process(node::SyntaxNode)
 
         elseif is_module(node)
             #SymbolTable.enter_module(node)
-            Checks.check("SingleModuleFile", node)
-            Checks.check("ModuleNameCasing", node)
+            Checks.SingleModuleFile.check(node)
+            Checks.ModuleNameCasing.check(node)
+            Checks.ModuleEndComment.check(node)
+            Checks.ModuleImportLocation.check(node)
+            Checks.ModuleIncludeLocation.check(node)
+            Checks.ModuleSingleImportLine.check(node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -88,9 +93,10 @@ function process(node::SyntaxNode)
             process_unions(node)
 
         end
-
         for x in children(node) process(x) end
     else
+        # FIXME: [end] nodes belong in GreenNode trees only! Thus, the following
+        # functions 'closes_module' and 'closes_scope' are useless!
         if closes_module(node)
             #SymbolTable.exit_module(node.parent)
         elseif closes_scope(node)
@@ -101,20 +107,30 @@ function process(node::SyntaxNode)
     end
 end
 
-function process_operator(node::SyntaxNode)
+function process_operator(node::AnyTree)
     if JS.is_prefix_op_call(node)
         # something with prefix operators
 
     elseif is_infix_operator(node)
         #Checks.check("SpaceAroundInfixOperators", node)
 
-        if is_assignment(node)
-            process_assignment(node)
+        if is_assignment(node) process_assignment(node) end
+        if is_eq_comparison(node)
+            if numchildren(node) != 3
+                @debug "A comparison with a number of children != 3" node
+            else
+                lhs, _, rhs = children(node)
+                Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
+            end
         end
 
     elseif JS.is_postfix_op_call(node)
         # something with postfix operators
     end
+
+    # Two of these type operators (<: >:) can appear not only as infix, but also
+    # as prefix or postfix operators
+    if is_type_op(node) process_type_restriction(node) end
 end
 
 function process_function(node::SyntaxNode)
@@ -151,11 +167,14 @@ end
 
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
+    Checks.DoNotSetVariablesToInf.check(node)
+    Checks.DoNotSetVariablesToNan.check(node)
     # if !SymbolTable.is_declared(lhs)
     #     SymbolTable.declare(lhs)
     # end
     # Checks.check("AvoidGlobals", node)
 end
+process_assignment(_::GreenNode) = nothing
 
 function process_literal(node::SyntaxNode)
     if     (kind(node) == K"Integer")
@@ -171,22 +190,30 @@ function process_struct(node::SyntaxNode)
     end
 end
 
-function process_type_declaration(node)
+function process_type_declaration(node::SyntaxNode)
     Checks.check("AbstractTypeNames", node)
+end
+
+function process_type_restriction(_::SyntaxNode) return nothing end
+function process_type_restriction(node::GreenNode)
+    Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
     Checks.check("TooManyTypesInUnions", node)
+    Checks.ImplementUnionsAsConsts.check(node)
 end
 
 function process_loop(node::SyntaxNode)
     if kind(node) == K"while" Checks.check("InfiniteWhileLoop", node) end
 end
 
-function process_trivia(node::GreenNode)
+function process_with_trivia(node::GreenNode, parent::GreenNode)
     if haschildren(node)
-        if kind(node) == K"toplevel" reset_counters() end
-        for x in children(node) process_trivia(x) end
+        if     is_toplevel(node) reset_counters()
+        elseif is_operator(node) process_operator(node)
+        end
+        for x in children(node) process_with_trivia(x, node) end
     else
         if is_whitespace(node)
             Checks.check("UseSpacesInsteadOfTabs", node)

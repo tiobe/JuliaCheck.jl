@@ -1,13 +1,13 @@
 module UseSpacesInsteadOfTabs
 
 import JuliaSyntax: GreenNode, SourceFile, @K_str, kind, children, span
-using ...Properties: lines_count, report_violation, source_index, sourcetext
+using ...Properties: lines_count, report_violation, source_index, source_text
 
 function check(node::GreenNode)
     if kind(node) != K"NewlineWs"
         return nothing
     end
-    textual = sourcetext(node)
+    textual = source_text(node)
     match = findfirst("\t", textual)
     if match !== nothing
         report_violation(index = source_index() + match.start - 1,
