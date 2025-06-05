@@ -7,11 +7,8 @@ import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
 # include("SymbolTable.jl")
 # import .SymbolTable
 
-include("Properties.jl")
-using .Properties
-
-include("Checks.jl")
-import .Checks
+using ..Properties
+import ..Checks
 
 export check
 
@@ -64,12 +61,12 @@ function process(node::SyntaxNode)
 
         elseif is_module(node)
             #SymbolTable.enter_module(node)
-            Checks.check("SingleModuleFile", node)
-            Checks.check("ModuleNameCasing", node)
-            Checks.check("ModuleEndComment", node)
-            Checks.check("ModuleImportLocation", node)
-            Checks.check("ModuleIncludeLocation", node)
-            Checks.check("ModuleSingleImportLine", node)
+            Checks.check("single-module-file", node)
+            Checks.check("module-name-casing", node)
+            Checks.check("module-end-comment", node)
+            Checks.check("module-import-location", node)
+            Checks.check("module-include-location", node)
+            Checks.check("module-single-import-line", node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -87,7 +84,7 @@ function process(node::SyntaxNode)
             process_type_declaration(node)
 
         elseif is_constant(node)
-            Checks.check("DocumentConstants", node)
+            Checks.check("document-constants", node)
 
         elseif is_union_decl(node)
             process_unions(node)
@@ -120,10 +117,10 @@ function process_operator(node::AnyTree)
                 @debug "A comparison with a number of children != 3" node
             else
                 lhs, _, rhs = children(node)
-                Checks.check.("UseIsinfToCheckForInfinite", [lhs, rhs])
-                Checks.check.("UseIsnanToCheckForNan", [lhs, rhs])
-                Checks.check.("UseIsmissingToCheckForMissingValues", [lhs, rhs])
-                Checks.check.("UseIsnothingToCheckForNothingValues", [lhs, rhs])
+                Checks.check.("use-isinf-to-check-for-infinite", [lhs, rhs])
+                Checks.check.("use-isnan-to-check-for-nan", [lhs, rhs])
+                Checks.check.("use-ismissing-to-check-for-missing-values", [lhs, rhs])
+                Checks.check.("use-isnothing-to-check-for-nothing-values", [lhs, rhs])
             end
         end
 
@@ -143,7 +140,7 @@ function process_function(node::SyntaxNode)
         # we might see a clue of what we are dealing with.
         return nothing
     end
-    Checks.check("FunctionIdentifiersCasing", fname)
+    Checks.check("function-identifiers-in-lower-snake-case", fname)
     #SymbolTable.declare(fname)
     #SymbolTable.enter_scope()
     named_arguments = []
@@ -154,24 +151,24 @@ function process_function(node::SyntaxNode)
             named_arguments = children(arg)
         else
             # SymbolTable.declare(arg)
-            Checks.check("FunctionArgumentsCasing", fname, arg)
+            Checks.check("function-arguments-lower-snake-case", fname, arg)
         end
     end
     for arg in named_arguments
-        Checks.check("FunctionArgumentsCasing", fname, arg)
+        Checks.check("function-arguments-lower-snake-case", fname, arg)
     end
 
     body = get_func_body(node)
     if ! isnothing(body)
-        Checks.check("LongFormFunctionsHaveReturnStatement", body)
-        Checks.check("ShortHandFunctionTooComplicated", body)
+        Checks.check("long-form-functions-have-a-terminating-return-statement", body)
+        Checks.check("short-hand-function-too-complicated", body)
     end
 end
 
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
-    Checks.check("DoNotSetVariablesToInf", node)
-    Checks.check("DoNotSetVariablesToNan", node)
+    Checks.check("do-not-set-variables-to-inf", node)
+    Checks.check("do-not-set-variables-to-nan", node)
     # if !SymbolTable.is_declared(lhs)
     #     SymbolTable.declare(lhs)
     # end
@@ -182,33 +179,33 @@ process_assignment(_::GreenNode) = nothing
 function process_literal(node::SyntaxNode)
     if     (kind(node) == K"Integer")
     elseif (kind(node) == K"Float")
-        Checks.check("LeadingAndTrailingDigits", node)
+        Checks.check("leading-and-trailing-digits", node)
     end
 end
 
 function process_struct(node::SyntaxNode)
-    Checks.check("TypeNamesCasing", node)
+    Checks.check("type-names-upper-camel-case", node)
     for field in get_struct_members(node)
-        Checks.check("StructMembersCasing", field)
+        Checks.check("struct-members-are-in-lower-snake-case", field)
     end
 end
 
 function process_type_declaration(node::SyntaxNode)
-    Checks.check("AbstractTypeNames", node)
+    Checks.check("prefix-of-abstract-type-names", node)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
 function process_type_restriction(node::GreenNode)
-    Checks.check("NoWhitespaceAroundTypeOperators", node)
+    Checks.check("no-whitespace-around-type-operators", node)
 end
 
 function process_unions(node::SyntaxNode)
-    Checks.check("TooManyTypesInUnions", node)
-    Checks.check("ImplementUnionsAsConsts", node)
+    Checks.check("too-many-types-in-unions", node)
+    Checks.check("implement-unions-as-consts", node)
 end
 
 function process_loop(node::SyntaxNode)
-    if kind(node) == K"while" Checks.check("InfiniteWhileLoop", node) end
+    if kind(node) == K"while" Checks.check("infinite-while-loop", node) end
 end
 
 function process_with_trivia(node::GreenNode, parent::GreenNode)
@@ -219,8 +216,8 @@ function process_with_trivia(node::GreenNode, parent::GreenNode)
         for x in children(node) process_with_trivia(x, node) end
     else
         if is_whitespace(node)
-            Checks.check("UseSpacesInsteadOfTabs", node)
-            Checks.check("IndentationLevelsAreFourSpaces", node)
+            Checks.check("use-spaces-instead-of-tabs", node)
+            Checks.check("indentation-levels-are-four-spaces", node)
         end
         increase_counters(node)
     end

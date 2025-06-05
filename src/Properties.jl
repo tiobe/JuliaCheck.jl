@@ -33,7 +33,7 @@ const MAX_LINE_LENGTH = 92
 
 function report_violation(node::SyntaxNode;
                           severity::Int, user_msg::String,
-                          summary::String, rule_id::String)
+                          summary::String, rule_id::String)::Nothing
     line, column = JS.source_location(node)
     printstyled("\n$(JS.filename(node))($line, $(column)):\n";
                 underline=true)
@@ -43,7 +43,7 @@ function report_violation(node::SyntaxNode;
 end
 function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
-                            summary::String, rule_id::String)
+                            summary::String, rule_id::String)::Nothing
     printstyled("\n$(JS.filename(SF))($line, $col):\n";
                 underline=true)
     JS.highlight(stdout, SF, index:index+len-1;
@@ -51,7 +51,7 @@ function report_violation(; index::Int, len::Int, line::Int, col::Int,
                  context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
 end
-function _report_common(severity::Int, rule_id::String, summary::String)
+function _report_common(severity::Int, rule_id::String, summary::String)::Nothing
     printstyled("\n$summary"; color=:cyan)
     printstyled("\nRule:"; underline=true)
     printstyled(" $rule_id. ")

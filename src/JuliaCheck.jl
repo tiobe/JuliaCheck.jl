@@ -3,25 +3,19 @@ module JuliaCheck
 import JuliaSyntax as JS
 using ArgParse: ArgParseSettings, @project_version, @add_arg_table!, parse_args
 
+include("Properties.jl")
+import .Properties
+
+include("Checks.jl")
+import .Checks: setup_filter
+
 include("Process.jl")
 import .Process
-
-import .Process: Checks.setup_filter
 
 function parse_commandline()
     s = ArgParseSettings(
         description = "Code checker for Julia programming language.",
-        epilog = """
-            Options '--enable' and '--disable' are mutually exclusive. If none of them
-            is given, all available rules are used.
-            """,
         add_version = true, version = @project_version,
-        error_on_conflict = true
-        # FIXME: expected that this would cause options '--enable' and '--disable'
-        # to be mutually exclusive, because they have the same destination name,
-        # but that is not the case, because they both have the same type, and I
-        # don't see how to specify that kind of exclusion between options. Thus,
-        # it seems best to parse by hand.
     )
 
     @add_arg_table! s begin
@@ -30,11 +24,6 @@ function parse_commandline()
             arg_type = String
             nargs = '+'
             dest_name = "rules"
-        # "--disable"
-        #     help = "List of rules to skip on the given files."
-        #     arg_type = String
-        #     nargs = '+'
-        #     dest_name = "rules"
         "--verbose", "-v"
             help = "Print debugging information."
             action = :store_true
@@ -57,9 +46,7 @@ end
 function main()
     arguments = parse_commandline()
     if arguments["verbose"]
-        ENV["JULIA_DEBUG"] = "JuliaCheck"
-        # TODO: allow more granularity, to use level 'info' before 'debug',
-        # or make an intermediate level (or one lower than 'debug').
+        ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
     setup_filter(arguments["rules"])
     for in_file in arguments["infiles"]
