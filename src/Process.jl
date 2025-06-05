@@ -116,6 +116,8 @@ function process_operator(node::AnyTree)
             else
                 lhs, _, rhs = children(node)
                 Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
+                Checks.UseIsnanToCheckForNan.check.([lhs, rhs])
+                Checks.UseIsmissingToCheckForMissingValues.check.([lhs, rhs])
                 Checks.UseIsnothingToCheckForNothingValues.check.([lhs, rhs])
             end
         end
