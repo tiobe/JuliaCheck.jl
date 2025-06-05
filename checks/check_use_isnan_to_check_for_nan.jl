@@ -1,26 +1,26 @@
-module UseIsinfToCheckForInfinite
+module UseIsnanToCheckForNan
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
-using ...Properties: NullableString, find_first_of_kind, haschildren,
-                report_violation
+using ...Properties: NullableString, find_first_of_kind, get_assignee,
+                haschildren, report_violation
 
 """
     check(node::SyntaxNode)
 
-Report if a check for infinity is done by direct comparison.
+Report if a direct comparison is made with NaN (of any size).
 """
 function check(node::SyntaxNode)::Nothing
-    inf_type = extract_inf_type(node)
+    inf_type = extract_nan_type(node)
     if inf_type !== nothing
         report_violation(node;
-            severity=3, rule_id="asml-use-isinf-to-check-for-infinite",
+            severity=3, rule_id="asml-use-isnan-to-check-for-nan",
             user_msg = "Detected comparison with $inf_type.",
-            summary = "Use isinf to check for infinite values.")
+            summary = "Use isnan to check for not-a-number values.")
     end
 end
 
-function extract_inf_type(node::SyntaxNode)::NullableString
+function extract_nan_type(node::SyntaxNode)::NullableString
     sign = ""
     if kind(node) == K"call" && numchildren(node) > 1
         first, second = children(node)[1:2]
@@ -37,7 +37,7 @@ function extract_inf_type(node::SyntaxNode)::NullableString
 
     if kind(node) == K"Identifier"
         value = string(node)
-        if value ∈ ("Inf", "Inf16", "Inf32", "Inf64")
+        if value ∈ ("NaN", "NaN16", "NaN32", "NaN64")
             return sign * value
         end
     end
@@ -46,4 +46,4 @@ function extract_inf_type(node::SyntaxNode)::NullableString
 end
 
 
-end # module UseIsinfToCheckForInfinite
+end # module UseIsnanToCheckForNan

@@ -115,12 +115,15 @@ function process_operator(node::AnyTree)
         #Checks.check("SpaceAroundInfixOperators", node)
 
         if is_assignment(node) process_assignment(node) end
-        if is_eq_comparison(node)
+        if is_eq_neq_comparison(node)
             if numchildren(node) != 3
                 @debug "A comparison with a number of children != 3" node
             else
                 lhs, _, rhs = children(node)
                 Checks.check.("UseIsinfToCheckForInfinite", [lhs, rhs])
+                Checks.check.("UseIsnanToCheckForNan", [lhs, rhs])
+                Checks.check.("UseIsmissingToCheckForMissingValues", [lhs, rhs])
+                Checks.check.("UseIsnothingToCheckForNothingValues", [lhs, rhs])
             end
         end
 
