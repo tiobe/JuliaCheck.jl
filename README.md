@@ -34,7 +34,9 @@ optional arguments:
   -h, --help            show this help message and exit
 ```
 
-When using the list of `--enabled` rules, you must use `--` to separate that list from the list of files to be checked. E.g.:
+When using the list of enabled rules, you must use `--` to separate that list from the list of files to be checked. E.g.:
 ```
 julia src/JuliaCheck.jl --enable module-name-casing single-module-file -- file_to_check.jl
 ```
+
+If no rules are specified in the command line, all rules are checked.
