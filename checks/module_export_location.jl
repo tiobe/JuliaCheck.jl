@@ -24,8 +24,8 @@ function check(modjule::SyntaxNode)
     for node in filter(is_export, mod_body[code_begin:end])
         report_violation(node;
             severity=9, rule_id="module-export-location",
-            user_msg="Group export declarations between imports and code.",
-            summary="Exports should be implemented after the include instructions.")
+            summary="Location of exported functions and exported structs.",
+            user_msg="Exports should be implemented after the include instructions.")
     end
 end
 
