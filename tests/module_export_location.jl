@@ -3,17 +3,17 @@ module module_export_location
 module BadStyle
     import Statistics
 
-    include("SomeOtherSubModule.jl")
+    include("SomeOtherSubmodule.jl")
     using .SomeOtherSubmodule
+
+    include("SomeSubmodule.jl")
+    using .SomeSubmodule
 
     foo()::Nothing = nothing
     bar()::String = "the bar is open"
 
     export bar # Bad: exports should be placed below the includes list
     export foo
-
-    include("SomeSubmodule.jl")
-    using .SomeSubmodule
 
 end # module BadStyle
 
