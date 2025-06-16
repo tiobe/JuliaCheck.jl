@@ -14,9 +14,8 @@ import .Process
 
 function parse_commandline()
     s = ArgParseSettings(
-        description = "Code checker for Julia programming language.",
-        add_version = true, version = @project_version,
-    )
+                description = "Code checker for Julia programming language.",
+                add_version = true, version = @project_version)
 
     @add_arg_table! s begin
         "--enable"
@@ -56,8 +55,8 @@ function main()
             print("\n>> Processing file '")
             printstyled(in_file; color=:green)
             print("'...\n")
-            Process.check(in_file;
-                          print_ast = arguments["ast"], print_llt = arguments["llt"])
+            Process.check(in_file; print_ast = arguments["ast"],
+                                   print_llt = arguments["llt"])
         end
     end
     println()

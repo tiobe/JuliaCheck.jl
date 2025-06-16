@@ -1,11 +1,12 @@
 module ShortHandFunctionTooComplicated
 
 using JuliaSyntax: SyntaxNode, @K_str, char_range, kind, sourcetext
-
 using ...Properties: MAX_LINE_LENGTH, expr_depth, expr_size, get_func_name,
     report_violation
 
-export check
+SEVERITY = 3
+RULE_ID = "short-hand-function-too-complicated"
+USER_MSG = SUMMARY = "Short-hand notation with concise functions."
 
 function check(node::SyntaxNode)
     if kind(node) == K"block"
@@ -13,10 +14,10 @@ function check(node::SyntaxNode)
         return nothing
     end
     func = node.parent
-    report() = report_violation(node; severity=3,
-        rule_id="short-hand-function-too-complicated",
-        user_msg="Function '$(get_func_name(func))' is too complex for the shorthand notation; use keyword 'function'.",
-        summary="Short-hand notation with concise functions.")
+    report() = report_violation(node;
+                                severity = SEVERITY, rule_id = RULE_ID,
+                                user_msg = "Function '$(get_func_name(func))' is too complex for the shorthand notation; use keyword 'function'.", # TODO #36595
+                                summary = SUMMARY)
 
     line_len = length(sourcetext(func))
     if line_len > MAX_LINE_LENGTH

@@ -5,6 +5,11 @@ import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
 using ...Properties: NullableString, find_first_of_kind, haschildren,
                 report_violation
 
+SEVERITY = 3
+RULE_ID = "use-isinf-to-check-for-infinite"
+USER_MSG = "Use isinf to check for infinite values."
+SUMMARY = "Use isinf to check variables for infinity."
+
 """
     check(node::SyntaxNode)
 
@@ -13,10 +18,8 @@ Report if a check for infinity is done by direct comparison.
 function check(node::SyntaxNode)::Nothing
     inf_type = extract_inf_type(node)
     if inf_type !== nothing
-        report_violation(node;
-            severity=3, rule_id="use-isinf-to-check-for-infinite",
-            user_msg = "Detected comparison with $inf_type.",
-            summary = "Use isinf to check for infinite values.")
+        report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                               user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 

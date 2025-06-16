@@ -4,6 +4,11 @@ import JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, numchildren, kind
 using ...Properties: get_imported_pkg, haschildren, is_import, is_include,
                 report_violation
 
+SEVERITY = 9
+RULE_ID = "module-include-location"
+USER_MSG = "The list of included files appears after the list of imported packages."
+SUMMARY = "Location of includes."
+
 function check(modjule::SyntaxNode)
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
@@ -25,9 +30,9 @@ function check(modjule::SyntaxNode)
                 included_pkg = get_imported_pkg(previous)
                 if !is_include(previous) || last(imported_module) != last(included_pkg)
                     report_violation(node;
-                        severity=9, rule_id="module-include-location",
-                        user_msg="Group include's after all import/using lines.",
-                        summary="The list of included files appears after the list of imported packages.")
+                            severity = SEVERITY, rule_id = RULE_ID,
+                            user_msg = USER_MSG, summary = SUMMARY
+                        )
                 end
             end
         end

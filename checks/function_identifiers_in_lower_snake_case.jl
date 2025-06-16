@@ -3,6 +3,11 @@ module FunctionIdentifiersInLowerSnakeCase
 import JuliaSyntax: SyntaxNode, @K_str, kind
 using ...Properties: inside, is_lower_snake, is_struct, report_violation
 
+SEVERITY = 8
+RULE_ID = "function-identifiers-in-lower-snake-case"
+USER_MSG = "Function name should be written in \"lower_snake_case\"."
+SUMMARY = "Function names are written in lower_snake_case."
+
 function check(func_name::SyntaxNode)
     @assert kind(func_name) == K"Identifier" "Expected an [Identifier] node, got [$(kind(node))]."
     if inside(func_name, is_struct)
@@ -13,10 +18,9 @@ function check(func_name::SyntaxNode)
     end
     fname = string(func_name)
     if ! is_lower_snake(fname)
-        report_violation(func_name; severity=8,
-                rule_id="function-identifiers-in-lower-snake-case",
-                user_msg="Function name `$fname` should be written in lower_snake_case.",
-                summary="Function names are written in lower_snake_case.")
+        report_violation(func_name; severity = SEVERITY, rule_id = RULE_ID,
+                user_msg = "Function name $fname should be written in lower_snake_case.", # TODO #36595
+                summary = SUMMARY)
     end
 end
 

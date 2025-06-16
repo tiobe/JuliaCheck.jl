@@ -3,6 +3,11 @@ module IndentationLevelsAreFourSpaces
 import JuliaSyntax: GreenNode, SourceFile, @K_str, kind, children, span
 using ...Properties: lines_count, report_violation, source_index, source_text
 
+SEVERITY = 7
+RULE_ID = "indentation-levels-are-four-spaces"
+USER_MSG = "Indentation levels are four spaces."
+SUMMARY = "Indentation will be done in multiples of four spaces."
+
 function check(node::GreenNode)
     # We will inspect nodes of kind [NewlineWs] containing indentation spaces
     # and possibly (most of the time, in fact) starting with a line break, but
@@ -20,9 +25,8 @@ function check(node::GreenNode)
     if rem(indentation, 4) > 0
         report_violation(index=source_index()+1, len=indentation,
                          line=lines_count()+1, col=1,
-                         severity=7, rule_id="indentation-levels-are-four-spaces",
-                         user_msg="Indentation here is $indentation, which is not multiple of 4.",
-                         summary="Indentation will be done in multiples of four spaces.")
+                         severity = SEVERITY, rule_id = RULE_ID,
+                         user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 

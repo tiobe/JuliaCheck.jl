@@ -52,9 +52,10 @@ function report_violation(; index::Int, len::Int, line::Int, col::Int,
     _report_common(severity, rule_id, summary)
 end
 function _report_common(severity::Int, rule_id::String, summary::String)::Nothing
+    company_prefix = "asml-"
     printstyled("\n$summary"; color=:cyan)
     printstyled("\nRule:"; underline=true)
-    printstyled(" $rule_id. ")
+    printstyled(" $(company_prefix)$(rule_id). ")
     printstyled("Severity:"; underline=true)
     printstyled(" $severity\n")
 end
@@ -319,7 +320,7 @@ function to_pascal_case(s::String)::String
     result::String = ""
     got_dash::Bool = true
     for c in s
-        if c == '-'
+        if c ∈ ['-', '_']
             got_dash = true
         else
             result *= got_dash ? uppercase(c) : c

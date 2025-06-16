@@ -3,6 +3,12 @@ module StructMembersAreInLowerSnakeCase
 import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Properties: find_first_of_kind, is_lower_snake, report_violation
 
+SEVERITY = 8
+RULE_ID = "struct-members-are-in-lower-snake-case"
+# TODO #36595 USER_MSG="Field '$(string(field_name))' should be written in lower_snake_case."
+USER_MSG = "Struct members are implemented in \"lower_snake_case\"."
+SUMMARY = "Members of structs are defined in \"lower_snake_case\"."
+
 function check(field::SyntaxNode)
     @assert kind(field.parent) == K"block" &&
             kind(field.parent.parent) == K"struct"  "Expected a node representing" *
@@ -15,10 +21,8 @@ function check(field::SyntaxNode)
     end
     field_name = find_first_of_kind(K"Identifier", field)
     if !is_lower_snake(string(field_name))
-        report_violation(field_name; severity=8,
-                rule_id="struct-members-are-in-lower-snake-case",
-                user_msg="Field '$(string(field_name))' should be written in lower_snake_case.",
-                summary="Struct members are implemented in lower_snake_case.")
+        report_violation(field_name; severity = SEVERITY, rule_id = RULE_ID,
+                                     user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 
