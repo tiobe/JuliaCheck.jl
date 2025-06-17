@@ -13,7 +13,8 @@ import ..Checks
 export check
 
 
-function check(file_name::String; print_ast = false, print_llt = false)
+function check(file_name::String;
+               print_ast::Bool = false, print_llt::Bool = false)
     Properties.SF = SourceFile(; filename=file_name)
     ast = parse(SF)
     if isnothing(ast)

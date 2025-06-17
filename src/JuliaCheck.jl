@@ -50,7 +50,7 @@ function main()
 
     setup_filter(Set(arguments["rules"]))
 
-    for in_file in arguments["infiles"]
+    for in_file::String in arguments["infiles"]
         if !(Base.Filesystem.isfile(in_file))
             @error ">> Error: cannot read '$in_file' as a file."
         else
