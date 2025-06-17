@@ -1,14 +1,17 @@
 module FunctionArgumentsInLowerSnakeCase
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children, numchildren
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, is_lower_snake, report_violation
 
 SEVERITY = 7
-RULE_ID = "function-arguments-lower-snake-case"
+RULE_ID = "asml-function-arguments-lower-snake-case"
 USER_MSG = "Argument must be written in \"lower_snake_case\"."
 SUMMARY = "Function arguments are written in \"lower_snake_case\"."
 
 function check(f_name::SyntaxNode, f_arg::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(f_name) == K"Identifier" "Expected argument 'f_name' to be an [Identifier], not $(kind(f_name))"
 
     if kind(f_arg) == K"::"

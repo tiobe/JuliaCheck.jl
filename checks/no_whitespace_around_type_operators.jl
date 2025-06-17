@@ -2,14 +2,17 @@ module NoWhitespaceAroundTypeOperators
 
 import JuliaSyntax: GreenNode, @K_str, is_whitespace, kind, children, span,
                     source_location
+using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_column, source_index
 
 SEVERITY = 7
-RULE_ID = "no-whitespace-around-type-operators"
+RULE_ID = "asml-no-whitespace-around-type-operators"
 USER_MSG = "Omit white spaces around this operator."
 SUMMARY = "No whitespace around :: or <:."
 
 function check(node::GreenNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     function same_kind(x) return kind(x) == kind(node) end
     expr = children(node)
     op_node = findfirst(same_kind, expr)

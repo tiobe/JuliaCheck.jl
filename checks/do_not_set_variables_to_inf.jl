@@ -2,11 +2,12 @@ module DoNotSetVariablesToInf
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 span, untokenize
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, get_assignee, haschildren,
                 report_violation
 
 SEVERITY = 3
-RULE_ID = "do-not-set-variables-to-inf"
+RULE_ID = "asml-do-not-set-variables-to-inf"
 USER_MSG = "Do not set variables to Inf."
 SUMMARY = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
 
@@ -16,6 +17,8 @@ SUMMARY = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
 Check if a node contains assignments of Inf values to variables.
 """
 function check(node::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(node) == K"=" "Expected an assignment [=] node, got $(kind(node))."
     # Assignment should have exactly 2 children: lhs and rhs
 

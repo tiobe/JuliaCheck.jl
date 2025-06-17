@@ -2,7 +2,7 @@ module SpaceAroundInfixOperators
 
 using JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, kind, is_whitespace,
     span, untokenize, JuliaSyntax as JS
-
+using ...Checks: is_enabled
 using ...Properties: report_violation
 
 export check

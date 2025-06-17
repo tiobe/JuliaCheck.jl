@@ -1,14 +1,17 @@
 module TooManyTypesInUnions
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children
+using ...Checks: is_enabled
 using ...Properties: is_union_decl, report_violation
 
 SEVERITY = 6
-RULE_ID = "too-many-types-in-unions"
+RULE_ID = "asml-too-many-types-in-unions"
 USER_MSG = "Union has too many types."
 SUMMARY = "Too many types in Unions."
 
 function check(union_decl::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert is_union_decl(union_decl) "Expected a Union declaration, got $(kind(union_decl))"
     union_types = children(union_decl)[2:end] # discard the 1st, which is "Union"
     if length(union_types) > 4

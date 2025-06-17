@@ -52,10 +52,9 @@ function report_violation(; index::Int, len::Int, line::Int, col::Int,
     _report_common(severity, rule_id, summary)
 end
 function _report_common(severity::Int, rule_id::String, summary::String)::Nothing
-    company_prefix = "asml-"
     printstyled("\n$summary"; color=:cyan)
     printstyled("\nRule:"; underline=true)
-    printstyled(" $(company_prefix)$(rule_id). ")
+    printstyled(" $rule_id. ")
     printstyled("Severity:"; underline=true)
     printstyled(" $severity\n")
 end

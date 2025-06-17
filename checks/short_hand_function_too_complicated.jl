@@ -1,14 +1,17 @@
 module ShortHandFunctionTooComplicated
 
 using JuliaSyntax: SyntaxNode, @K_str, char_range, kind, sourcetext
+using ...Checks: is_enabled
 using ...Properties: MAX_LINE_LENGTH, expr_depth, expr_size, get_func_name,
     report_violation
 
 SEVERITY = 3
-RULE_ID = "short-hand-function-too-complicated"
+RULE_ID = "asml-short-hand-function-too-complicated"
 USER_MSG = SUMMARY = "Short-hand notation with concise functions."
 
 function check(node::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     if kind(node) == K"block"
         # It's a full-form function, so no check to do.
         return nothing

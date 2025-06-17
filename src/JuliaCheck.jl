@@ -47,7 +47,9 @@ function main()
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
-    setup_filter(arguments["rules"])
+
+    setup_filter(Set(arguments["rules"]))
+
     for in_file in arguments["infiles"]
         if !(Base.Filesystem.isfile(in_file))
             @error ">> Error: cannot read '$in_file' as a file."

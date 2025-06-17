@@ -1,14 +1,17 @@
 module IndentationLevelsAreFourSpaces
 
 import JuliaSyntax: GreenNode, SourceFile, @K_str, kind, children, span
+using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_index, source_text
 
 SEVERITY = 7
-RULE_ID = "indentation-levels-are-four-spaces"
+RULE_ID = "asml-indentation-levels-are-four-spaces"
 USER_MSG = "Indentation levels are four spaces."
 SUMMARY = "Indentation will be done in multiples of four spaces."
 
 function check(node::GreenNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     # We will inspect nodes of kind [NewlineWs] containing indentation spaces
     # and possibly (most of the time, in fact) starting with a line break, but
     # not ending with one.

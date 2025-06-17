@@ -61,12 +61,12 @@ function process(node::SyntaxNode)
 
         elseif is_module(node)
             #SymbolTable.enter_module(node)
-            Checks.check("single-module-file", node)
-            Checks.check("module-name-casing", node)
-            Checks.check("module-end-comment", node)
-            Checks.check("module-import-location", node)
-            Checks.check("module-include-location", node)
-            Checks.check("module-single-import-line", node)
+            Checks.SingleModuleFile.check(node)
+            Checks.ModuleNameCasing.check(node)
+            Checks.ModuleEndComment.check(node)
+            Checks.ModuleImportLocation.check(node)
+            Checks.ModuleIncludeLocation.check(node)
+            Checks.ModuleSingleImportLine.check(node)
 
         elseif is_operator(node)
             process_operator(node)
@@ -84,7 +84,7 @@ function process(node::SyntaxNode)
             process_type_declaration(node)
 
         elseif is_constant(node)
-            Checks.check("document-constants", node)
+            Checks.DocumentConstants.check(node)
 
         elseif is_union_decl(node)
             process_unions(node)
@@ -109,7 +109,7 @@ function process_operator(node::AnyTree)
         # something with prefix operators
 
     elseif is_infix_operator(node)
-        #Checks.check("SpaceAroundInfixOperators", node)
+        #Checks.SpaceAroundInfixOperators.check(node)
 
         if is_assignment(node) process_assignment(node) end
         if is_eq_neq_comparison(node)
@@ -117,10 +117,10 @@ function process_operator(node::AnyTree)
                 @debug "A comparison with a number of children != 3" node
             else
                 lhs, _, rhs = children(node)
-                Checks.check.("use-isinf-to-check-for-infinite", [lhs, rhs])
-                Checks.check.("use-isnan-to-check-for-nan", [lhs, rhs])
-                Checks.check.("use-ismissing-to-check-for-missing-values", [lhs, rhs])
-                Checks.check.("use-isnothing-to-check-for-nothing-values", [lhs, rhs])
+                Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
+                Checks.UseIsnanToCheckForNan.check.([lhs, rhs])
+                Checks.UseIsmissingToCheckForMissingValues.check.([lhs, rhs])
+                Checks.UseIsnothingToCheckForNothingValues.check.([lhs, rhs])
             end
         end
 
@@ -140,7 +140,7 @@ function process_function(node::SyntaxNode)
         # we might see a clue of what we are dealing with.
         return nothing
     end
-    Checks.check("function-identifiers-in-lower-snake-case", fname)
+    Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
     #SymbolTable.declare(fname)
     #SymbolTable.enter_scope()
     named_arguments = []
@@ -151,61 +151,61 @@ function process_function(node::SyntaxNode)
             named_arguments = children(arg)
         else
             # SymbolTable.declare(arg)
-            Checks.check("function-arguments-lower-snake-case", fname, arg)
+            Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
         end
     end
     for arg in named_arguments
-        Checks.check("function-arguments-lower-snake-case", fname, arg)
+        Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
     end
 
     body = get_func_body(node)
     if ! isnothing(body)
-        Checks.check("long-form-functions-have-a-terminating-return-statement", body)
-        Checks.check("short-hand-function-too-complicated", body)
+        Checks.LongFormFunctionsHaveATerminatingReturnStatement.check(body)
+        Checks.ShortHandFunctionTooComplicated.check(body)
     end
 end
 
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
-    Checks.check("do-not-set-variables-to-inf", node)
-    Checks.check("do-not-set-variables-to-nan", node)
+    Checks.DoNotSetVariablesToInf.check(node)
+    Checks.DoNotSetVariablesToNan.check(node)
     # if !SymbolTable.is_declared(lhs)
     #     SymbolTable.declare(lhs)
     # end
-    # Checks.check("AvoidGlobals", node)
+    # Checks.AvoidGlobals.check(node)
 end
 process_assignment(_::GreenNode) = nothing
 
 function process_literal(node::SyntaxNode)
     if     (kind(node) == K"Integer")
     elseif (kind(node) == K"Float")
-        Checks.check("leading-and-trailing-digits", node)
+        Checks.LeadingAndTrailingDigits.check(node)
     end
 end
 
 function process_struct(node::SyntaxNode)
-    Checks.check("type-names-upper-camel-case", node)
+    Checks.TypeNamesUpperCamelCase.check(node)
     for field in get_struct_members(node)
-        Checks.check("struct-members-are-in-lower-snake-case", field)
+        Checks.StructMembersAreInLowerSnakeCase.check(field)
     end
 end
 
 function process_type_declaration(node::SyntaxNode)
-    Checks.check("prefix-of-abstract-type-names", node)
+    Checks.PrefixOfAbstractTypeNames.check(node)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
 function process_type_restriction(node::GreenNode)
-    Checks.check("no-whitespace-around-type-operators", node)
+    Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
-    Checks.check("too-many-types-in-unions", node)
-    Checks.check("implement-unions-as-consts", node)
+    Checks.TooManyTypesInUnions.check(node)
+    Checks.ImplementUnionsAsConsts.check(node)
 end
 
 function process_loop(node::SyntaxNode)
-    if kind(node) == K"while" Checks.check("infinite-while-loop", node) end
+    if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
 end
 
 function process_with_trivia(node::GreenNode, parent::GreenNode)
@@ -216,8 +216,8 @@ function process_with_trivia(node::GreenNode, parent::GreenNode)
         for x in children(node) process_with_trivia(x, node) end
     else
         if is_whitespace(node)
-            Checks.check("use-spaces-instead-of-tabs", node)
-            Checks.check("indentation-levels-are-four-spaces", node)
+            Checks.UseSpacesInsteadOfTabs.check(node)
+            Checks.IndentationLevelsAreFourSpaces.check(node)
         end
         increase_counters(node)
     end

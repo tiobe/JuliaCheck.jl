@@ -1,13 +1,16 @@
 module PrefixOfAbstractTypeNames
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, is_upper_camel_case, report_violation
 
 SEVERITY = 4
-RULE_ID = "prefix-of-abstract-type-names"
+RULE_ID = "asml-prefix-of-abstract-type-names"
 USER_MSG = SUMMARY = "Abstract type names are prefixed by \"Abstract\"."
 
 function check(user_type::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(user_type) == K"abstract"  "Expected an [abstract] node, got $(kind(user_type))"
     type_id = find_first_of_kind(K"Identifier", user_type)
     @assert type_id !== nothing "Got a type declaration without name (identifier)."

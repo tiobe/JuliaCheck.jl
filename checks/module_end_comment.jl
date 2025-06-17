@@ -2,17 +2,19 @@ module ModuleEndComment
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, children, kind,
         first_byte, last_byte, span
-
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, haschildren, is_upper_camel_case,
         get_module_name, lines_count, report_violation, source_column,
         source_index, source_text
 
 SEVERITY = 9
-RULE_ID = "module-end-comment"
+RULE_ID = "asml-module-end-comment"
 USER_MSG = "The end statement of module has a comment with the module name."
 SUMMARY = "The \"end\" of a module quotes the module name in a comment."
 
 function check(modjule::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     above = modjule.parent.raw
     pos = findfirst(x -> x === modjule.raw, children(above))

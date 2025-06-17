@@ -1,15 +1,18 @@
 module ModuleSingleImportLine
 
 import JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, numchildren, kind
+using ...Checks: is_enabled
 using ...Properties: get_imported_pkg, haschildren, is_import, is_include,
                 is_upper_camel_case, report_violation
 
 SEVERITY = 9
-RULE_ID = "module-single-import-line"
+RULE_ID = "asml-module-single-import-line"
 USER_MSG = "Keep import/using declarations in alphabetic order."
 SUMMARY = "The list of packages should be in alphabetic order."
 
 function check(modjule::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
     @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"

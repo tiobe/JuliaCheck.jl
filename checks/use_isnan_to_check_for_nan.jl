@@ -2,11 +2,12 @@ module UseIsnanToCheckForNan
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
+using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, get_assignee,
                 haschildren, report_violation
 
 SEVERITY = 3
-RULE_ID="use-isnan-to-check-for-nan"
+RULE_ID = "asml-use-isnan-to-check-for-nan"
 USER_MSG = "Use isnan to check for not-a-number values."
 SUMMARY = "Use isnan to check variables for not-a-number."
 
@@ -16,6 +17,8 @@ SUMMARY = "Use isnan to check variables for not-a-number."
 Report if a direct comparison is made with NaN (of any size).
 """
 function check(node::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     inf_type = extract_nan_type(node)
     if inf_type !== nothing
         report_violation(node; severity = SEVERITY, rule_id = RULE_ID,

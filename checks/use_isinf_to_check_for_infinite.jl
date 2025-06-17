@@ -2,11 +2,12 @@ module UseIsinfToCheckForInfinite
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
+using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, haschildren,
                 report_violation
 
 SEVERITY = 3
-RULE_ID = "use-isinf-to-check-for-infinite"
+RULE_ID = "asml-use-isinf-to-check-for-infinite"
 USER_MSG = "Use isinf to check for infinite values."
 SUMMARY = "Use isinf to check variables for infinity."
 
@@ -16,6 +17,8 @@ SUMMARY = "Use isinf to check variables for infinity."
 Report if a check for infinity is done by direct comparison.
 """
 function check(node::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     inf_type = extract_inf_type(node)
     if inf_type !== nothing
         report_violation(node; severity = SEVERITY, rule_id = RULE_ID,

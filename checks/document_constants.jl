@@ -1,15 +1,17 @@
 module DocumentConstants
 
 using JuliaSyntax: SyntaxNode, @K_str, children, kind
-
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, haschildren, report_violation
 
-RULE_ID = "document-constants"
+RULE_ID = "asml-document-constants"
 USER_MSG = "Const value has no docstring."
 SUMMARY = "Constants must have a docstring."
 SEVERITY = 7
 
 function check(const_node::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(const_node) == K"const" "Expected a [const] const_node, got $(kind(const_node))."
     if haschildren(const_node) && kind(children(const_node)[1]) == K"="
         # This is a constant value declaration.
