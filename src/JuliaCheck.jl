@@ -12,7 +12,7 @@ import .Checks: setup_filter
 include("Process.jl")
 import .Process
 
-function parse_commandline()
+function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
                 description = "Code checker for Julia programming language.",
                 add_version = true, version = @project_version)
@@ -39,11 +39,11 @@ function parse_commandline()
             required = true
     end
 
-    return parse_args(s)
+    return parse_args(args, s)
 end
 
-function main()
-    arguments = parse_commandline()
+function main(args::Vector{String})
+    arguments = parse_commandline(args)
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
@@ -51,7 +51,7 @@ function main()
     setup_filter(Set(arguments["rules"]))
 
     for in_file::String in arguments["infiles"]
-        if !(Base.Filesystem.isfile(in_file))
+        if !(isfile(in_file))
             @error ">> Error: cannot read '$in_file' as a file."
         else
             print("\n>> Processing file '")
@@ -64,6 +64,6 @@ function main()
     println()
 end
 
-main()
+main(ARGS)
 
 end
