@@ -65,6 +65,7 @@ function process(node::SyntaxNode)
             Checks.SingleModuleFile.check(node)
             Checks.ModuleNameCasing.check(node)
             Checks.ModuleEndComment.check(node)
+            Checks.ModuleExportLocation.check(node)
             Checks.ModuleImportLocation.check(node)
             Checks.ModuleIncludeLocation.check(node)
             Checks.ModuleSingleImportLine.check(node)
@@ -219,6 +220,9 @@ function process_with_trivia(node::GreenNode, parent::GreenNode)
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
             Checks.IndentationLevelsAreFourSpaces.check(node)
+            Checks.OmitTrailingWhiteSpace.check(node)
+        elseif kind(node) == K"String"
+            Checks.OmitTrailingWhiteSpace.check(node)
         end
         increase_counters(node)
     end
