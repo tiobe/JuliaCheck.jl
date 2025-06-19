@@ -45,9 +45,9 @@ function check(node::GreenNode)
     if any(is_whitespace, [before, after])
         offset::Int = sum(span.(expr[1:op_node])) - 2   # accounts for length of operator itself
         report_violation(index = source_index() + offset, len = 2,
-                        line = lines_count(), col = source_column() + offset,
-                        severity = SEVERITY, rule_id = RULE_ID,
-                        user_msg = USER_MSG, summary = SUMMARY)
+                         line = lines_count(), col = source_column() + offset,
+                         severity = SEVERITY, rule_id = RULE_ID,
+                         user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 
