@@ -21,12 +21,10 @@ function check(file_name::String;
         @error "Couldn't parse file '$file_name'"
     else
         if print_ast
-            # @info "Full AST for the file:" ast
             show(stdout, MIME"text/plain"(), ast)
         end
         if print_llt
             show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
-            # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         end
         process(ast)
         #if trivia_checks_enabled
