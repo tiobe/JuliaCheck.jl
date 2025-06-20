@@ -43,16 +43,17 @@ function check(node::GreenNode, parent::GreenNode)
     end
 end
 
-function report_it(offset::UInt, length::UInt, src_line::Int, src_col::UInt)
+function report_it(offset::Int, length::Int, src_line::Int, src_col::Int)
     report_violation(index=offset, len=length, line=src_line, col=src_col,
                      severity = SEVERITY, rule_id = RULE_ID,
                      user_msg = USER_MSG, summary = SUMMARY)
 end
 
 function check(parent::GreenNode, parent_index::UInt, parent_col::UInt,
-    separators::Vector{Int})
-    report(x, y, a) = report_it(parent_index + x, convert(UInt, y),
-        lines_count() + a, parent_col + x)
+               separators::Vector{Int})
+    report(x, y, a) = report_it(convert(Int, parent_index + x),
+                                convert(Int, y),
+                                lines_count() + a, convert(Int, parent_col + x))
     # FIXME Add an argument with the right column offset, which is the same as
     # x if there are no line breaks in the span[1:i], but has to be figured out
     # otherwise, probably finding the latest \n (or EOL) and finding the length
