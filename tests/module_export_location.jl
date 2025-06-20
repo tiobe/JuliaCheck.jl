@@ -19,7 +19,7 @@ end # module BadStyle
 
 module GoodStyle
     import Statistics
-    
+
     include("SomeOtherSubModule.jl")
     using .SomeOtherSubModule
 
