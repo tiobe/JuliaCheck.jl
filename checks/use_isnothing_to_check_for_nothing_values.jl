@@ -2,8 +2,14 @@ module UseIsnothingToCheckForNothingValues
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
+using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, get_assignee,
                 haschildren, report_violation
+
+SEVERITY = 3
+RULE_ID = "asml-use-isnothing-to-check-for-nothing-values"
+USER_MSG = "Use isnothing to check for nothing values."
+SUMMARY = "Use isnothing to check variables for nothing."
 
 """
     check(node::SyntaxNode)
@@ -11,12 +17,12 @@ using ...Properties: NullableString, find_first_of_kind, get_assignee,
 Report if a check for nothing is done by direct comparison.
 """
 function check(node::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     nothing_type = extract_nothing_type(node)
     if nothing_type !== nothing
-        report_violation(node;
-            severity=3, rule_id="asml-use-isnothing-to-check-for-nothing-values",
-            user_msg = "Detected comparison with $nothing_type.",
-            summary = "Use isnothing to check for nothing values.")
+        report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                               user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 

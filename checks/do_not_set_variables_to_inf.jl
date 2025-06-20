@@ -2,8 +2,14 @@ module DoNotSetVariablesToInf
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 span, untokenize
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, get_assignee, haschildren,
                 report_violation
+
+SEVERITY = 3
+RULE_ID = "asml-do-not-set-variables-to-inf"
+USER_MSG = "Do not set variables to Inf."
+SUMMARY = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
 
 """
     check(node::SyntaxNode)
@@ -11,6 +17,8 @@ using ...Properties: find_first_of_kind, get_assignee, haschildren,
 Check if a node contains assignments of Inf values to variables.
 """
 function check(node::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(node) == K"=" "Expected an assignment [=] node, got $(kind(node))."
     # Assignment should have exactly 2 children: lhs and rhs
 
@@ -21,13 +29,8 @@ function check(node::SyntaxNode)::Nothing
     rhs = children(node)[2]
     # Check if right-hand side is an Inf value
     if is_inf_value(rhs)
-        _, var_name = get_assignee(node)
-        nan_type = extract_nan_type(rhs)
-        report_violation(rhs;
-            severity=3, rule_id="asml-do-not-set-variables-to-nan",
-            user_msg = isnothing(var_name) ? "Assignment of $nan_type detected" :
-                                    "Variable '$var_name' is assigned $nan_type",
-            summary = "Do not set variables to Inf, Inf16, Inf32 or Inf64")
+        report_violation(rhs; severity = SEVERITY, rule_id = RULE_ID,
+                              user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 
@@ -56,7 +59,7 @@ function is_inf_value(node::SyntaxNode)::Bool
     return false
 end
 
-function extract_nan_type(node::SyntaxNode)::String
+function extract_inf_type(node::SyntaxNode)::String
     if kind(node) == K"Identifier"
         return string(node)
     elseif kind(node) == K"."

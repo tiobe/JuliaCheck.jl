@@ -2,12 +2,19 @@ module ModuleEndComment
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, children, kind,
         first_byte, last_byte, span
-
+using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, haschildren, is_upper_camel_case,
         get_module_name, lines_count, report_violation, source_column,
         source_index, source_text
 
+SEVERITY = 9
+RULE_ID = "asml-module-end-comment"
+USER_MSG = "The end statement of module has a comment with the module name."
+SUMMARY = "The \"end\" of a module quotes the module name in a comment."
+
 function check(modjule::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     above = modjule.parent.raw
     pos = findfirst(x -> x === modjule.raw, children(above))
@@ -32,10 +39,9 @@ function check(modjule::SyntaxNode)::Nothing
     end
     # Either no comment found, or not in the same line as the [end] (that is
     # not considered OK), or the comment didn't match the expected content.
-    report_violation(mod_name_node; severity=9, rule_id="asml-module-end-comment",
-        user_msg="The 'end' statement of this module should have a comment with the module's name.",
-        summary="The end of a module quotes the module name in a comment.")
-    return nothing
+    report_violation(mod_name_node; severity = SEVERITY, rule_id = RULE_ID,
+                                    user_msg = USER_MSG, summary = SUMMARY)
+    # TODO report on the 'end' keyword, not on the 'module'.
 end
 
 function matches_module_name(mod_name::AbstractString, comment::AbstractString)

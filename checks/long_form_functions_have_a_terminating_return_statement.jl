@@ -1,13 +1,23 @@
-module LongFormFunctionsHaveReturnStatement
+module LongFormFunctionsHaveATerminatingReturnStatement
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children
+using ...Checks: is_enabled
 using ...Properties: inside, is_struct, get_func_name, haschildren, report_violation
+
+SEVERITY = 3
+RULE_ID = "asml-long-form-functions-have-a-terminating-return-statement"
+USER_MSG = "Long form functions are terminated by an explicit return statement."
+# TODO #36595 USER_MSG = "Function '$fname' should end with an explicit return statement (or one in each conditional branch)."
+SUMMARY = "Long form functions are ended by a return statement."
 
 function check(_::Nothing)
     # This must have been a weird function definition, if it didn't have a body
+    return nothing
 end
 
 function check(func_body::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(func_body.parent) == K"function" "Expected the body of a [function], got $(kind(func_body))"
     fname = get_func_name(func_body.parent)
     if isnothing(fname) fname = "<invalid>" end
@@ -17,10 +27,8 @@ function check(func_body::SyntaxNode)
     end
     if !_ends_with_return(func_body)
         node = haschildren(func_body) ? children(func_body)[end] : func_body
-        report_violation(node; severity=3,
-                rule_id="asml-long-form-functions-have-a-terminating-return-statement",
-                user_msg= "Function '$fname' should end with an explicit return statement (or one in each conditional branch).",
-                summary="Long form functions are ended by a return statement.")
+        report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                               user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 

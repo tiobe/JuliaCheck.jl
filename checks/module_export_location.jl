@@ -4,6 +4,11 @@ import JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, numchildren, kind
 using ...Properties: get_imported_pkg, haschildren, is_export, is_import,
                     is_include, report_violation
 
+SEVERITY = 9
+RULE_ID = "asml-module-export-location"
+SUMMARY = "Location of exported functions and exported structs."
+USER_MSG = "Exports should be implemented after the include instructions."
+
 no_ex_imports(node::SyntaxNode) = ! (is_import(node) || is_export(node))
 
 function check(modjule::SyntaxNode)
@@ -22,10 +27,8 @@ function check(modjule::SyntaxNode)
     end
 
     for node in filter(is_export, mod_body[code_begin:end])
-        report_violation(node;
-            severity=9, rule_id="module-export-location",
-            summary="Location of exported functions and exported structs.",
-            user_msg="Exports should be implemented after the include instructions.")
+        report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                               user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 

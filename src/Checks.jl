@@ -1,36 +1,47 @@
 module Checks
 
-# include("../checks/check_avoid_globals.jl")
-include("../checks/check_document_constants.jl")
-include("../checks/check_do_not_set_variables_to_inf.jl")
-include("../checks/check_do_not_set_variables_to_nan.jl")
-include("../checks/check_function_arguments_in_lower_snake_case.jl")
-include("../checks/check_function_identifiers_in_lower_snake_case.jl")
-include("../checks/check_indentation_levels_are_four_spaces.jl")
-include("../checks/check_implement_unions_as_consts.jl")
-include("../checks/check_infinite_while_loop.jl")
-include("../checks/check_leading_and_trailing_digits.jl")
-include("../checks/check_long_form_functions_have_a_terminating_return_statement.jl")
-include("../checks/check_module_end_comment.jl")
-include("../checks/module_export_location.jl")
-include("../checks/check_module_import_location.jl")
-include("../checks/check_module_include_location.jl")
-include("../checks/check_module_name_casing.jl")
-include("../checks/check_module_single_import_line.jl")
-include("../checks/check_no_whitespace_around_type_operators.jl")
-include("../checks/check_omit_trailing_white_space.jl")
-include("../checks/check_prefix_of_abstract_type_names.jl")
-include("../checks/check_short_hand_function_too_complicated.jl")
-include("../checks/check_single_module_file.jl")
-include("../checks/check_single_space_after_commas_and_semicolons.jl")
-# include("../checks/check_space_around_infix_operators.jl")
-include("../checks/check_struct_members_are_in_lower_snake_case.jl")
-include("../checks/check_too_many_types_in_unions.jl")
-include("../checks/check_type_names_upper_camel_case.jl")
-include("../checks/check_use_spaces_instead_of_tabs.jl")
-include("../checks/check_use_isinf_to_check_for_infinite.jl")
-include("../checks/check_use_ismissing_to_check_for_missing_values.jl")
-include("../checks/check_use_isnan_to_check_for_nan.jl")
-include("../checks/check_use_isnothing_to_check_for_nothing_values.jl")
+using ..Properties: to_pascal_case
+
+export is_enabled, setup_filter
+
+
+function setup_filter(enabled::Set{String})
+    global CHECK_REGISTRY
+    if isempty(enabled)
+        @debug "All rules enabled"
+    else
+        intersect!(CHECK_REGISTRY, enabled)
+        @debug "Enabled rules:" CHECK_REGISTRY
+        invalid = setdiff(enabled, CHECK_REGISTRY)
+        if !isempty(invalid)
+            @warn "Unrecognized rules:" invalid
+        end
+    end
+end
+
+function is_enabled(id::String)
+    global CHECK_REGISTRY
+    return id ∈ CHECK_REGISTRY
+end
+
+##===================== Executable code =====================##
+ids_list = String[]
+sizehint!(ids_list, 64)
+for f in readdir("checks/"; join=true)
+    if isfile(f) && endswith(f, ".jl")
+        try
+            include("../$f")
+            f = to_pascal_case(basename(f)[1:end-3])    # take only the file name without extension (.jl)
+            mod = getfield(Checks, Symbol(f))
+            id =  getfield(mod, Symbol("RULE_ID"))
+            push!(ids_list, id)
+        catch x
+            @warn "Failed to load '$f':" x
+        end
+    end
+end
+@debug "Loaded checks:" ids_list
+
+global const CHECK_REGISTRY = Set{String}(ids_list)
 
 end

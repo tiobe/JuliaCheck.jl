@@ -2,8 +2,14 @@ module UseIsmissingToCheckForMissingValues
 
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
+using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, numchildren,
                 haschildren, report_violation
+
+SEVERITY = 3
+RULE_ID = "asml-use-ismissing-to-check-for-missing-values"
+USER_MSG = "Use ismissing to check for missing values."
+SUMMARY = "Use ismissing to check for missing values."
 
 """
     check(node::SyntaxNode)
@@ -11,12 +17,12 @@ using ...Properties: NullableString, find_first_of_kind, numchildren,
 Report if a check for missing value is done by direct comparison.
 """
 function check(node::SyntaxNode)::Nothing
+    if !is_enabled(RULE_ID) return nothing end
+
     missing_type = extract_missing_type(node)
     if missing_type !== nothing
-        report_violation(node;
-            severity=3, rule_id="asml-use-ismissing-to-check-for-missing-values",
-            user_msg = "Detected comparison with $missing_type.",
-            summary = "Use ismissing to check for missing values.")
+        report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                               user_msg = USER_MSG, summary = SUMMARY)
     end
 end
 

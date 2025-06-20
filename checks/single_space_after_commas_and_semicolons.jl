@@ -7,6 +7,11 @@ using ...Properties: EOL, fake_green_node, is_separator, lines_count,
     report_violation, source_column, source_index, source_text
 
 
+SEVERITY = 7
+RULE_ID = "asml-single-space-after-commas-and-semicolons"
+USER_MSG = "A comma or a semicolon is followed, but not preceded, by a space."
+SUMMARY = "Commas and semicolons are followed, but not preceded, by a space."
+
 # Global / static variable
 CHECKED::Vector{Int} = []
 
@@ -40,10 +45,8 @@ end
 
 function report_it(offset::UInt, length::UInt, src_line::Int, src_col::UInt)
     report_violation(index=offset, len=length, line=src_line, col=src_col,
-        severity=7,
-        rule_id="asml-single-space-after-commas-and-semicolons",
-        user_msg="A comma or a semicolon is followed, but not preceded, by a space.",
-        summary="Commas and semicolons are followed, but not preceded, by a space.")
+                     severity = SEVERITY, rule_id = RULE_ID,
+                     user_msg = USER_MSG, summary = SUMMARY)
 end
 
 function check(parent::GreenNode, parent_index::UInt, parent_col::UInt,

@@ -9,9 +9,9 @@ Rule: asml-prefix-of-abstract-type-names. Severity: 4
 
 tests/prefix_of_abstract_type_names.jl(3, 15):
 abstract type abstractmodeltype end # Bad
-#             └───────────────┘ ── Type names such as abstractmodeltype should be written in Upper Camel Case.
+#             └───────────────┘ ── Type names such as abstractmodeltype should be written in UpperCamelCase.
 Type names in UpperCamelCase.
-Rule: asml-type-names-upper-camel-case. Severity: 3
+Rule: type-names-upper-camel-case. Severity: 3
 
 tests/prefix_of_abstract_type_names.jl(3, 15):
 abstract type abstractmodeltype end # Bad
@@ -21,9 +21,9 @@ Rule: asml-prefix-of-abstract-type-names. Severity: 4
 
 tests/prefix_of_abstract_type_names.jl(4, 15):
 abstract type abstractModeltype end # Bad
-#             └───────────────┘ ── Type names such as abstractModeltype should be written in Upper Camel Case.
+#             └───────────────┘ ── Type names such as abstractModeltype should be written in UpperCamelCase.
 Type names in UpperCamelCase.
-Rule: asml-type-names-upper-camel-case. Severity: 3
+Rule: type-names-upper-camel-case. Severity: 3
 
 tests/prefix_of_abstract_type_names.jl(4, 15):
 abstract type abstractModeltype end # Bad
@@ -33,9 +33,9 @@ Rule: asml-prefix-of-abstract-type-names. Severity: 4
 
 tests/prefix_of_abstract_type_names.jl(5, 15):
 abstract type abstractModelType end # Bad
-#             └───────────────┘ ── Type names such as abstractModelType should be written in Upper Camel Case.
+#             └───────────────┘ ── Type names such as abstractModelType should be written in UpperCamelCase.
 Type names in UpperCamelCase.
-Rule: asml-type-names-upper-camel-case. Severity: 3
+Rule: type-names-upper-camel-case. Severity: 3
 
 tests/prefix_of_abstract_type_names.jl(5, 15):
 abstract type abstractModelType end # Bad

@@ -7,24 +7,25 @@ import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
 # include("SymbolTable.jl")
 # import .SymbolTable
 
-include("Properties.jl")
-using .Properties
-
-include("Checks.jl")
-import .Checks
+using ..Properties
+import ..Checks
 
 export check
 
 
-function check(file_name::String)
+function check(file_name::String;
+               print_ast::Bool = false, print_llt::Bool = false)
     Properties.SF = SourceFile(; filename=file_name)
     ast = parse(SF)
     if isnothing(ast)
         @error "Couldn't parse file '$file_name'"
     else
-        @debug "Full AST for the file:" ast
-        # @debug "\n" * sprint(show, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
-        # TODO Perhaps, printing the GreenNode tree should be an explicit separate option.
+        if print_ast
+            show(stdout, MIME"text/plain"(), ast)
+        end
+        if print_llt
+            show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
+        end
         process(ast)
         #if trivia_checks_enabled
             process_with_trivia(ast.raw, ast.raw)
@@ -139,7 +140,7 @@ function process_function(node::SyntaxNode)
         # we might see a clue of what we are dealing with.
         return nothing
     end
-    Checks.FunctionIdentifiersCasing.check(fname)
+    Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
     #SymbolTable.declare(fname)
     #SymbolTable.enter_scope()
     named_arguments = []
@@ -150,16 +151,16 @@ function process_function(node::SyntaxNode)
             named_arguments = children(arg)
         else
             # SymbolTable.declare(arg)
-            Checks.FunctionArgumentsCasing.check(fname, arg)
+            Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
         end
     end
     for arg in named_arguments
-        Checks.FunctionArgumentsCasing.check(fname, arg)
+        Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
     end
 
     body = get_func_body(node)
     if ! isnothing(body)
-        Checks.LongFormFunctionsHaveReturnStatement.check(body)
+        Checks.LongFormFunctionsHaveATerminatingReturnStatement.check(body)
         Checks.ShortHandFunctionTooComplicated.check(body)
     end
 end
@@ -183,14 +184,14 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    Checks.TypeNamesCasing.check(node)
+    Checks.TypeNamesUpperCamelCase.check(node)
     for field in get_struct_members(node)
-        Checks.StructMembersCasing.check(field)
+        Checks.StructMembersAreInLowerSnakeCase.check(field)
     end
 end
 
 function process_type_declaration(node::SyntaxNode)
-    Checks.AbstractTypeNames.check(node)
+    Checks.PrefixOfAbstractTypeNames.check(node)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
