@@ -12,12 +12,11 @@ USER_MSG = SUMMARY = "Type names in \"UpperCamelCase\"."
 function check(user_type::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
 
-    @assert kind(user_type) == K"struct"  "Expected a [struct] node, got $(kind(user_type))"
-    type_name = find_first_of_kind(K"Identifier", user_type)
-    if ! is_upper_camel_case(string(type_name))
-        report_violation(type_name;
+    @assert kind(user_type) == K"Identifier"  "Expected a [Identifier] node, got $(kind(user_type))"
+    if ! is_upper_camel_case(string(user_type))
+        report_violation(user_type;
             severity = SEVERITY, rule_id = RULE_ID, summary = SUMMARY,
-            user_msg = "Type names such as $(string(type_name)) should be written in \"UpperCamelCase\".")
+            user_msg = "Type names such as $(string(user_type)) should be written in \"UpperCamelCase\".")
     end
 end
 
