@@ -27,10 +27,10 @@ end
 ##===================== Executable code =====================##
 ids_list = String[]
 sizehint!(ids_list, 64)
-for f in readdir("checks/"; join=true)
+for f in readdir(joinpath(@__DIR__,"../checks/"); join=true)
     if isfile(f) && endswith(f, ".jl")
         try
-            include("../$f")
+            include("$f")
             f = to_pascal_case(basename(f)[1:end-3])    # take only the file name without extension (.jl)
             mod = getfield(Checks, Symbol(f))
             id =  getfield(mod, Symbol("RULE_ID"))

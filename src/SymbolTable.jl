@@ -55,7 +55,6 @@ enter_module!(modjule::SyntaxNode)::Nothing = enter_module!(get_module_name(modj
 # Call the next method with the name (string) of the [module] node.
 
 function enter_module!(name::AbstractString)::Nothing
-    @debug " -> Entering module $name"
     new_sym_table = SymbolsTable()
     push!(new_sym_table, Scope())   # TODO find out why the Module constructor
                                     # above doesn't add a scope, despite how it
@@ -81,10 +80,8 @@ end
 Leave a module, thus popping it from the stack.
 """
 function exit_module!()::Nothing
-    display_state()
     @assert !isempty(NESTED_MODULES) "Somehow, the global scope is not there before leaving the module."
     left_mod = pop!(NESTED_MODULES)
-    @debug " <- Left module $(left_mod.mod_name)"
     return nothing
 end
 
@@ -108,7 +105,6 @@ function enter_scope!()::Nothing
 end
 
 function exit_scope!()::Nothing
-    display_state()
     pop!(symbols_table())
     @assert !isempty(symbols_table()) "Exited global scope. This shouldn't happen!"
     return nothing
@@ -153,80 +149,25 @@ end
 """
 Display the current state of the symbols table.
 """
-function display_state()::Nothing
-    println("Symbol Table State:")
-    println("Module stack ($(length(NESTED_MODULES)) modules):")
+function print_state()::String
+    state = """
+        Symbol Table State:
+        Module stack ($(length(NESTED_MODULES)) modules):
+        """
     for (i, mod) in enumerate(NESTED_MODULES)
         marker = i == length(NESTED_MODULES) ? " <- current" : ""
-        println("  [$i] Module: $(mod.mod_name)$marker")
-        println("    Scope stack ($(length(mod.table)) scopes):")
-
+        state *= """
+              [$i] Module: $(mod.mod_name)$marker
+                Scope stack ($(length(mod.table)) scopes):
+            """
         for (j, scope) in enumerate(mod.table)
             scope_marker = j == 1 ? " <- current" : ""
             scope_type = j == length(mod.table) ? " (global)" : ""
             ids = isempty(scope) ? "{}" : "{$(join(collect(scope), ", "))}"
-            println("      [$j] Scope$scope_type: $ids$scope_marker")
+            state *= "      [$j] Scope$scope_type: $ids$scope_marker"
         end
     end
-    println()
+    return state
 end
-
-# FIXME Make a proper unit test and remove this:
-#= Example usage and testing
-function demo_symbol_table()::Nothing
-    println("=== Symbol Table Demo ===\n")
-
-    enter_main_module!()
-
-    # Add some identifiers to Main module, global scope
-    declare!("x")
-    declare!("y")
-    println("Added 'x' and 'y' to Main module, global scope")
-    display_state()
-
-    # Push a new scope in Main module
-    enter_scope!()
-    declare!("z")
-    declare!("x")  # Shadow the global x
-    println("Pushed new scope, added 'z' and 'x' (shadowing global)")
-    display_state()
-
-    # Test identifier lookup
-    println("Identifier lookup in current module:")
-    for id in ["x", "y", "z", "w"]
-        level = find_identifier(id)
-        if level > 0
-            println("  '$id' found at scope level $level")
-        else
-            println("  '$id' not found")
-        end
-    end
-    println()
-
-    # Push a new module
-    enter_module!("MyModule")
-    declare!("a")
-    declare!("b")
-    println("Pushed new module 'MyModule', added 'a' and 'b'")
-    display_state()
-
-    # Pop module
-    exit_module!()
-    println("Popped module")
-    display_state()
-
-    # Pop scope in Main module, then leave the module itself.
-    exit_scope!()
-    println("Popped scope from global module")
-    display_state()
-
-    exit_main_module!()
-    println("Left Main module")
-    display_state()
-end
-
-# Run the demo
-demo_symbol_table()
-=#
 
 end
