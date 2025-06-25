@@ -1,7 +1,7 @@
 name = "JuliaCheck"
 uuid = "7b5e9987-6321-4ad2-a98c-8fb2c158333b"
 authors = ["Juanma Bellon <juan.bellon@tiobe.com>"]
-version = "0.1.0"
+version = "0.2.0"
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
