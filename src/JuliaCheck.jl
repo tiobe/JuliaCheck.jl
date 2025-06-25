@@ -43,6 +43,10 @@ function parse_commandline(args::Vector{String})
 end
 
 function main(args::Vector{String})
+    if isempty(args)
+        parse_commandline(["-h"])
+        return nothing
+    end
     arguments = parse_commandline(args)
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
