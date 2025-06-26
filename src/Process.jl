@@ -135,23 +135,26 @@ function process_function(node::SyntaxNode)
     if isnothing(fname)
         # There is nothing left to check, except the debug logging output, where
         # we might see a clue of what we are dealing with.
+        @debug "Can't find function name" node
         return nothing
     end
     Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
     SymbolTable.declare!(fname)
     SymbolTable.enter_scope!()
-    named_arguments = []
     for arg in get_func_arguments(node)
-        if kind(arg) == K"parameters" && haschildren(arg)
-            # The last argument in the list is itself a list, of named arguments,
-            # which we are going to process next.
-            named_arguments = children(arg)
+        if kind(arg) == K"parameters"
+            if ! haschildren(arg)
+                @debug "Odd case of childless [parameters] node" arg
+                return nothing
+            end
+            # The last argument in the list is itself a list, of named arguments.
+            for arg in children(arg)
+                if kind(arg) == K"=" arg = first(get_assignee(arg)) end
+                process_argument(fname, arg)
+            end
         else
             process_argument(fname, arg)
         end
-    end
-    for arg in named_arguments
-        process_argument(fname, get_assignee(arg))
     end
 
     body = get_func_body(node)

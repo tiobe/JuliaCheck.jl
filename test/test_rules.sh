@@ -14,7 +14,7 @@ JuliaCheck=src/JuliaCheck.jl
 }
 
 err_code=0
-for test_file in tests/*.jl; do
+for test_file in test/*.jl; do
     val_file=${test_file%.jl}.val
     [ -r "$val_file" ] || continue
     outfile=$( mktemp )
