@@ -1,31 +1,31 @@
 
->> Processing file 'tests/module_end_comment.jl'...
+>> Processing file 'test/module_end_comment.jl'...
 
-tests/module_end_comment.jl(1, 8):
+test/module_end_comment.jl(1, 8):
 module single_module_file
 #      └────────────────┘ ── Module name single_module_file should match its file name: module_end_comment.
 A file in which a module is implemented should have the name of the module it contains.
 Rule: asml-single-module-file. Severity: 5
 
-tests/module_end_comment.jl(1, 8):
+test/module_end_comment.jl(1, 8):
 module single_module_file
 #      └────────────────┘ ── Package and module names should be written in UpperCamelCase.
 Package names and module names.
 Rule: asml-module-name-casing. Severity: 5
 
-tests/module_end_comment.jl(3, 8):
+test/module_end_comment.jl(3, 8):
 module SubModuleIsOk
 #      └───────────┘ ── The end statement of module has a comment with the module name.
 The "end" of a module quotes the module name in a comment.
 Rule: asml-module-end-comment. Severity: 9
 
-tests/module_end_comment.jl(9, 8):
+test/module_end_comment.jl(9, 8):
 module ThirdInModule
 #      └───────────┘ ── The end statement of module has a comment with the module name.
 The "end" of a module quotes the module name in a comment.
 Rule: asml-module-end-comment. Severity: 9
 
-tests/module_end_comment.jl(13, 8):
+test/module_end_comment.jl(13, 8):
 module StillOneMore
 #      └──────────┘ ── The end statement of module has a comment with the module name.
 The "end" of a module quotes the module name in a comment.

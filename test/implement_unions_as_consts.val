@@ -1,43 +1,43 @@
 
->> Processing file 'tests/implement_unions_as_consts.jl'...
+>> Processing file 'test/implement_unions_as_consts.jl'...
 
-tests/implement_unions_as_consts.jl(1, 8):
+test/implement_unions_as_consts.jl(1, 8):
 module implement_unions_as_consts
 #      └────────────────────────┘ ── Package and module names should be written in UpperCamelCase.
 Package names and module names.
 Rule: asml-module-name-casing. Severity: 5
 
-tests/implement_unions_as_consts.jl(6, 19):
+test/implement_unions_as_consts.jl(6, 19):
         member_x::Union{Nothing, Int64}
 #                 └───────────────────┘ ── Declare this Union as a const type before using it.
 Implement Unions as const.
 Rule: asml-implement-unions-as-consts. Severity: 3
 
-tests/implement_unions_as_consts.jl(7, 19):
+test/implement_unions_as_consts.jl(7, 19):
         member_y::Union{Nothing, Int64}
 #                 └───────────────────┘ ── Declare this Union as a const type before using it.
 Implement Unions as const.
 Rule: asml-implement-unions-as-consts. Severity: 3
 
-tests/implement_unions_as_consts.jl(10, 40):
+test/implement_unions_as_consts.jl(10, 40):
     get_member_x(my_struct::MyStruct)::Union{Nothing, Int64} = my_struct.member_x
 #                                      └───────────────────┘ ── Declare this Union as a const type before using it.
 Implement Unions as const.
 Rule: asml-implement-unions-as-consts. Severity: 3
 
-tests/implement_unions_as_consts.jl(11, 40):
+test/implement_unions_as_consts.jl(11, 40):
     get_member_y(my_struct::MyStruct)::Union{Nothing, Int64} = my_struct.member_y
 #                                      └───────────────────┘ ── Declare this Union as a const type before using it.
 Implement Unions as const.
 Rule: asml-implement-unions-as-consts. Severity: 3
 
-tests/implement_unions_as_consts.jl(12, 55):
+test/implement_unions_as_consts.jl(12, 55):
     function set_member_x(my_struct::MyStruct, value::Union{Nothing, Int64})::MyStruct
 #                                                     └───────────────────┘ ── Declare this Union as a const type before using it.
 Implement Unions as const.
 Rule: asml-implement-unions-as-consts. Severity: 3
 
-tests/implement_unions_as_consts.jl(15, 55):
+test/implement_unions_as_consts.jl(15, 55):
     function set_member_y(my_struct::MyStruct, value::Union{Nothing, Int64})::MyStruct
 #                                                     └───────────────────┘ ── Declare this Union as a const type before using it.
 Implement Unions as const.

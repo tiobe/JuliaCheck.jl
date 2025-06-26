@@ -4,67 +4,95 @@ using TestItems: @testitem
 using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt, JuliaSyntax as JS
 
 include("../src/Properties.jl"); import .Properties
-# include("../src/Checks.jl"); import .Checks
+include("../src/Checks.jl"); import .Checks
 include("../src/Process.jl"); import .Process
-include("../src/SymbolTable.jl"); import .SymbolTable
+include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
+    enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
+    exit_scope!, is_declared, is_global, print_state
 
-make_node(input::String) = parsestmt(SyntaxNode, input)
+make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
 
-@testitem "Symbols Table tests" begin
+@testset "Symbols Table tests" begin
 
     # Add some identifiers to Main module, global scope
-    SymbolTable.enter_main_module!()
-    SymbolTable.declare!(make_node("x"))
-    SymbolTable.declare!(make_node("y"))
-    stt = SymbolTable.print_state()
-    @test SymbolTable.print_state() == """
+    enter_main_module!()
+    x = make_node("x")
+    y = make_node("y")
+    declare!(x)
+    declare!(y)
+    @test print_state() == """
         Symbol Table State:
         Module stack (1 modules):
-        [1] Module: Main <- current
+          [1] Module: Main <- current
             Scope stack (1 scopes):
-            [1] Scope (global): {y, x} <- current
+              [1] Scope (global): {y, x} <- current
         """
 
-    #= Push a new scope in Main module
+    # Push a new scope in Main module
     enter_scope!()
-    declare!("z")
-    declare!("x")  # Shadow the global x
-    println("Pushed new scope, added 'z' and 'x' (shadowing global)")
-    print_state()
+    z = make_node("z")
+    declare!(z)
+    declare!(x)  # Shadow the global x
+    @test print_state() == """
+        Symbol Table State:
+        Module stack (1 modules):
+          [1] Module: Main <- current
+            Scope stack (2 scopes):
+              [1] Scope: {z, x} <- current
+              [2] Scope (global): {y, x}
+        """
 
     # Test identifier lookup
-    println("Identifier lookup in current module:")
-    for id in ["x", "y", "z", "w"]
-        level = find_identifier(id)
-        if level > 0
-            println("  '$id' found at scope level $level")
-        else
-            println("  '$id' not found")
-        end
-    end
-    println()
+    @test is_declared(x)
+    @test is_declared(y)
+    @test is_declared(z)
+    @test ! is_declared(make_node("w"))
+    @test is_global(x)  # This might not be valid in the future, since 'x' is shadowed
+    @test is_global(y)
+    @test ! is_global(z)
 
-    # Push a new module
+    # Push a new module, declare two more identifiers
     enter_module!("MyModule")
-    declare!("a")
-    declare!("b")
-    println("Pushed new module 'MyModule', added 'a' and 'b'")
-    print_state()
+    declare!(make_node("a"))
+    declare!(make_node("b"))
+    @test print_state() == """
+        Symbol Table State:
+        Module stack (2 modules):
+          [1] Module: MyModule
+            Scope stack (1 scopes):
+              [1] Scope (global): {a, b} <- current
+          [2] Module: Main <- current
+            Scope stack (2 scopes):
+              [1] Scope: {z, x} <- current
+              [2] Scope (global): {y, x}
+        """
 
     # Pop module
     exit_module!()
-    println("Popped module")
-    print_state()
+    @test print_state() == """
+        Symbol Table State:
+        Module stack (1 modules):
+          [1] Module: Main <- current
+            Scope stack (2 scopes):
+              [1] Scope: {z, x} <- current
+              [2] Scope (global): {y, x}
+        """
 
-    # Pop scope in Main module, then leave the module itself.
+    # Pop scope in Main module, then exit the module itself.
     exit_scope!()
-    println("Popped scope from global module")
-    print_state()
+    @test print_state() == """
+        Symbol Table State:
+        Module stack (1 modules):
+          [1] Module: Main <- current
+            Scope stack (1 scopes):
+              [1] Scope (global): {y, x} <- current
+        """
 
     exit_main_module!()
-    println("Left Main module")
-    print_state()
-    =#
+    @test print_state() == """
+        Symbol Table State:
+        Module stack (0 modules):
+        """
 end
 
 @testset "Integration Tests" begin

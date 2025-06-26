@@ -80,16 +80,16 @@ function is_upper_camel_case(s::AbstractString)::Bool
 end
 
 
-is_toplevel(   node::AnyTree)::Bool = kind(node) == K"toplevel"
-is_module(     node::AnyTree)::Bool = kind(node) == K"module"
-is_assignment( node::AnyTree)::Bool = kind(node) == K"="
-is_literal(    node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
-is_function(   node::AnyTree)::Bool = kind(node) == K"function"
-is_struct(     node::AnyTree)::Bool = kind(node) == K"struct"
-is_abstract(   node::AnyTree)::Bool = kind(node) == K"abstract"
-is_loop(       node::AnyTree)::Bool = kind(node) in KSet"while for"
-is_constant(   node::AnyTree)::Bool = kind(node) == K"const"
-is_separator(  node::AnyTree)::Bool = kind(node) in KSet", ;"
+is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
+is_module(    node::AnyTree)::Bool = kind(node) == K"module"
+is_assignment(node::AnyTree)::Bool = kind(node) == K"="
+is_literal(   node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
+is_function(  node::AnyTree)::Bool = kind(node) == K"function"
+is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
+is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
+is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
+is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
+is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
 
 function is_mod_toplevel(node::AnyTree)::Bool
     return is_toplevel(node) ||

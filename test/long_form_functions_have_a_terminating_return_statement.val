@@ -1,19 +1,19 @@
 
->> Processing file 'tests/long_form_functions_have_a_terminating_return_statement.jl'...
+>> Processing file 'test/long_form_functions_have_a_terminating_return_statement.jl'...
 
-tests/long_form_functions_have_a_terminating_return_statement.jl(3, 5):
+test/long_form_functions_have_a_terminating_return_statement.jl(3, 5):
     nothing
 #   └─────┘ ── Long form functions are terminated by an explicit return statement.
 Long form functions are ended by a return statement.
 Rule: asml-long-form-functions-have-a-terminating-return-statement. Severity: 3
 
-tests/long_form_functions_have_a_terminating_return_statement.jl(7, 5):
+test/long_form_functions_have_a_terminating_return_statement.jl(7, 5):
     println("println returns nothing")
 #   └────────────────────────────────┘ ── Long form functions are terminated by an explicit return statement.
 Long form functions are ended by a return statement.
 Rule: asml-long-form-functions-have-a-terminating-return-statement. Severity: 3
 
-tests/long_form_functions_have_a_terminating_return_statement.jl(11, 5):
+test/long_form_functions_have_a_terminating_return_statement.jl(11, 5):
 #   ┌────────
     if x == 0
         return 0

@@ -1,25 +1,25 @@
 
->> Processing file 'tests/use_ismissing_to_check_for_missing_values.jl'...
+>> Processing file 'test/use_ismissing_to_check_for_missing_values.jl'...
 
-tests/use_ismissing_to_check_for_missing_values.jl(1, 33):
+test/use_ismissing_to_check_for_missing_values.jl(1, 33):
 my_is_missing(value) = value == missing || typeof(value) == Missing
 #                               └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
 Rule: asml-use-ismissing-to-check-for-missing-values. Severity: 3
 
-tests/use_ismissing_to_check_for_missing_values.jl(1, 61):
+test/use_ismissing_to_check_for_missing_values.jl(1, 61):
 my_is_missing(value) = value == missing || typeof(value) == Missing
 #                                                           └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
 Rule: asml-use-ismissing-to-check-for-missing-values. Severity: 3
 
-tests/use_ismissing_to_check_for_missing_values.jl(2, 34):
+test/use_ismissing_to_check_for_missing_values.jl(2, 34):
 my_not_missing(value) = value != missing || typeof(value) != Missing
 #                                └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
 Rule: asml-use-ismissing-to-check-for-missing-values. Severity: 3
 
-tests/use_ismissing_to_check_for_missing_values.jl(2, 62):
+test/use_ismissing_to_check_for_missing_values.jl(2, 62):
 my_not_missing(value) = value != missing || typeof(value) != Missing
 #                                                            └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
