@@ -66,7 +66,6 @@ enter_module!(modjule::SyntaxNode)::Nothing = enter_module!(get_module_name(modj
 # Call the next method with the name (string) of the [module] node.
 
 function enter_module!(name::AbstractString)::Nothing
-    @debug " -> Entering module $name"
     new_sym_table = NestedScopes()
     push!(new_sym_table, Scope())   # TODO find out why the Module constructor
                                     # above doesn't add a scope, despite how it
@@ -92,10 +91,8 @@ end
 Leave a module, thus popping it from the stack.
 """
 function exit_module!()::Nothing
-    @debug print_state()
     @assert !isempty(SYMBOL_TABLE) "Somehow, the global scope is not there before leaving the module."
-    left_mod = pop!(SYMBOL_TABLE)
-    @debug " <- Left module $(left_mod.mod_name)"
+    pop!(SYMBOL_TABLE)
     return nothing
 end
 
@@ -120,7 +117,6 @@ function enter_scope!()::Nothing
 end
 
 function exit_scope!()::Nothing
-    @debug print_state()
     pop!(current_scopes())
     @assert !isempty(current_scopes()) "Exited global scope. This shouldn't happen before leaving the module!"
     return nothing
