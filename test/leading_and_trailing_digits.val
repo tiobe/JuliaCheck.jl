@@ -13,6 +13,12 @@ float_vec = Float64[.0, 1. ]
 Avoid global variables when possible.
 Rule: asml-avoid-global-variables. Severity: 3
 
+test/leading_and_trailing_digits.jl(2, 1):
+float_vec = Float64[.0, 1. ]
+└───────┘ ── Variable float_vec should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: asml-global-variables-upper-snake-case. Severity: 3
+
 test/leading_and_trailing_digits.jl(2, 21):
 float_vec = Float64[.0, 1. ]
 #                   └┘ ── Floating-point numbers should always have one digit before the decimal point and at least one after.
