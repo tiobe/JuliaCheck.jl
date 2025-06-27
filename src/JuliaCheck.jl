@@ -14,8 +14,11 @@ import .Process
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
-                description = "Code checker for Julia programming language.",
-                add_version = true, version = @project_version)
+            description = "Code checker for Julia programming language.",
+            epilog = """
+            If you '--enable' a list of rules, separate it from the list of input files with '--'.
+            """,
+            add_version = true, version = @project_version)
 
     @add_arg_table! s begin
         "--enable"
@@ -43,6 +46,10 @@ function parse_commandline(args::Vector{String})
 end
 
 function main(args::Vector{String})
+    if isempty(args)
+        parse_commandline(["-h"])
+        return nothing
+    end
     arguments = parse_commandline(args)
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
