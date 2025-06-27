@@ -5,14 +5,14 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
-    is_constant, is_eq_neq_comparison, is_export, is_function, is_import,
-    is_include, is_infix_operator, is_loop, is_literal, is_lower_snake,
-    is_module, is_operator, is_separator, is_struct, is_toplevel, is_type_op,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
-    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
-    get_func_name, get_imported_pkg, get_module_name, get_struct_members,
-    get_struct_name, lines_count, report_violation, reset_counters, SF,
-    source_column, source_index, source_text, to_pascal_case
+    is_constant, is_eq_neq_comparison, is_export, is_function, is_global_decl,
+    is_import, is_include, is_infix_operator, is_loop, is_literal,
+    is_lower_snake, is_module, is_operator, is_separator, is_struct,
+    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
+    expr_size, find_first_of_kind, get_assignee, get_func_arguments,
+    get_func_body, get_func_name, get_imported_pkg, get_module_name,
+    get_struct_members, get_struct_name, lines_count, report_violation,
+    reset_counters, SF, source_column, source_index, source_text, to_pascal_case
 
 
 ## Types
@@ -90,6 +90,7 @@ is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
 is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
 is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
+is_global_decl(node::AnyTree)::Bool = kind(node) == K"global"
 
 function is_union_decl(node::SyntaxNode)::Bool
     if kind(node) == K"curly" && haschildren(node)
@@ -148,8 +149,10 @@ function closes_module(node::SyntaxNode)
     return kind(node) == K"end" && is_module(node.parent)
 end
 
-
-function get_func_name(node::SyntaxNode)
+"""
+Return the node carrying the function's name.
+"""
+function get_func_name(node::SyntaxNode)::SyntaxNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     fname = find_first_of_kind(K"Identifier", node)
     if isnothing(fname)
@@ -165,7 +168,10 @@ function get_func_name(node::SyntaxNode)
     return fname
 end
 
-function get_func_arguments(node::SyntaxNode)
+"""
+Return a list of nodes representing the arguments of a function.
+"""
+function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     call = find_first_of_kind(K"call", children(node)[1])
     if isnothing(call)
@@ -175,7 +181,7 @@ function get_func_arguments(node::SyntaxNode)
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 
-function get_func_body(node::SyntaxNode)
+function get_func_body(node::SyntaxNode)::SyntaxNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     if ! haschildren(node) || length(children(node)) < 2
         @debug "Strange function node. Cannot return its body." node
@@ -187,32 +193,34 @@ end
 
 function get_assignee(node::SyntaxNode)::NodeAndString
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    assignee = children(node)[1]   # FIXME
-    if kind(assignee) == K"Identifier"
-        return (assignee, string(assignee))
-    else
-        # TODO: Handle more complex cases like array indexing, field access, etc.
-        return (assignee, nothing)
+    assignee = find_first_of_kind(K"Identifier", node)
+    # FIXME In case of field access (`my_struct.some_field = value`), this may
+    # not be what we want. Perhaps other cases as well?
+    if isnothing(assignee)
+        throw("No identifier found in assignment!")
+        # FIXME Catch this somewhere! We have to replicate this pattern in more
+        # places, and we probably should fence exceptions around each tree level
     end
+    return (assignee, string(assignee))
 end
 
 
-function get_struct_name(node::SyntaxNode)
+function get_struct_name(node::SyntaxNode)::NullableNode
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
     return find_first_of_kind(K"Identifier", node)
 end
 
-function get_struct_members(node::SyntaxNode)
+function get_struct_members(node::SyntaxNode)::Vector{SyntaxNode}
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
     if length(children(node)) < 2 || kind(children(node)[2]) != K"block"
         @debug "[block] not found where expected." node
-        return nothing
+        return []
     end
     # Return the children of that [block] node:
     return children(children(node)[2])
 end
 
-function get_module_name(node::SyntaxNode)
+function get_module_name(node::SyntaxNode)::NodeAndString
     @assert kind(node) == K"module" "Expected a [module] node, got [$(kind(node))]."
     @assert haschildren(node) "An empty module with no name? That can't be valid!"
     id_node = children(node)[1]
@@ -236,7 +244,7 @@ representation, which would be:
 
 If there are multiple packages being imported/used, only the first one is returned.
 """
-function get_imported_pkg(node::SyntaxNode)::Tuple{SyntaxNode, AbstractString}
+function get_imported_pkg(node::SyntaxNode)::NodeAndString
     @assert is_import(node) "Expected a package import declaration, got [$(kind(node))]."
     @assert haschildren(node) "How can an [import] or [using] have nothing behind?"
     local pkg::SyntaxNode
@@ -269,7 +277,7 @@ function get_imported_pkg(node::SyntaxNode)::Tuple{SyntaxNode, AbstractString}
 end
 
 
-function find_first_of_kind(node_kind::Kind, node::AnyTree)
+function find_first_of_kind(node_kind::Kind, node::AnyTree)::NullableNode
     child = node
     while kind(child) != node_kind && haschildren(child)
         child = children(child)[1]
@@ -277,10 +285,10 @@ function find_first_of_kind(node_kind::Kind, node::AnyTree)
     return kind(child) == node_kind ? child : nothing
 end
 
-expr_depth(node::SyntaxNode) = (! haschildren(node)) ? 1 :
-                                    (1 + maximum(expr_depth.(children(node))))
-expr_size(node::SyntaxNode) = (! haschildren(node)) ? 1 :
-                                    (1 + sum(expr_size.(children(node))))
+expr_depth(node::SyntaxNode)::Int = (! haschildren(node)) ? 1 :
+                                        (1 + maximum(expr_depth.(children(node))))
+expr_size(node::SyntaxNode)::Int = (! haschildren(node)) ? 1 :
+                                        (1 + sum(expr_size.(children(node))))
 
 
 function reset_counters()
@@ -288,7 +296,7 @@ function reset_counters()
     global SOURCE_INDEX = 1
     global SOURCE_LINE = 1
 end
-function increase_counters(node::GreenNode)
+function increase_counters(node::GreenNode)::Int
     global SOURCE_COL
     global SOURCE_INDEX
     global SOURCE_LINE

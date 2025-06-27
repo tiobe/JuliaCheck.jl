@@ -4,11 +4,9 @@ import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
     children, is_whitespace, kind, numchildren, span, untokenize,
     JuliaSyntax as JS
 
-# include("SymbolTable.jl")
-# import .SymbolTable
-
 using ..Properties
 import ..Checks
+include("SymbolTable.jl"); import .SymbolTable
 
 export check
 
@@ -30,7 +28,7 @@ function check(file_name::String;
         #if trivia_checks_enabled
             process_with_trivia(ast.raw, ast.raw)
         #end
-        #SymbolTable.exit_module()   # leave `Main`
+        SymbolTable.exit_module!()   # leave `Main`
     end
 end
 
@@ -51,15 +49,10 @@ end
 function process(node::SyntaxNode)
     if haschildren(node)
         if is_toplevel(node)
-            #SymbolTable.enter_module()  # There is always the `Main` module
-            # TODO: a file can be `include`d into another, thus into another
-            # module and, what is most important from the point of view of the
-            # symbols table and declarations: something can be declared outside
-            # the file under analysis, and we will surely get confused about its
-            # scope.
+            SymbolTable.enter_main_module!()
 
         elseif is_module(node)
-            #SymbolTable.enter_module(node)
+            SymbolTable.enter_module!(node)
             Checks.SingleModuleFile.check(node)
             Checks.ModuleNameCasing.check(node)
             Checks.ModuleEndComment.check(node)
@@ -89,18 +82,22 @@ function process(node::SyntaxNode)
         elseif is_union_decl(node)
             process_unions(node)
 
+        elseif is_global_decl(node)
+            process_global(node)
         end
+
         for x in children(node) process(x) end
     else
-        # FIXME: [end] nodes belong in GreenNode trees only! Thus, the following
-        # functions 'closes_module' and 'closes_scope' are useless!
-        if closes_module(node)
-            #SymbolTable.exit_module(node.parent)
-        elseif closes_scope(node)
-            #SymbolTable.exit_scope()
-        elseif is_literal(node)
+        if is_literal(node)
             process_literal(node)
         end
+    end
+
+    # "Post-processing", before returning from this level of the tree
+    if is_module(node)
+        SymbolTable.exit_module!()
+    elseif opens_scope(node)
+        SymbolTable.exit_scope!()
     end
 end
 
@@ -128,8 +125,8 @@ function process_operator(node::AnyTree)
         # something with postfix operators
     end
 
-    # Two of these type operators (<: >:) can appear not only as infix, but also
-    # as prefix or postfix operators
+    # These type operators (<: >:) can appear not only as infix, but also as
+    # prefix (or postfix?) operators
     if is_type_op(node) process_type_restriction(node) end
 end
 
@@ -141,8 +138,8 @@ function process_function(node::SyntaxNode)
         return nothing
     end
     Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
-    #SymbolTable.declare(fname)
-    #SymbolTable.enter_scope()
+    SymbolTable.declare!(fname)
+    SymbolTable.enter_scope!()
     named_arguments = []
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters" && haschildren(arg)
@@ -150,12 +147,11 @@ function process_function(node::SyntaxNode)
             # which we are going to process next.
             named_arguments = children(arg)
         else
-            # SymbolTable.declare(arg)
-            Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
+            process_argument(fname, arg)
         end
     end
     for arg in named_arguments
-        Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
+        process_argument(fname, get_assignee(arg))
     end
 
     body = get_func_body(node)
@@ -165,13 +161,27 @@ function process_function(node::SyntaxNode)
     end
 end
 
+function process_argument(fname::SyntaxNode, node::SyntaxNode)
+    if kind(node) == K"::"
+        if numchildren(node) == 2
+            arg = children(node)[1]
+        else
+            # Probably not a real argument, but a `::Val(Type)` to fix dispatch,
+            # or maybe some other kind of weird thing.
+            return nothing
+        end
+    else
+        arg = node
+    end
+    SymbolTable.declare!(arg)
+    Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
+end
+
 function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
     Checks.DoNotSetVariablesToInf.check(node)
     Checks.DoNotSetVariablesToNan.check(node)
-    # if !SymbolTable.is_declared(lhs)
-    #     SymbolTable.declare(lhs)
-    # end
+    SymbolTable.declare!(first(lhs))
     # Checks.AvoidGlobals.check(node)
 end
 process_assignment(_::GreenNode) = nothing
@@ -184,7 +194,9 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    Checks.TypeNamesUpperCamelCase.check(node)
+    type_name = find_first_of_kind(K"Identifier", node)
+    SymbolTable.declare!(type_name)
+    Checks.TypeNamesUpperCamelCase.check(type_name)
     for field in get_struct_members(node)
         Checks.StructMembersAreInLowerSnakeCase.check(field)
     end
@@ -207,6 +219,17 @@ end
 function process_loop(node::SyntaxNode)
     if kind(node) == K"while" Checks.InfiniteWhileLoop.check(node) end
 end
+
+function process_global(node::SyntaxNode)
+    if 0 == numchildren(node)
+        @debug "[global] declaration with no children!" node
+        return nothing
+    end
+    id = children(node)[1]
+    if kind(id) == K"const" id = children(id)[1] end
+    SymbolTable.declare!(SymbolTable.global_scope(), id)
+end
+
 
 function process_with_trivia(node::GreenNode, parent::GreenNode)
     if haschildren(node)

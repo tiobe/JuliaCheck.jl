@@ -1,76 +1,170 @@
 module SymbolTable
 
-# import Pkg
-# Pkg.add("DataStructures")
 import DataStructures: Stack
-
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
+include("Properties.jl"); using .Properties: get_module_name
 
-export declare, is_declared, exit_module
+export current_module, current_scope, declare!, is_declared, enter_main_module!,
+    enter_module!, enter_scope!, exit_main_module!, exit_module!, exit_scope!
 
 ## Types
 
-# Each module introduces a new global scope. Nested modules can be represented
-# by a stack, and local scopes are stacked, too, but those two stacks must be
-# separated, they are orthogonal. The symbols table is a stack of sets, and it
-# can be traversed top-down in search for a symbol. Then, each stacked module
-# will have its own symbols table.
-Scope = Set{SyntaxNode}
-SymbolsTable = Stack{Scope}
+Item = SyntaxNode
+#=
+A scope is represented by a set of symbols (for now, each stored symbol is a
+SyntaxNode, directly). Scopes are stacked, as they are nested, with the global
+scope always at the base of that stack, and the current scope at the top.
+
+Each module introduces a new global scope, and modules can be nested, like
+scopes (but with names), so nested modules can be represented by a stack, too.
+
+When searching for a symbol, we scan the stack of scopes of the current module,
+top to bottom. Symbols from other modules have to be qualified, or entered into
+the current module's global scope with a `using` declaration.
+=#
+Scope = Set{Item}
+NestedScopes = Stack{Scope}
+"""
+A module containing an identifier and a stack of scopes.
+
+The top of the scopes stack is the current scope, and the bottom is the global
+scope for this module.
+"""
+struct Module
+    mod_name::String
+    nested_scopes::NestedScopes
+end
+Module(identifier::String) = Module(identifier, [Scope()])  # Start with global scope
 
 
 ## Globals ##
 
-symbols_table = SymbolsTable()
-nested_modules = Stack{SymbolsTable}()
+SYMBOL_TABLE = Stack{Module}()
 
 
 ## Functions
 
-function enter_scope()
-    push!(symbols_table, Scope())
-    @debug "{\n" length(nested_modules) length(symbols_table)
-end
-function exit_scope()
-    pop!(symbols_table)
-    @debug "}\n" length(nested_modules) length(symbols_table)
-end
-global_scope()  = last(symbols_table)
-current_scope() = first(symbols_table)
+"""
+Module 'Main' is always there, at the bottom of the stack of modules.
 
-function enter_module()
-    enter_module("Main")
-    @assert length(nested_modules) == 1 && length(symbols_table) == 1 "There should be "*
-    "1 module with 1 scope. Instead, there are $(length(nested_modules)) nested modules"*
-    " and $(length(symbols_table)) scopes."
-end
-enter_module(modjule::SyntaxNode) = enter_module(sourcetext(children(modjule)[1]))
-function enter_module(name::AbstractString)
-    @debug " -> Entering module $name"
-    push!(nested_modules, enter_scope())
+This function makes sure to reflect that situation.
+"""
+function enter_main_module!()
+    enter_module!("Main")
+    @assert length(SYMBOL_TABLE) == length(current_scopes()) == 1 """
+        There should be 1 module with 1 scope. Instead, there are $(length(SYMBOL_TABLE)) nested modules
+        and $(length(current_scopes())) scopes.
+        """
 end
 
-function exit_module()
-    leave_module("Main")
-    @assert length(nested_modules) == 0 && length(symbols_table) == 0
-end
-exit_module(modjule::SyntaxNode) = leave_module(sourcetext(children(modjule)[1]))
-function leave_module(name::String)
-    @debug " <- Leaving module $name"
-    pop!(nested_modules)
-end
+"""
+Push a new module (with its identifier) on top of the stack.
 
-is_global(node::SyntaxNode) = node ∈ global_scope()
-is_declared(node::SyntaxNode) = any(scope -> node ∈ scope, symbols_table)
+This introduces a new global scope (thus, a new stack of scopes).
+"""
+enter_module!(modjule::SyntaxNode)::Nothing = enter_module!(get_module_name(modjule)[2])
+# Call the next method with the name (string) of the [module] node.
 
-add_to_scope(symbol::SyntaxNode, scope::Scope = current_scope()) = push!(scope, symbol)
-
-function declare(symbol::SyntaxNode)
-    # FIXME Remove `add_to_scope`, put the defaulted argument `scope` here, and
-    # handle the `global` declaration outside of here, using the parent node.
-    add_to_scope(symbol,
-                 kind(symbol) == K"global" ? global_scope() : current_scope())
+function enter_module!(name::AbstractString)::Nothing
+    new_sym_table = NestedScopes()
+    push!(new_sym_table, Scope())   # TODO find out why the Module constructor
+                                    # above doesn't add a scope, despite how it
+                                    # looks like that is what happens.
+    push!(SYMBOL_TABLE, Module(name, new_sym_table))
+    @assert length(current_scopes()) == 1 "There should be one scope (the global one) on module entry."
     return nothing
+end
+
+"""
+Leaving the 'Main' module happens only at the end of all processing: before
+this, all other scopes and modules must be gone, and afterwards, everything
+must be empty.
+"""
+function exit_main_module!()::Nothing
+    @assert length(SYMBOL_TABLE) == length(current_scopes()) == 1
+    exit_module!()
+    @assert isempty(SYMBOL_TABLE)
+    return nothing
+end
+
+"""
+Leave a module, thus popping it from the stack.
+"""
+function exit_module!()::Nothing
+    @assert !isempty(SYMBOL_TABLE) "Somehow, the global scope is not there before leaving the module."
+    pop!(SYMBOL_TABLE)
+    return nothing
+end
+
+"""
+Return the symbols table for the current module.
+
+The current module is the one at the peak of the stack of modules.
+"""
+current_scopes()::NestedScopes = current_module().nested_scopes
+
+current_module()::Module = first(SYMBOL_TABLE)
+
+# TODO: a file can be `include`d into another, thus into another
+# module and, what is most important from the point of view of the
+# symbols table and declarations: something can be declared outside
+# the file under analysis, and we will surely get confused about its
+# scope.
+
+function enter_scope!()::Nothing
+    push!(current_scopes(), Scope())
+    return nothing
+end
+
+function exit_scope!()::Nothing
+    pop!(current_scopes())
+    @assert !isempty(current_scopes()) "Exited global scope. This shouldn't happen before leaving the module!"
+    return nothing
+end
+
+global_scope()::Scope = last(current_scopes())
+current_scope()::Scope = first(current_scopes())
+
+"""
+Check if an item (the identifier in the node) is declared in any scope in the
+current module.
+"""
+is_declared(node::Item)::Bool = any(scp -> node ∈ scp, current_scopes())
+
+is_global(node::Item)::Bool = node ∈ global_scope()
+
+"""
+Register an identifier.
+"""
+declare!(symbol::Item) = declare!(current_scope(), symbol)
+
+function declare!(sc::Scope, symbol::Item)
+    @assert kind(symbol) == K"Identifier" "kind(symbol) = $(kind(symbol))"
+    push!(sc, symbol)
+end
+
+"""
+Display the current state of the symbols table.
+"""
+function print_state()::String
+    state = """
+        Symbol Table State:
+        Module stack ($(length(SYMBOL_TABLE)) modules):
+        """
+    for (i, mod) in enumerate(SYMBOL_TABLE)
+        marker = i == length(SYMBOL_TABLE) ? " <- current" : ""
+        state *= """
+              [$i] Module: $(mod.mod_name)$marker
+                Scope stack ($(length(mod.nested_scopes)) scopes):
+            """
+        for (j, scope) in enumerate(mod.nested_scopes)
+            scope_marker = j == 1 ? " <- current" : ""
+            scope_type = j == length(mod.nested_scopes) ? " (global)" : ""
+            ids = isempty(scope) ? "{}" : "{$(join(collect(scope), ", "))}"
+            state *= "      [$j] Scope$scope_type: $ids$scope_marker\n"
+        end
+    end
+    return state
 end
 
 end
