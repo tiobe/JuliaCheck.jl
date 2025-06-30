@@ -4,10 +4,10 @@ import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
 using ...Properties: is_union_decl, report_violation
 
-SEVERITY = 6
-RULE_ID = "asml-too-many-types-in-unions"
-USER_MSG = "Union has too many types."
-SUMMARY = "Too many types in Unions."
+const SEVERITY = 6
+const RULE_ID = "asml-too-many-types-in-unions"
+const USER_MSG = "Union has too many types."
+const SUMMARY = "Too many types in Unions."
 
 function check(union_decl::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

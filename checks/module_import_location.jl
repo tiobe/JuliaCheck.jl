@@ -5,10 +5,10 @@ using ...Checks: is_enabled
 using ...Properties: haschildren, is_import, is_include, is_upper_camel_case,
                 report_violation
 
-SEVERITY = 9
-RULE_ID = "asml-module-import-location"
-USER_MSG = "Move imports to the top of the module, before any actual code."
-SUMMARY = "Packages should be imported after the module keyword."
+const SEVERITY = 9
+const RULE_ID = "asml-module-import-location"
+const USER_MSG = "Move imports to the top of the module, before any actual code."
+const SUMMARY = "Packages should be imported after the module keyword."
 
 function check(modjule::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

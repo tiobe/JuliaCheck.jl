@@ -3,10 +3,10 @@ module OmitTrailingWhiteSpace
 import JuliaSyntax: GreenNode, @K_str, @KSet_str, kind
 using ...Properties: lines_count, report_violation, source_index, source_text
 
-SEVERITY = 7
-RULE_ID = "asml-omit-trailing-white-space"
-USER_MSG = "Omit spaces at the end of a line."
-SUMMARY = "Omit trailing whitespace."
+const SEVERITY = 7
+const RULE_ID = "asml-omit-trailing-white-space"
+const USER_MSG = "Omit spaces at the end of a line."
+const SUMMARY = "Omit trailing whitespace."
 
 function check(node::GreenNode)
     if kind(node) ∉ KSet"NewlineWs String" return nothing end

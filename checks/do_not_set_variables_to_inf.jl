@@ -6,10 +6,10 @@ using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, get_assignee, haschildren,
                 report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-do-not-set-variables-to-inf"
-USER_MSG = "Do not set variables to Inf."
-SUMMARY = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
+const SEVERITY = 3
+const RULE_ID = "asml-do-not-set-variables-to-inf"
+const USER_MSG = "Do not set variables to Inf."
+const SUMMARY = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
 
 """
     check(node::SyntaxNode)

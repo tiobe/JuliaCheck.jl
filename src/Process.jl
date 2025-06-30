@@ -130,7 +130,7 @@ function process_function(node::SyntaxNode)
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters"
             if ! haschildren(arg)
-                @debug "Odd case of childless [parameters] node" arg
+                @debug "Odd case of childless [parameters] node" node
                 return nothing
             end
             # The last argument in the list is itself a list, of named arguments.

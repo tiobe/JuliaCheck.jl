@@ -4,10 +4,10 @@ using JuliaSyntax: SyntaxNode, @K_str, children, kind
 using ...Checks: is_enabled
 using ...Properties: is_assignment, get_assignee, report_violation
 
-RULE_ID = "asml-avoid-global-variables"
-USER_MSG = "Avoid global variables wherever possible."
-SUMMARY = "Avoid global variables when possible."
-SEVERITY = 3
+const RULE_ID = "asml-avoid-global-variables"
+const USER_MSG = "Avoid global variables wherever possible."
+const SUMMARY = "Avoid global variables when possible."
+const SEVERITY = 3
 
 function check(glob_var::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

@@ -4,11 +4,10 @@ import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
 using ...Properties: inside, is_struct, get_func_name, haschildren, report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-long-form-functions-have-a-terminating-return-statement"
-USER_MSG = "Long form functions are terminated by an explicit return statement."
-# TODO #36595 USER_MSG = "Function '$fname' should end with an explicit return statement (or one in each conditional branch)."
-SUMMARY = "Long form functions are ended by a return statement."
+const SEVERITY = 3
+const RULE_ID = "asml-long-form-functions-have-a-terminating-return-statement"
+const USER_MSG = "Long form functions are terminated by an explicit return statement."
+const SUMMARY = "Long form functions are ended by a return statement."
 
 function check(_::Nothing)
     # This must have been a weird function definition, if it didn't have a body

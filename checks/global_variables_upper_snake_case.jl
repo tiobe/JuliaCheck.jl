@@ -6,7 +6,7 @@ using ...Properties: is_fat_snake_case, get_assignee, report_violation
 
 const RULE_ID = "asml-global-variables-upper-snake-case"
 const SUMMARY = USER_MSG = "Casing of globals."
-SEVERITY = 3
+const SEVERITY = 3
 
 function check(glob_var::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

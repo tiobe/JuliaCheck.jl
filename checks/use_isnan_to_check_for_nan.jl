@@ -6,10 +6,10 @@ using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, get_assignee,
                 haschildren, report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-use-isnan-to-check-for-nan"
-USER_MSG = "Use isnan to check for not-a-number values."
-SUMMARY = "Use isnan to check variables for not-a-number."
+const SEVERITY = 3
+const RULE_ID = "asml-use-isnan-to-check-for-nan"
+const USER_MSG = "Use isnan to check for not-a-number values."
+const SUMMARY = "Use isnan to check variables for not-a-number."
 
 """
     check(node::SyntaxNode)

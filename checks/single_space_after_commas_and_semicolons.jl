@@ -6,11 +6,10 @@ import JuliaSyntax: GreenNode, SyntaxNode, @K_str, is_whitespace,
 using ...Properties: EOL, fake_green_node, haschildren, is_separator, lines_count,
     report_violation, source_column, source_index, source_text
 
-
-SEVERITY = 7
-RULE_ID = "asml-single-space-after-commas-and-semicolons"
-USER_MSG = "A comma or a semicolon is followed, but not preceded, by a space."
-SUMMARY = "Commas and semicolons are followed, but not preceded, by a space."
+const SEVERITY = 7
+const RULE_ID = "asml-single-space-after-commas-and-semicolons"
+const USER_MSG = "A comma or a semicolon is followed, but not preceded, by a space."
+const SUMMARY = "Commas and semicolons are followed, but not preceded, by a space."
 
 # Global / static variable
 CHECKED::Vector{Int} = []

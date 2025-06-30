@@ -66,10 +66,7 @@ function fake_green_node(kind::Kind; length::Int=0)
     return GreenNode{Kind}(kind, length, nothing)
 end
 
-function haschildren(node::AnyTree)::Bool
-    subnodes = children(node)
-    return (! isnothing(subnodes)) && length(subnodes) > 0
-end
+haschildren(node::AnyTree)::Bool = numchildren(node) > 0
 
 function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
@@ -116,8 +113,8 @@ end
 
 function is_operator(node::AnyTree)::Bool
     return  JS.is_prefix_op_call(node) ||
-    is_infix_operator(node)  ||
-    JS.is_postfix_op_call(node)
+            is_infix_operator(node)  ||
+            JS.is_postfix_op_call(node)
 end
 function is_infix_operator(node::AnyTree)::Bool
     return JS.is_infix_op_call(node) || JS.is_operator(node)

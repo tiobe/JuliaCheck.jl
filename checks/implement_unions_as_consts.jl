@@ -4,10 +4,10 @@ import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
 using ...Properties: is_assignment, is_constant, is_union_decl, report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-implement-unions-as-consts"
-USER_MSG = "Declare this Union as a const type before using it."
-SUMMARY = "Implement Unions as const."
+const SEVERITY = 3
+const RULE_ID = "asml-implement-unions-as-consts"
+const USER_MSG = "Declare this Union as a const type before using it."
+const SUMMARY = "Implement Unions as const."
 
 function check(union::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
