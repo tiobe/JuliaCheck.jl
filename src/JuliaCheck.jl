@@ -3,14 +3,11 @@ module JuliaCheck
 import JuliaSyntax as JS
 using ArgParse: ArgParseSettings, @project_version, @add_arg_table!, parse_args
 
-include("Properties.jl")
-import .Properties
+include("Properties.jl"); import .Properties
 
-include("Checks.jl")
-import .Checks: setup_filter
+include("Checks.jl"); import .Checks: filter_rules
 
-include("Process.jl")
-import .Process
+include("Process.jl"); import .Process
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
@@ -55,7 +52,7 @@ function main(args::Vector{String})
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
 
-    setup_filter(Set(arguments["rules"]))
+    filter_rules(Set(arguments["rules"]))
 
     for in_file::String in arguments["infiles"]
         if !(isfile(in_file))
@@ -71,6 +68,8 @@ function main(args::Vector{String})
     println()
 end
 
-main(ARGS)
+if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE__
+    main(ARGS)
+end
 
 end

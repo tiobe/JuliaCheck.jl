@@ -1,27 +1,26 @@
 
->> Processing file 'test/use_isnothing_to_check_for_nothing_values.jl'...
+>> Processing file 'use_isnothing_to_check_for_nothing_values.jl'...
 
-test/use_isnothing_to_check_for_nothing_values.jl(2, 22):
+use_isnothing_to_check_for_nothing_values.jl(2, 22):
     return value === nothing || typeof(value) == Nothing
 #                    └─────┘ ── Use isnothing to check for nothing values.
 Use isnothing to check variables for nothing.
 Rule: asml-use-isnothing-to-check-for-nothing-values. Severity: 3
 
-test/use_isnothing_to_check_for_nothing_values.jl(2, 50):
+use_isnothing_to_check_for_nothing_values.jl(2, 50):
     return value === nothing || typeof(value) == Nothing
 #                                                └─────┘ ── Use isnothing to check for nothing values.
 Use isnothing to check variables for nothing.
 Rule: asml-use-isnothing-to-check-for-nothing-values. Severity: 3
 
-test/use_isnothing_to_check_for_nothing_values.jl(4, 27):
+use_isnothing_to_check_for_nothing_values.jl(4, 27):
 is_not_nothing(x) = x !== nothing || typeof(x) != Nothing
 #                         └─────┘ ── Use isnothing to check for nothing values.
 Use isnothing to check variables for nothing.
 Rule: asml-use-isnothing-to-check-for-nothing-values. Severity: 3
 
-test/use_isnothing_to_check_for_nothing_values.jl(4, 51):
+use_isnothing_to_check_for_nothing_values.jl(4, 51):
 is_not_nothing(x) = x !== nothing || typeof(x) != Nothing
 #                                                 └─────┘ ── Use isnothing to check for nothing values.
 Use isnothing to check variables for nothing.
 Rule: asml-use-isnothing-to-check-for-nothing-values. Severity: 3
-

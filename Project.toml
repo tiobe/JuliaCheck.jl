@@ -13,12 +13,14 @@ TestItems = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
 [compat]
 ArgParse = "1.2"
 DataStructures = "0.18.22"
+IOCapture = "0.2.5"
 JuliaSyntax = "1"
 Test = "1.11.0"
 TestItems = "1.0.0"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
 
 [targets]
-test = ["Test"]
+test = ["Test", "IOCapture"]

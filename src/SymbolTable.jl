@@ -154,14 +154,14 @@ function print_state()::String
     for (i, mod) in enumerate(SYMBOL_TABLE)
         marker = i == length(SYMBOL_TABLE) ? " <- current" : ""
         state *= """
-              [$i] Module: $(mod.mod_name)$marker
-                Scope stack ($(length(mod.nested_scopes)) scopes):
+                [$i] Module: $(mod.mod_name)$marker
+                    Scope stack ($(length(mod.nested_scopes)) scopes):
             """
         for (j, scope) in enumerate(mod.nested_scopes)
             scope_marker = j == 1 ? " <- current" : ""
             scope_type = j == length(mod.nested_scopes) ? " (global)" : ""
             ids = isempty(scope) ? "{}" : "{$(join(collect(scope), ", "))}"
-            state *= "      [$j] Scope$scope_type: $ids$scope_marker\n"
+            state *= "            [$j] Scope$scope_type: $ids$scope_marker\n"
         end
     end
     return state

@@ -1,9 +1,9 @@
 module SingleSpaceAfterCommasAndSemicolons
 
-import JuliaSyntax: GreenNode, SyntaxNode, @K_str, haschildren, is_whitespace,
+import JuliaSyntax: GreenNode, SyntaxNode, @K_str, is_whitespace,
     kind, children, span
 
-using ...Properties: EOL, fake_green_node, is_separator, lines_count,
+using ...Properties: EOL, fake_green_node, haschildren, is_separator, lines_count,
     report_violation, source_column, source_index, source_text
 
 
