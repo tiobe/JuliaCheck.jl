@@ -114,7 +114,7 @@ const COMPANY_PREFIX = "asml-"
                 continue
             end
             corresponding_rule = COMPANY_PREFIX * replace(basename(fname), '_'=>'-')
-            println("Checking '$f' with rule '$corresponding_rule'.")
+            println(join(["--enable", corresponding_rule, "--", f], " "))
             result = IOCapture.capture() do
                 JuliaCheck.main(["--enable", corresponding_rule, "--", f])
             end
@@ -122,3 +122,13 @@ const COMPANY_PREFIX = "asml-"
         end
     end
 end
+
+#=@testset "Pesky failing test" begin
+    result = IOCapture.capture() do
+        JuliaCheck.main(["--enable", "asml-single-space-after-commas-and-semicolons",
+                         "--", "single_space_after_commas_and_semicolons.jl"])
+    end
+    print(result.output)
+    expected = read("single_space_after_commas_and_semicolons.val", String)
+    @test chomp(result.output) == expected
+end=#
