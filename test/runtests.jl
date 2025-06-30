@@ -100,35 +100,22 @@ const COMPANY_PREFIX = "asml-"
 
 @testset "Integration Tests" begin
     for f in readdir()
-        if endswith(f, ".jl")
-            fname = f[1:end-3]
-            val_file = fname * ".val"
-            if !isfile(val_file)
-                continue
-            end
+        if endswith(f, ".val")
+            fname = f[1:end-4]
+            in_file = fname * ".jl"
             expected::String = ""
             try
-                expected = read(val_file, String)
+                expected = read(f, String)
             catch x
-                @warn "Cannot read '$val_file'. Skipping '$f'." x
+                @warn x
                 continue
             end
             corresponding_rule = COMPANY_PREFIX * replace(basename(fname), '_'=>'-')
-            println(join(["--enable", corresponding_rule, "--", f], " "))
+            println(join(["--enable", corresponding_rule, "--", in_file], " "))
             result = IOCapture.capture() do
-                JuliaCheck.main(["--enable", corresponding_rule, "--", f])
+                JuliaCheck.main(["--enable", corresponding_rule, "--", in_file])
             end
             @test chomp(result.output) == expected
         end
     end
 end
-
-#=@testset "Pesky failing test" begin
-    result = IOCapture.capture() do
-        JuliaCheck.main(["--enable", "asml-single-space-after-commas-and-semicolons",
-                         "--", "single_space_after_commas_and_semicolons.jl"])
-    end
-    print(result.output)
-    expected = read("single_space_after_commas_and_semicolons.val", String)
-    @test chomp(result.output) == expected
-end=#
