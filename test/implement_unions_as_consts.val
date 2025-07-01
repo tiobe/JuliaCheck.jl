@@ -49,3 +49,9 @@ test/implement_unions_as_consts.jl(24, 11):
 Avoid global variables when possible.
 Rule: asml-avoid-global-variables. Severity: 3
 
+test/implement_unions_as_consts.jl(24, 11):
+    const MyUnion = Union{Nothing, Int64}
+#         └─────┘ ── Variable MyUnion should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: asml-global-variables-upper-snake-case. Severity: 3
+

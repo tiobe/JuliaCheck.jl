@@ -5,11 +5,11 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
-    is_constant, is_eq_neq_comparison, is_export, is_function, is_global_decl,
-    is_import, is_include, is_infix_operator, is_loop, is_literal,
-    is_lower_snake, is_module, is_operator, is_separator, is_struct,
-    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
-    expr_size, find_first_of_kind, get_assignee, get_func_arguments,
+    is_constant, is_eq_neq_comparison, is_export, is_fat_snake_case,
+    is_function, is_global_decl, is_import, is_include, is_infix_operator,
+    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_separator,
+    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
+    expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
     get_func_body, get_func_name, get_imported_pkg, get_module_name,
     get_struct_members, get_struct_name, lines_count, report_violation,
     reset_counters, SF, source_column, source_index, source_text, to_pascal_case
@@ -76,6 +76,10 @@ function is_lower_snake(s::AbstractString)::Bool
 end
 function is_upper_camel_case(s::AbstractString)::Bool
     m = match(r"([[:upper:]][[:lower:][:digit:]]+)+", s)
+    return !isnothing(m) && length(m.match) == length(s)
+end
+function is_fat_snake_case(s::AbstractString)::Bool
+    m = match(r"[[:upper:]_[:digit:]]+", s)
     return !isnothing(m) && length(m.match) == length(s)
 end
 
