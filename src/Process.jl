@@ -135,7 +135,6 @@ function process_function(node::SyntaxNode)
             end
             # The last argument in the list is itself a list, of named arguments.
             for arg in children(arg)
-                if kind(arg) == K"=" arg = first(get_assignee(arg)) end
                 process_argument(fname, arg)
             end
         else
@@ -151,16 +150,12 @@ function process_function(node::SyntaxNode)
 end
 
 function process_argument(fname::SyntaxNode, node::SyntaxNode)
-    if kind(node) == K"::"
-        if numchildren(node) == 2
-            arg = children(node)[1]
-        else
-            # Probably not a real argument, but a `::Val(Type)` to fix dispatch,
-            # or maybe some other kind of weird thing.
-            return nothing
-        end
-    else
-        arg = node
+    arg = find_first_of_kind(K"Identifier", node)
+    if isnothing(arg)
+        @debug "No identifier found in a function argument" node
+        # Probably not a real argument, but a `::Val(Type)` to fix dispatch, or
+        # something as tricky.
+        return nothing
     end
     SymbolTable.declare!(arg)
     Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
