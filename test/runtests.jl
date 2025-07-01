@@ -1,6 +1,7 @@
 using Test: @testset, @test
 using TestItems: @testitem
-# using JuliaCheck
+using IOCapture
+using JuliaCheck
 using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt, JuliaSyntax as JS
 
 include("../src/Properties.jl"); import .Properties
@@ -23,9 +24,9 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test print_state() == """
         Symbol Table State:
         Module stack (1 modules):
-          [1] Module: Main <- current
-            Scope stack (1 scopes):
-              [1] Scope (global): {y, x} <- current
+            [1] Module: Main <- current
+                Scope stack (1 scopes):
+                    [1] Scope (global): {y, x} <- current
         """
 
     # Push a new scope in Main module
@@ -36,10 +37,10 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test print_state() == """
         Symbol Table State:
         Module stack (1 modules):
-          [1] Module: Main <- current
-            Scope stack (2 scopes):
-              [1] Scope: {z, x} <- current
-              [2] Scope (global): {y, x}
+            [1] Module: Main <- current
+                Scope stack (2 scopes):
+                    [1] Scope: {z, x} <- current
+                    [2] Scope (global): {y, x}
         """
 
     # Test identifier lookup
@@ -58,13 +59,13 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test print_state() == """
         Symbol Table State:
         Module stack (2 modules):
-          [1] Module: MyModule
-            Scope stack (1 scopes):
-              [1] Scope (global): {a, b} <- current
-          [2] Module: Main <- current
-            Scope stack (2 scopes):
-              [1] Scope: {z, x} <- current
-              [2] Scope (global): {y, x}
+            [1] Module: MyModule
+                Scope stack (1 scopes):
+                    [1] Scope (global): {a, b} <- current
+            [2] Module: Main <- current
+                Scope stack (2 scopes):
+                    [1] Scope: {z, x} <- current
+                    [2] Scope (global): {y, x}
         """
 
     # Pop module
@@ -72,10 +73,10 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test print_state() == """
         Symbol Table State:
         Module stack (1 modules):
-          [1] Module: Main <- current
-            Scope stack (2 scopes):
-              [1] Scope: {z, x} <- current
-              [2] Scope (global): {y, x}
+            [1] Module: Main <- current
+                Scope stack (2 scopes):
+                    [1] Scope: {z, x} <- current
+                    [2] Scope (global): {y, x}
         """
 
     # Pop scope in Main module, then exit the module itself.
@@ -83,9 +84,9 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test print_state() == """
         Symbol Table State:
         Module stack (1 modules):
-          [1] Module: Main <- current
-            Scope stack (1 scopes):
-              [1] Scope (global): {y, x} <- current
+            [1] Module: Main <- current
+                Scope stack (1 scopes):
+                    [1] Scope (global): {y, x} <- current
         """
 
     exit_main_module!()
@@ -95,7 +96,26 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
         """
 end
 
+const COMPANY_PREFIX = "asml-"
+
 @testset "Integration Tests" begin
-    # TODO move here the loop to check each Julia file with a .val counterpart
-    #include("use_isinf_to_check_for_infinite.jl")
+    for f in readdir()
+        if endswith(f, ".val")
+            fname = f[1:end-4]
+            in_file = fname * ".jl"
+            expected::String = ""
+            try
+                expected = read(f, String)
+            catch x
+                @warn x
+                continue
+            end
+            corresponding_rule = COMPANY_PREFIX * replace(basename(fname), '_'=>'-')
+            println(join(["--enable", corresponding_rule, "--", in_file], " "))
+            result = IOCapture.capture() do
+                JuliaCheck.main(["--enable", corresponding_rule, "--", in_file])
+            end
+            @test chomp(result.output) == expected
+        end
+    end
 end

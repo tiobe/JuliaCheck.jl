@@ -4,10 +4,10 @@ import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
 using ...Properties: haschildren, report_violation
 
-SEVERITY = 5
-RULE_ID = "asml-infinite-while-loop"
-USER_MSG = "Implement a proper stop criterion for this while loop."
-SUMMARY = "Do not use while true."
+const SEVERITY = 5
+const RULE_ID = "asml-infinite-while-loop"
+const USER_MSG = "Implement a proper stop criterion for this while loop."
+const SUMMARY = "Do not use while true."
 
 function check(wyle::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

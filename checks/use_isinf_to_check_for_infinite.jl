@@ -6,10 +6,10 @@ using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, haschildren,
                 report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-use-isinf-to-check-for-infinite"
-USER_MSG = "Use isinf to check for infinite values."
-SUMMARY = "Use isinf to check variables for infinity."
+const SEVERITY = 3
+const RULE_ID = "asml-use-isinf-to-check-for-infinite"
+const USER_MSG = "Use isinf to check for infinite values."
+const SUMMARY = "Use isinf to check variables for infinity."
 
 """
     check(node::SyntaxNode)

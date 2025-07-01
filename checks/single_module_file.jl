@@ -4,9 +4,9 @@ import JuliaSyntax: SyntaxNode, @K_str, children, filename, kind
 using ...Checks: is_enabled
 using ...Properties: haschildren, is_module, report_violation
 
-SEVERITY = 5
-RULE_ID = "asml-single-module-file"
-USER_MSG = SUMMARY = "Single module files."
+const SEVERITY = 5
+const RULE_ID = "asml-single-module-file"
+const SUMMARY = USER_MSG = "Single module files."
 
 function check(modjule::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

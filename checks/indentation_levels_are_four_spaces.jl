@@ -4,10 +4,10 @@ import JuliaSyntax: GreenNode, SourceFile, @K_str, kind, children, span
 using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_index, source_text
 
-SEVERITY = 7
-RULE_ID = "asml-indentation-levels-are-four-spaces"
-USER_MSG = "Indentation levels are four spaces."
-SUMMARY = "Indentation will be done in multiples of four spaces."
+const SEVERITY = 7
+const RULE_ID = "asml-indentation-levels-are-four-spaces"
+const USER_MSG = "Indentation levels are four spaces."
+const SUMMARY = "Indentation will be done in multiples of four spaces."
 
 function check(node::GreenNode)
     if !is_enabled(RULE_ID) return nothing end

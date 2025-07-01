@@ -4,10 +4,10 @@ using JuliaSyntax: SyntaxNode, @K_str, children, kind
 using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, haschildren, report_violation
 
-RULE_ID = "asml-document-constants"
-USER_MSG = "Const value has no docstring."
-SUMMARY = "Constants must have a docstring."
-SEVERITY = 7
+const RULE_ID = "asml-document-constants"
+const USER_MSG = "Const value has no docstring."
+const SUMMARY = "Constants must have a docstring."
+const SEVERITY = 7
 
 function check(const_node::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

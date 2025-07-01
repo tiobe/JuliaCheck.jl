@@ -1,21 +1,20 @@
 
->> Processing file 'test/struct_members_are_in_lower_snake_case.jl'...
+>> Processing file 'struct_members_are_in_lower_snake_case.jl'...
 
-test/struct_members_are_in_lower_snake_case.jl(10, 5):
+struct_members_are_in_lower_snake_case.jl(10, 5):
     Dir::Direction
 #   └─┘ ── Struct members are implemented in "lower_snake_case".
 Members of structs are defined in "lower_snake_case".
 Rule: asml-struct-members-are-in-lower-snake-case. Severity: 8
 
-test/struct_members_are_in_lower_snake_case.jl(11, 5):
+struct_members_are_in_lower_snake_case.jl(11, 5):
     NominalPosition::Point
 #   └─────────────┘ ── Struct members are implemented in "lower_snake_case".
 Members of structs are defined in "lower_snake_case".
 Rule: asml-struct-members-are-in-lower-snake-case. Severity: 8
 
-test/struct_members_are_in_lower_snake_case.jl(12, 5):
+struct_members_are_in_lower_snake_case.jl(12, 5):
     IntrafieldPosition::Point
 #   └────────────────┘ ── Struct members are implemented in "lower_snake_case".
 Members of structs are defined in "lower_snake_case".
 Rule: asml-struct-members-are-in-lower-snake-case. Severity: 8
-

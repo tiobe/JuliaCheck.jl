@@ -5,10 +5,10 @@ using ...Checks: is_enabled
 using ...Properties: get_imported_pkg, haschildren, is_import, is_include,
                 report_violation
 
-SEVERITY = 9
-RULE_ID = "asml-module-include-location"
-USER_MSG = "The list of included files appears after the list of imported packages."
-SUMMARY = "Location of includes."
+const SEVERITY = 9
+const RULE_ID = "asml-module-include-location"
+const USER_MSG = "The list of included files appears after the list of imported packages."
+const SUMMARY = "Location of includes."
 
 function check(modjule::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

@@ -1,19 +1,19 @@
 
->> Processing file 'test/single_module_file.jl'...
+>> Processing file 'single_module_file.jl'...
 
-test/single_module_file.jl(8, 8):
+single_module_file.jl(8, 8):
 module SecondModuleNotOK
 #      └───────────────┘ ── Module 'SecondModuleNotOK' should be inside 'single_module_file' or in its own file.
 Implement a maximum of one module per Julia file.
 Rule: asml-single-module-file. Severity: 5
 
-test/single_module_file.jl(15, 8):
+single_module_file.jl(15, 8):
 module ThirdInFile
 #      └─────────┘ ── Module 'ThirdInFile' should be inside 'single_module_file' or in its own file.
 Implement a maximum of one module per Julia file.
 Rule: asml-single-module-file. Severity: 5
 
-test/single_module_file.jl(11, 1):
+single_module_file.jl(11, 1):
 ┌────────────────────────────────
 function out_of_module_is_wrong()
     return nothing
@@ -22,33 +22,14 @@ end
 All code must be inside a module.
 Rule: asml-single-module-file. Severity: 5
 
-test/single_module_file.jl(1, 8):
-module single_module_file
-#      └────────────────┘ ── Package and module names should be written in UpperCamelCase.
-Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
-
-test/single_module_file.jl(3, 8):
-module SubModuleIsOK
-#      └───────────┘ ── Package and module names should be written in UpperCamelCase.
-Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
-
-test/single_module_file.jl(8, 8):
+single_module_file.jl(8, 8):
 module SecondModuleNotOK
 #      └───────────────┘ ── Module name SecondModuleNotOK should match its file name: single_module_file.
 A file in which a module is implemented should have the name of the module it contains.
 Rule: asml-single-module-file. Severity: 5
 
-test/single_module_file.jl(8, 8):
-module SecondModuleNotOK
-#      └───────────────┘ ── Package and module names should be written in UpperCamelCase.
-Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
-
-test/single_module_file.jl(15, 8):
+single_module_file.jl(15, 8):
 module ThirdInFile
 #      └─────────┘ ── Module name ThirdInFile should match its file name: single_module_file.
 A file in which a module is implemented should have the name of the module it contains.
 Rule: asml-single-module-file. Severity: 5
-

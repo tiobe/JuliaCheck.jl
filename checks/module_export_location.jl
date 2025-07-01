@@ -4,10 +4,10 @@ import JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, numchildren, kind
 using ...Properties: get_imported_pkg, haschildren, is_export, is_import,
                     is_include, report_violation
 
-SEVERITY = 9
-RULE_ID = "asml-module-export-location"
-SUMMARY = "Location of exported functions and exported structs."
-USER_MSG = "Exports should be implemented after the include instructions."
+const SEVERITY = 9
+const RULE_ID = "asml-module-export-location"
+const SUMMARY = "Location of exported functions and exported structs."
+const USER_MSG = "Exports should be implemented after the include instructions."
 
 no_ex_imports(node::SyntaxNode) = ! (is_import(node) || is_export(node))
 

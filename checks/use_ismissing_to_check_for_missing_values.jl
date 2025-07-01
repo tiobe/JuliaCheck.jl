@@ -6,10 +6,10 @@ using ...Checks: is_enabled
 using ...Properties: NullableString, find_first_of_kind, numchildren,
                 haschildren, report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-use-ismissing-to-check-for-missing-values"
-USER_MSG = "Use ismissing to check for missing values."
-SUMMARY = "Use ismissing to check for missing values."
+const SEVERITY = 3
+const RULE_ID = "asml-use-ismissing-to-check-for-missing-values"
+const USER_MSG = "Use ismissing to check for missing values."
+const SUMMARY = "Use ismissing to check for missing values."
 
 """
     check(node::SyntaxNode)

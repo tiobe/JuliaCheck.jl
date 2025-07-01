@@ -6,10 +6,10 @@ using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, get_assignee, haschildren,
                 report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-do-not-set-variables-to-nan"
-USER_MSG = "Do not set variables to NaN."
-SUMMARY = "Do not set variables to NaN, NaN16, NaN32 or NaN64"
+const SEVERITY = 3
+const RULE_ID = "asml-do-not-set-variables-to-nan"
+const USER_MSG = "Do not set variables to NaN."
+const SUMMARY = "Do not set variables to NaN, NaN16, NaN32 or NaN64"
 
 
 function check(node::SyntaxNode)::Nothing

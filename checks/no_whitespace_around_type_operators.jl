@@ -5,10 +5,10 @@ import JuliaSyntax: GreenNode, @K_str, is_whitespace, kind, children, span,
 using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_column, source_index
 
-SEVERITY = 7
-RULE_ID = "asml-no-whitespace-around-type-operators"
-USER_MSG = "Omit white spaces around this operator."
-SUMMARY = "No whitespace around :: or <:."
+const SEVERITY = 7
+const RULE_ID = "asml-no-whitespace-around-type-operators"
+const USER_MSG = "Omit white spaces around this operator."
+const SUMMARY = "No whitespace around :: or <:."
 
 function check(node::GreenNode)
     if !is_enabled(RULE_ID) return nothing end

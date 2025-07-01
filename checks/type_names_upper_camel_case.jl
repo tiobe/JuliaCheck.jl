@@ -4,10 +4,9 @@ import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, is_upper_camel_case, report_violation
 
-SEVERITY = 3
-RULE_ID = "asml-type-names-upper-camel-case"
-# TODO #36595
-USER_MSG = SUMMARY = "Type names in \"UpperCamelCase\"."
+const SEVERITY = 3
+const RULE_ID = "asml-type-names-upper-camel-case"
+const SUMMARY = USER_MSG = "Type names in \"UpperCamelCase\"."
 
 function check(user_type::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end

@@ -4,11 +4,10 @@ import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
 using ...Properties: find_first_of_kind, is_lower_snake, report_violation
 
-SEVERITY = 8
-RULE_ID = "asml-struct-members-are-in-lower-snake-case"
-# TODO #36595 USER_MSG="Field '$(string(field_name))' should be written in lower_snake_case."
-USER_MSG = "Struct members are implemented in \"lower_snake_case\"."
-SUMMARY = "Members of structs are defined in \"lower_snake_case\"."
+const SEVERITY = 8
+const RULE_ID = "asml-struct-members-are-in-lower-snake-case"
+const USER_MSG = "Struct members are implemented in \"lower_snake_case\"."
+const SUMMARY = "Members of structs are defined in \"lower_snake_case\"."
 
 function check(field::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
