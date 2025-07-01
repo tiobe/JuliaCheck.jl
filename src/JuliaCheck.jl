@@ -15,7 +15,8 @@ function parse_commandline(args::Vector{String})
             epilog = """
             If you '--enable' a list of rules, separate it from the list of input files with '--'.
             """,
-            add_version = true, version = @project_version)
+            # add_version = true, version = @project_version(joinpath(@__DIR__, "..", "Project.toml"))
+            )
 
     @add_arg_table! s begin
         "--enable"
