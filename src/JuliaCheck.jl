@@ -27,10 +27,10 @@ function parse_commandline(args::Vector{String})
             help = "Print debugging information."
             action = :store_true
         "--ast"
-            help = "Print syntax tree for the each input file."
+            help = "Print syntax tree for each input file."
             action = :store_true
         "--llt"
-            help = "Print lossless tree for the each input file."
+            help = "Print lossless tree for each input file."
             action = :store_true
         "infiles"
             help = "One or more Julia files to check with available rules."
