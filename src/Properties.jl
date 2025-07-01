@@ -277,7 +277,8 @@ function get_imported_pkg(node::SyntaxNode)::NodeAndString
         end
     else
         pkg = children(node)[1]
-        if kind(pkg) == K":"    # importing/using items from a package
+        if kind(pkg) == K":" || # importing/using items from a package
+           kind(pkg) == K"as"   # import with an alias
             pkg = children(pkg)[1]
         end
         @assert kind(pkg) == K"importpath"
