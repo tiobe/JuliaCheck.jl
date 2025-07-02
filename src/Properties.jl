@@ -342,7 +342,14 @@ function source_text(node::GreenNode, offset::Integer=0)
     length = span(node)
     return source_text(start, length)
 end
-source_text(from::Integer, howmuch::Integer) = JS.sourcetext(SF)[from : from+howmuch-1]
+function source_text(from::Integer, howmuch::Integer)
+    s = JS.sourcetext(SF)
+    ends = from + howmuch - 1
+    if !isvalid(s, ends)
+        ends = prevind(s, ends)
+    end
+    return s[from:ends]
+end
 line_breaks(node::GreenNode) = count('\n', source_text(node))
 source_index() = SOURCE_INDEX
 lines_count() = SOURCE_LINE
