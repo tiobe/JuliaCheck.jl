@@ -1,6 +1,7 @@
 module OmitTrailingWhiteSpace
 
 import JuliaSyntax: GreenNode, @K_str, @KSet_str, kind
+using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_index, source_text
 
 const SEVERITY = 7

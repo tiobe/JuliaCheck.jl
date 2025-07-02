@@ -2,9 +2,9 @@ module SingleSpaceAfterCommasAndSemicolons
 
 import JuliaSyntax: GreenNode, SyntaxNode, @K_str, is_whitespace,
     kind, children, span
-
-using ...Properties: EOL, fake_green_node, haschildren, is_separator, lines_count,
-    report_violation, source_column, source_index, source_text
+using ...Checks: is_enabled
+using ...Properties: EOL, fake_green_node, haschildren, is_separator,
+    lines_count, report_violation, source_column, source_index, source_text
 
 const SEVERITY = 7
 const RULE_ID = "asml-single-space-after-commas-and-semicolons"
@@ -17,6 +17,8 @@ CHECKED::Vector{Int} = []
 reset() = global CHECKED = []
 
 function check(node::GreenNode, parent::GreenNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert is_separator(node) "Expected a [;] or [,] node, but got a node of kind $(kind(node))"
     global CHECKED
     if isempty(CHECKED) || last(CHECKED) < source_index()
