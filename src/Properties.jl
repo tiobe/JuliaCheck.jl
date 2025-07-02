@@ -3,13 +3,14 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
 
-export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
-    fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
-    is_constant, is_eq_neq_comparison, is_eval_call, is_export, is_fat_snake_case,
-    is_function, is_global_decl, is_import, is_include, is_infix_operator, is_loop,
-    is_literal, is_lower_snake, is_module, is_operator, is_separator, is_struct,
-    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
-    expr_size, find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
+export AnyTree, EOL, MAX_LINE_LENGTH, SINK, opens_scope, closes_module,
+    closes_scope, fake_green_node, haschildren, increase_counters, is_abstract,
+    is_assignment, is_constant, is_eq_neq_comparison, is_eval_call, is_export,
+    is_fat_snake_case, is_function, is_global_decl, is_import, is_include,
+    is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
+    is_operator, is_separator, is_struct, is_toplevel, is_type_op,
+    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
+    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
     get_func_name, get_imported_pkg, get_module_name, get_struct_members,
     get_struct_name, lines_count, report_violation, reset_counters, SF,
     source_column, source_index, source_text, to_pascal_case
@@ -23,12 +24,14 @@ const NodeAndString = Tuple{AnyTree, NullableString}
 
 
 ## Global definitions
+
 global SF::SourceFile
 SOURCE_INDEX = 0
 SOURCE_LINE = 0
 SOURCE_COL = 0
 const MAX_LINE_LENGTH = 92
 const EOL = (Sys.iswindows() ? "\n\r" : "\n")
+global SINK::IO = stdout
 
 
 ## Functions
@@ -37,28 +40,28 @@ function report_violation(node::SyntaxNode;
                           severity::Int, user_msg::String,
                           summary::String, rule_id::String)::Nothing
     line, column = JS.source_location(node)
-    printstyled("\n$(JS.filename(node))($line, $(column)):\n";
+    printstyled(SINK, "\n$(JS.filename(node))($line, $(column)):\n";
                 underline=true)
-    JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
+    JS.highlight(SINK, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
 end
 function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
                             summary::String, rule_id::String)::Nothing
-    printstyled("\n$(JS.filename(SF))($line, $col):\n";
+    printstyled(SINK, "\n$(JS.filename(SF))($line, $col):\n";
                 underline=true)
-    JS.highlight(stdout, SF, index:index+len-1;
+    JS.highlight(SINK, SF, index:index+len-1;
                  note=user_msg, notecolor=:yellow,
                  context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
 end
 function _report_common(severity::Int, rule_id::String, summary::String)::Nothing
-    printstyled("\n$summary"; color=:cyan)
-    printstyled("\nRule:"; underline=true)
-    printstyled(" $rule_id. ")
-    printstyled("Severity:"; underline=true)
-    printstyled(" $severity\n")
+    printstyled(SINK, "\n$summary"; color=:cyan)
+    printstyled(SINK, "\nRule:"; underline=true)
+    printstyled(SINK, " $rule_id. ")
+    printstyled(SINK, "Severity:"; underline=true)
+    printstyled(SINK, " $severity\n")
 end
 
 
