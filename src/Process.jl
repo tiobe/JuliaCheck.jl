@@ -237,7 +237,7 @@ function process_with_trivia(node::GreenNode, parent::GreenNode)
             Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif is_separator(node)
-            Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
+            # Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
         end
         increase_counters(node)
     end

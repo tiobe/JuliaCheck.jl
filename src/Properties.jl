@@ -344,11 +344,11 @@ function source_text(node::GreenNode, offset::Integer=0)
 end
 function source_text(from::Integer, howmuch::Integer)
     s = JS.sourcetext(SF)
-    ends = from + howmuch - 1
-    if !isvalid(s, ends)
-        ends = prevind(s, ends)
+    until = from + howmuch - 1
+    if !isvalid(s, until)
+        until = prevind(s, until)
     end
-    return s[from:ends]
+    return s[from:until]
 end
 line_breaks(node::GreenNode) = count('\n', source_text(node))
 source_index() = SOURCE_INDEX
