@@ -76,7 +76,12 @@ function process(node::SyntaxNode)
 
         if is_union_decl(node) process_unions(node) end
 
-        for x in children(node) process(x) end
+        if is_eval_call(node)
+            @debug "Skipping @eval call." node
+            return nothing
+        else
+            for x in children(node) process(x) end
+        end
     else
         if is_literal(node) process_literal(node) end
     end

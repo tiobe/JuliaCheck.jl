@@ -5,14 +5,14 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
-    is_constant, is_eq_neq_comparison, is_export, is_fat_snake_case,
-    is_function, is_global_decl, is_import, is_include, is_infix_operator,
-    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_separator,
-    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
-    expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_imported_pkg, get_module_name,
-    get_struct_members, get_struct_name, lines_count, report_violation,
-    reset_counters, SF, source_column, source_index, source_text, to_pascal_case
+    is_constant, is_eq_neq_comparison, is_eval_call, is_export, is_fat_snake_case,
+    is_function, is_global_decl, is_import, is_include, is_infix_operator, is_loop,
+    is_literal, is_lower_snake, is_module, is_operator, is_separator, is_struct,
+    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
+    expr_size, find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
+    get_func_name, get_imported_pkg, get_module_name, get_struct_members,
+    get_struct_name, lines_count, report_violation, reset_counters, SF,
+    source_column, source_index, source_text, to_pascal_case
 
 
 ## Types
@@ -91,6 +91,12 @@ is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
 is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
 is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
+
+function is_eval_call(node::AnyTree)::Bool
+    return kind(node) == K"macrocall" &&
+            haschildren(node) &&
+            string(children(node)[1]) == "@eval"
+end
 
 function is_mod_toplevel(node::AnyTree)::Bool
     return is_toplevel(node) ||
