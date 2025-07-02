@@ -26,11 +26,13 @@ function check(file_name::String;
         if print_llt
             show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         end
+
+        SymbolTable.enter_main_module!()
         process(ast)
         if trivia_checks_enabled
             process_with_trivia(ast.raw, ast.raw)
         end
-        SymbolTable.exit_module!()   # leave `Main`
+        SymbolTable.exit_main_module!()
     end
 end
 
@@ -49,47 +51,38 @@ end
 
 
 function process(node::SyntaxNode)
-    if haschildren(node)
-        if is_toplevel(node) && isnothing(node.parent)
-            SymbolTable.enter_main_module!()
-            # The reason to check the node parent is that ;-finished expressions
-            # at the top level are wrapped in a [toplevel-;] node, but there is
-            # no way to detect this situation, other than checking the parent
-            # node, and we must be careful to enter the Main module only once.
-        end
-        if is_module(node)
-            SymbolTable.enter_module!(node)
-            Checks.SingleModuleFile.check(node)
-            Checks.ModuleNameCasing.check(node)
-            Checks.ModuleEndComment.check(node)
-            Checks.ModuleExportLocation.check(node)
-            Checks.ModuleImportLocation.check(node)
-            Checks.ModuleIncludeLocation.check(node)
-            Checks.ModuleSingleImportLine.check(node)
-        end
+    if is_module(node)
+        SymbolTable.enter_module!(node)
+        Checks.SingleModuleFile.check(node)
+        Checks.ModuleNameCasing.check(node)
+        # TODO disabled until we have our own "green" trees: Checks.ModuleEndComment.check(node)
+        Checks.ModuleExportLocation.check(node)
+        Checks.ModuleImportLocation.check(node)
+        Checks.ModuleIncludeLocation.check(node)
+        Checks.ModuleSingleImportLine.check(node)
+    end
 
-        if is_global_decl(node) process_global(node) end
+    if is_global_decl(node) process_global(node) end
 
-        if is_loop(node) process_loop(node) end
+    if is_loop(node) process_loop(node) end
 
-        if is_function(node) process_function(node) end
+    if is_function(node) process_function(node) end
 
-        if is_struct(node) process_struct(node) end
+    if is_struct(node) process_struct(node) end
 
-        if is_abstract(node) process_type_declaration(node) end
+    if is_abstract(node) process_type_declaration(node) end
 
-        if is_operator(node) process_operator(node) end
+    if is_operator(node) process_operator(node) end
 
-        if is_union_decl(node) process_unions(node) end
+    if is_union_decl(node) process_unions(node) end
 
-        if is_eval_call(node)
-            @debug "Skipping @eval call." #node
-            return nothing
-        else
-            for x in children(node) process(x) end
-        end
+    if is_literal(node) process_literal(node) end
+
+    if is_eval_call(node)
+        @debug "Skipping @eval call." #node
+        return nothing
     else
-        if is_literal(node) process_literal(node) end
+        for x in children(node) process(x) end
     end
 
     # "Post-processing", before returning from this level of the tree
