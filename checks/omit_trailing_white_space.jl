@@ -9,6 +9,8 @@ const USER_MSG = "Omit spaces at the end of a line."
 const SUMMARY = "Omit trailing whitespace."
 
 function check(node::GreenNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     if kind(node) ∉ KSet"NewlineWs String" return nothing end
     textual = source_text(node)
     found = match(r"( +)\n", textual)
