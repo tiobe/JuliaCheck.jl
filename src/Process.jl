@@ -77,7 +77,7 @@ function process(node::SyntaxNode)
         if is_union_decl(node) process_unions(node) end
 
         if is_eval_call(node)
-            @debug "Skipping @eval call." node
+            @debug "Skipping @eval call." #node
             return nothing
         else
             for x in children(node) process(x) end
@@ -157,7 +157,7 @@ end
 function process_argument(fname::SyntaxNode, node::SyntaxNode)
     arg = find_first_of_kind(K"Identifier", node)
     if isnothing(arg)
-        @debug "No identifier found in a function argument" node
+        # @debug "No identifier found in a function argument" node
         # Probably not a real argument, but a `::Val(Type)` to fix dispatch, or
         # something as tricky.
         return nothing
@@ -196,8 +196,8 @@ function process_type_declaration(node::SyntaxNode)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
-function process_type_restriction(node::GreenNode)
-    Checks.NoWhitespaceAroundTypeOperators.check(node)
+function process_type_restriction(_::GreenNode) return nothing
+    # TODO disabled until we have our own "green" trees: Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)

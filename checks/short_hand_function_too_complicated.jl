@@ -24,7 +24,6 @@ function check(node::SyntaxNode)
 
     line_len = length(sourcetext(func))
     if line_len > MAX_LINE_LENGTH
-        @debug "Line length exceeded." line_len
         report()
     elseif line_len > round(Int, 0.9 * MAX_LINE_LENGTH)
         # The line doesn't exceed the hard length limit, but it's long enough

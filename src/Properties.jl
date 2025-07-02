@@ -334,10 +334,8 @@ function increase_counters(node::GreenNode)::Int
         if n == 0
             SOURCE_COL += span(node)
         else
+            # Occasionally, a string may contain multiple line breaks.
             SOURCE_LINE += n
-            if n > 1
-                @debug "String with $n line breaks:" txt    # TODO Delete me!
-            end
             SOURCE_COL = length(txt) - last(findfirst(EOL, txt))
         end
     else
