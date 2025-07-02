@@ -48,8 +48,12 @@ end
 
 function process(node::SyntaxNode)
     if haschildren(node)
-        if is_toplevel(node)
+        if is_toplevel(node) && isnothing(node.parent)
             SymbolTable.enter_main_module!()
+            # The reason to check the node parent is that ;-finished expressions
+            # at the top level are wrapped in a [toplevel-;] node, but there is
+            # no way to detect this situation, other than checking the parent
+            # node, and we must be careful to enter the Main module only once.
         end
         if is_module(node)
             SymbolTable.enter_module!(node)
