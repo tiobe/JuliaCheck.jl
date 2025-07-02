@@ -10,6 +10,8 @@ include("SymbolTable.jl"); import .SymbolTable
 
 export check
 
+global const trivia_checks_enabled = false  # TODO enable this when we have our own "green" trees
+
 
 function check(file_name::String;
                print_ast::Bool = false, print_llt::Bool = false)
@@ -25,9 +27,9 @@ function check(file_name::String;
             show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         end
         process(ast)
-        #if trivia_checks_enabled
+        if trivia_checks_enabled
             process_with_trivia(ast.raw, ast.raw)
-        #end
+        end
         SymbolTable.exit_module!()   # leave `Main`
     end
 end
@@ -246,7 +248,7 @@ function process_with_trivia(node::GreenNode, parent::GreenNode)
             Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif is_separator(node)
-            # Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
+            # TODO disabled until we have our own "green" trees: Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
         end
         increase_counters(node)
     end

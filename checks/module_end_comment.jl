@@ -12,6 +12,9 @@ const RULE_ID = "asml-module-end-comment"
 const USER_MSG = "The end statement of module has a comment with the module name."
 const SUMMARY = "The \"end\" of a module quotes the module name in a comment."
 
+# FIXME: those node equality comparisons don't work, so this check is
+# very unreliable.
+
 function check(modjule::SyntaxNode)::Nothing
     if !is_enabled(RULE_ID) return nothing end
 
@@ -21,12 +24,11 @@ function check(modjule::SyntaxNode)::Nothing
     @assert pos !== nothing "This [module] node does not seem to be child of its parent!"
     # Whose child is it, then? Julio Iglesias? Jonathan M.?
 
-    very_last = last(children(above))
-    if modjule !== very_last
-        (mod_name_node, mod_name_str) = get_module_name(modjule)
+    (mod_name_node, mod_name_str) = get_module_name(modjule)
+    if pos < length(children(above))
         comment_index = last_byte(modjule) + 1
         next = children(above)[pos + 1]
-        if kind(next) == K"Whitespace" && next !== very_last
+        if kind(next) == K"Whitespace" && pos + 1 < length(children(above))
             comment_index += span(next)
             next = children(above)[pos + 2]
         end
