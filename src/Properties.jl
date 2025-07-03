@@ -3,9 +3,9 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
 
-export AnyTree, EOL, MAX_LINE_LENGTH, SINK, opens_scope, closes_module,
-    closes_scope, fake_green_node, haschildren, increase_counters, is_abstract,
-    is_assignment, is_constant, is_eq_neq_comparison, is_eval_call, is_export,
+export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
+    fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
+    is_constant, is_eq_neq_comparison, is_eval_call, is_export,
     is_fat_snake_case, is_function, is_global_decl, is_import, is_include,
     is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
     is_operator, is_separator, is_struct, is_toplevel, is_type_op,
@@ -24,14 +24,12 @@ const NodeAndString = Tuple{AnyTree, NullableString}
 
 
 ## Global definitions
-
 global SF::SourceFile
 SOURCE_INDEX = 0
 SOURCE_LINE = 0
 SOURCE_COL = 0
 const MAX_LINE_LENGTH = 92
 const EOL = (Sys.iswindows() ? "\n\r" : "\n")
-global SINK::IO = stdout
 
 
 ## Functions
@@ -40,28 +38,28 @@ function report_violation(node::SyntaxNode;
                           severity::Int, user_msg::String,
                           summary::String, rule_id::String)::Nothing
     line, column = JS.source_location(node)
-    printstyled(SINK, "\n$(JS.filename(node))($line, $(column)):\n";
+    printstyled("\n$(JS.filename(node))($line, $(column)):\n";
                 underline=true)
-    JS.highlight(SINK, node; note=user_msg, notecolor=:yellow,
+    JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
 end
 function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
                             summary::String, rule_id::String)::Nothing
-    printstyled(SINK, "\n$(JS.filename(SF))($line, $col):\n";
+    printstyled("\n$(JS.filename(SF))($line, $col):\n";
                 underline=true)
-    JS.highlight(SINK, SF, index:index+len-1;
+    JS.highlight(stdout, SF, index:index+len-1;
                  note=user_msg, notecolor=:yellow,
                  context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
 end
 function _report_common(severity::Int, rule_id::String, summary::String)::Nothing
-    printstyled(SINK, "\n$summary"; color=:cyan)
-    printstyled(SINK, "\nRule:"; underline=true)
-    printstyled(SINK, " $rule_id. ")
-    printstyled(SINK, "Severity:"; underline=true)
-    printstyled(SINK, " $severity\n")
+    printstyled("\n$summary"; color=:cyan)
+    printstyled("\nRule:"; underline=true)
+    printstyled(" $rule_id. ")
+    printstyled("Severity:"; underline=true)
+    printstyled(" $severity\n")
 end
 
 
@@ -172,7 +170,7 @@ end
 """
 Return the node carrying the function's name.
 """
-function get_func_name(node::SyntaxNode)::SyntaxNode
+function get_func_name(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     fname = find_first_of_kind(K"Identifier", node)
     if isnothing(fname)
@@ -201,7 +199,7 @@ function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 
-function get_func_body(node::SyntaxNode)::SyntaxNode
+function get_func_body(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     if ! haschildren(node) || length(children(node)) < 2
         @debug "Strange function node. Cannot return its body." node
@@ -278,9 +276,9 @@ function get_imported_pkg(node::SyntaxNode)::NodeAndString
                 @debug "Unexpected morphology of an 'include':" node
             end
         end
-        str = basename(string(pkg))
+        str = string(pkg)
         if startswith(str, '"') && endswith(str, ".jl\"")
-            str = str[2:end-4]
+            str = basename(str[2:end-4])
         else
             @debug "File name of submodule is not double-quotted and/or does not end with '.jl'!" str
         end

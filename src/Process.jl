@@ -81,7 +81,9 @@ function process(node::SyntaxNode)
     if is_eval_call(node)
         @debug "Skipping @eval call." #node
         return nothing
-    else
+    end
+
+    if haschildren(node)
         for x in children(node) process(x) end
     end
 

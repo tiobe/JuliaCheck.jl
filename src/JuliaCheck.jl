@@ -14,8 +14,6 @@ function parse_commandline(args::Vector{String})
             description = "Code checker for Julia programming language.",
             epilog = """
             If you '--enable' a list of rules, separate it from the list of input files with '--'.
-
-            Note that it makes sense to use '--verbose' and '--quiet' options together.
             """,
             add_version = true, version = project_version(joinpath(@__DIR__, "..", "Project.toml")))
 
@@ -27,9 +25,6 @@ function parse_commandline(args::Vector{String})
             dest_name = "rules"
         "--verbose", "-v"
             help = "Print debugging information."
-            action = :store_true
-        "--quiet", "-q"
-            help = "Don't print rule violation reports."
             action = :store_true
         "--ast"
             help = "Print syntax tree for each input file."
@@ -56,9 +51,7 @@ function main(args::Vector{String})
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
-    if arguments["quiet"]
-        Properties.SINK = IOBuffer()  # Suppress output
-    end
+
     filter_rules(Set(arguments["rules"]))
 
     for in_file::String in arguments["infiles"]
