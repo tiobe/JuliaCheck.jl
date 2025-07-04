@@ -174,16 +174,31 @@ function get_func_name(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     fname = find_first_of_kind(K"Identifier", node)
     if isnothing(fname)
-        @debug "Unprocessed corner case:" node
-        return nothing
+        # We give it one more chance to find the function's name: it will return
+        # the name of the operator being redefined, or `nothing`.
+        return _is_exception_op_redef(children(node)[1])
     end
-    if  kind(fname.parent) == K"."  # In this case, the 1st child is a module name
+    if kind(fname.parent) == K"."  # In this case, the 1st child is a module name
         fname = children(fname.parent)[2]
     end
     if kind(fname) == K"quote"  # Overloading an operator, which comes next
         fname = children(fname)[1]
     end
     return fname
+end
+
+function _is_exception_op_redef(node::SyntaxNode)::NullableNode
+    if kind(node) == K"call"
+        fname = children(node)[1]
+        if kind(fname) ∈ KSet"$ &"
+            return fname
+
+        elseif kind(fname) == K"quote"
+            fname = children(fname)[1]
+            if kind(fname) == K"::" return fname end
+        end
+    end
+    return nothing
 end
 
 """

@@ -78,8 +78,8 @@ function process(node::SyntaxNode)
 
     if is_literal(node) process_literal(node) end
 
-    if is_eval_call(node)
-        @debug "Skipping @eval call." #node
+    if is_eval_call(node) || kind(node) == K"quote"
+        # There are corners we don't want to inspect.
         return nothing
     end
 

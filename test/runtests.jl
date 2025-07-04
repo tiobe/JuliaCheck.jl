@@ -99,7 +99,7 @@ end
 
 @testitem "Integration Tests" begin
     import IOCapture
-    # import JuliaCheck
+
     const COMPANY_PREFIX = "asml-"
     for f in readdir(@__DIR__)
         if endswith(f, ".val")
