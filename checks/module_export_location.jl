@@ -2,8 +2,8 @@ module ModuleExportLocation
 
 import JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, numchildren, kind
 using ...Checks: is_enabled
-using ...Properties: get_imported_pkg, haschildren, is_export, is_import,
-                    is_include, report_violation
+using ...Properties: haschildren, is_export, is_import, is_include,
+            report_violation
 
 const SEVERITY = 9
 const RULE_ID = "asml-module-export-location"

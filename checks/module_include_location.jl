@@ -31,11 +31,10 @@ function check(modjule::SyntaxNode)
                 previous = mod_body[includes_start + i - 1]
                 imported_module = get_imported_pkg(node)
                 included_pkg = get_imported_pkg(previous)
-                if !is_include(previous) || last(imported_module) != last(included_pkg)
+                if !is_include(previous) || imported_module != included_pkg
                     report_violation(node;
                             severity = SEVERITY, rule_id = RULE_ID,
-                            user_msg = USER_MSG, summary = SUMMARY
-                        )
+                            user_msg = USER_MSG, summary = SUMMARY)
                 end
             end
         end

@@ -277,19 +277,14 @@ representation, which would be:
 
 If there are multiple packages being imported/used, only the first one is returned.
 """
-function get_imported_pkg(node::SyntaxNode)::NodeAndString
+function get_imported_pkg(node::SyntaxNode)::String
     @assert is_import(node) "Expected a package import declaration, got [$(kind(node))]."
     @assert haschildren(node) "How can an [import] or [using] have nothing behind?"
-    local pkg::SyntaxNode
     if is_include(node)
-        pkg = children(node)[2]
-        if !( kind(pkg) == K"string" && haschildren(pkg) )
-            @debug "Unexpected morphology of an 'include':" node
-        else
-            pkg = children(pkg)[1]
-            if kind(pkg) != K"String"
-                @debug "Unexpected morphology of an 'include':" node
-            end
+        pkg = _extract_included_file(node)
+        if isnothing(pkg)
+            @debug "No file name found in an [include] node $(JS.source_location(node))" node
+            return ""
         end
         str = string(pkg)
         if startswith(str, '"') && endswith(str, ".jl\"")
@@ -307,9 +302,27 @@ function get_imported_pkg(node::SyntaxNode)::NodeAndString
         pkg = last(children(pkg))
         str = string(pkg)
     end
-    return (pkg, str)
+    return str
 end
 
+function _extract_included_file(included::SyntaxNode)::NullableNode
+    file = children(included)[2]
+    if kind(file) == K"string" return first_child(file)
+
+    elseif kind(file) == K"call"
+        ch1 = first_child(file)
+        if kind(ch1) == K"Identifier" && string(ch1) == "joinpath"
+            # Return the last string given to `joinpath` (the actual string is
+            # the first child of that last node)
+            return first_child(last(children(file)))
+        end
+    end
+    @debug "Can't parse an 'include' $(JS.source_location(included)):" included
+    return nothing
+end
+
+
+first_child(node::AnyTree)::NullableNode = return haschildren(node) ? children(node)[1] : nothing
 
 """
 Return the first left-hand side node of the given kind, going down the left-most
