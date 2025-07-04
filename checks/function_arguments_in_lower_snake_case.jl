@@ -9,10 +9,8 @@ const RULE_ID = "asml-function-arguments-lower-snake-case"
 const USER_MSG = "Argument must be written in \"lower_snake_case\"."
 const SUMMARY = "Function arguments are written in \"lower_snake_case\"."
 
-function check(f_name::SyntaxNode, f_arg::SyntaxNode)
+function check(f_name::AbstractString, f_arg::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
-
-    @assert kind(f_name) == K"Identifier" "Expected argument 'f_name' to be an [Identifier], not $(kind(f_name))"
 
     if kind(f_arg) == K"::"
         f_arg = numchildren(f_arg) == 1 ? nothing : children(f_arg)[1]

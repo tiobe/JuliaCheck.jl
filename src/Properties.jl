@@ -193,7 +193,7 @@ function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     call = find_first_of_kind(K"call", children(node)[1])
     if isnothing(call)
-        @debug "No [call] node found for a [function] node:\n" node
+        # Probably a function "stub", which declares a function name but no methods.
         return []
     end
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
@@ -202,7 +202,7 @@ end
 function get_func_body(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     if ! haschildren(node) || length(children(node)) < 2
-        @debug "Strange function node. Cannot return its body." node
+        # Probably a function "stub", which declares a function name but no methods.
         return nothing
     end
     return children(node)[2]

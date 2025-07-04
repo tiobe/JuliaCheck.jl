@@ -127,11 +127,16 @@ function process_function(node::SyntaxNode)
     if isnothing(fname)
         # There is nothing left to check, except the debug logging output, where
         # we might see a clue of what we are dealing with.
-        @debug "Can't find function name" node
+        @debug "Can't find function name in a function node:" node
         return nothing
     end
-    Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
-    SymbolTable.declare!(fname)
+    if kind(fname) == K"Identifier"
+        Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
+        # Otherwise, it might be an operator being redefined, which is certainly
+        # not subject to casing inspection.
+        SymbolTable.declare!(fname)
+        # Also, we don't need to get that into scope.
+    end
     SymbolTable.enter_scope!()
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters"
@@ -141,10 +146,10 @@ function process_function(node::SyntaxNode)
             end
             # The last argument in the list is itself a list, of named arguments.
             for arg in children(arg)
-                process_argument(fname, arg)
+                process_argument(string(fname), arg)
             end
         else
-            process_argument(fname, arg)
+            process_argument(string(fname), arg)
         end
     end
 
@@ -155,7 +160,7 @@ function process_function(node::SyntaxNode)
     end
 end
 
-function process_argument(fname::SyntaxNode, node::SyntaxNode)
+function process_argument(fname::String, node::SyntaxNode)
     arg = find_first_of_kind(K"Identifier", node)
     if isnothing(arg)
         # @debug "No identifier found in a function argument" node
