@@ -3,7 +3,7 @@ module DoNotSetVariablesToNan
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 span, untokenize
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, get_assignee, haschildren,
+using ...Properties: find_lhs_of_kind, get_assignee, haschildren,
                 report_violation
 
 const SEVERITY = 3

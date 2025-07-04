@@ -3,7 +3,7 @@ module UseIsnothingToCheckForNothingValues
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
 using ...Checks: is_enabled
-using ...Properties: NullableString, find_first_of_kind, get_assignee,
+using ...Properties: NullableString, find_lhs_of_kind, get_assignee,
                 haschildren, report_violation
 
 const SEVERITY = 3

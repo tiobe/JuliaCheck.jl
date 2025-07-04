@@ -161,7 +161,7 @@ function process_function(node::SyntaxNode)
 end
 
 function process_argument(fname::String, node::SyntaxNode)
-    arg = find_first_of_kind(K"Identifier", node)
+    arg = find_lhs_of_kind(K"Identifier", node)
     if isnothing(arg)
         # @debug "No identifier found in a function argument" node
         # Probably not a real argument, but a `::Val(Type)` to fix dispatch, or
@@ -189,7 +189,7 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    type_name = find_first_of_kind(K"Identifier", node)
+    type_name = find_lhs_of_kind(K"Identifier", node)
     SymbolTable.declare!(type_name)
     Checks.TypeNamesUpperCamelCase.check(type_name)
     for field in get_struct_members(node)
@@ -216,7 +216,7 @@ function process_loop(node::SyntaxNode)
 end
 
 function process_global(node::SyntaxNode)
-    id = find_first_of_kind(K"Identifier", node)
+    id = find_lhs_of_kind(K"Identifier", node)
     if isnothing(id)
         @debug "No identifier found in a declaration" node
     end

@@ -3,7 +3,7 @@ module ModuleEndComment
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, children, kind,
         first_byte, last_byte, span
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, haschildren, is_upper_camel_case,
+using ...Properties: find_lhs_of_kind, haschildren, is_upper_camel_case,
         get_module_name, lines_count, report_violation, source_column,
         source_index, source_text
 

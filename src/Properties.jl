@@ -10,7 +10,7 @@ export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
     is_operator, is_separator, is_struct, is_toplevel, is_type_op,
     is_union_decl, is_upper_camel_case, expr_depth, expr_size,
-    find_first_of_kind, get_assignee, get_func_arguments, get_func_body,
+    find_lhs_of_kind, get_assignee, get_func_arguments, get_func_body,
     get_func_name, get_imported_pkg, get_module_name, get_struct_members,
     get_struct_name, lines_count, report_violation, reset_counters, SF,
     source_column, source_index, source_text, to_pascal_case
@@ -172,7 +172,7 @@ Return the node carrying the function's name.
 """
 function get_func_name(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
-    fname = find_first_of_kind(K"Identifier", node)
+    fname = find_lhs_of_kind(K"Identifier", node)
     if isnothing(fname)
         # We give it one more chance to find the function's name: it will return
         # the name of the operator being redefined, or `nothing`.
@@ -206,7 +206,7 @@ Return a list of nodes representing the arguments of a function.
 """
 function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
-    call = find_first_of_kind(K"call", children(node)[1])
+    call = find_lhs_of_kind(K"call", children(node)[1])
     if isnothing(call)
         # Probably a function "stub", which declares a function name but no methods.
         return []
@@ -226,7 +226,7 @@ end
 
 function get_assignee(node::SyntaxNode)::NodeAndString
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    assignee = find_first_of_kind(K"Identifier", node)
+    assignee = find_lhs_of_kind(K"Identifier", node)
     # FIXME In case of field access (`my_struct.some_field = value`), this may
     # not be what we want. Perhaps other cases as well?
     if isnothing(assignee)
@@ -240,7 +240,7 @@ end
 
 function get_struct_name(node::SyntaxNode)::NullableNode
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
-    return find_first_of_kind(K"Identifier", node)
+    return find_lhs_of_kind(K"Identifier", node)
 end
 
 function get_struct_members(node::SyntaxNode)::Vector{SyntaxNode}
@@ -311,15 +311,13 @@ function get_imported_pkg(node::SyntaxNode)::NodeAndString
 end
 
 
-# TODO Change name to `find_lhs_of_kind`, because it only looks at the first
-# child in each level it traverses downwards.
 """
 Return the first left-hand side node of the given kind, going down the left-most
 sub-tree in each level from the given node.
 """
-function find_first_of_kind(node_kind::Kind, node::AnyTree)::NullableNode
+function find_lhs_of_kind(node_kind::Kind, node::AnyTree)::NullableNode
     return kind(node) == node_kind ? node :
-                haschildren(node) ? find_first_of_kind(node_kind, children(node)[1]) :
+                haschildren(node) ? find_lhs_of_kind(node_kind, children(node)[1]) :
                     nothing
 end
 

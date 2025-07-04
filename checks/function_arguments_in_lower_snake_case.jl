@@ -2,7 +2,7 @@ module FunctionArgumentsInLowerSnakeCase
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children, numchildren
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, is_lower_snake, report_violation
+using ...Properties: find_lhs_of_kind, is_lower_snake, report_violation
 
 const SEVERITY = 7
 const RULE_ID = "asml-function-arguments-lower-snake-case"
@@ -16,7 +16,7 @@ function check(f_name::AbstractString, f_arg::SyntaxNode)
         f_arg = numchildren(f_arg) == 1 ? nothing : children(f_arg)[1]
     end
     if f_arg !== nothing
-        f_arg = find_first_of_kind(K"Identifier", f_arg)
+        f_arg = find_lhs_of_kind(K"Identifier", f_arg)
     end
     if isnothing(f_arg)
         # Nothing to check; maybe a ::Val or ::Type, or perhaps a semicolon
