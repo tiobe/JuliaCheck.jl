@@ -132,15 +132,17 @@ function process_function(node::SyntaxNode)
     if isnothing(fname)
         # There is nothing left to check, except the debug logging output, where
         # we might see a clue of what we are dealing with.
-        @debug "Can't find function name in a function node:" node
-        return nothing
-    end
-    if kind(fname) == K"Identifier"
-        Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
+        @debug "Can't find function name in a function node $(JS.source_location(node)):" node
+        fname_str = "[anonymous]"
+    else
+        if kind(fname) == K"Identifier"
+            Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
+            SymbolTable.declare!(fname)
+        #else
         # Otherwise, it might be an operator being redefined, which is certainly
-        # not subject to casing inspection.
-        SymbolTable.declare!(fname)
-        # Also, we don't need to get that into scope.
+        # not subject to casing inspection, nor we need to get it declared.
+        end
+        fname_str = string(fname)   # in either case, we take it as a string
     end
     SymbolTable.enter_scope!()
     for arg in get_func_arguments(node)
@@ -151,10 +153,10 @@ function process_function(node::SyntaxNode)
             end
             # The last argument in the list is itself a list, of named arguments.
             for arg in children(arg)
-                process_argument(string(fname), arg)
+                process_argument(fname_str, arg)
             end
         else
-            process_argument(string(fname), arg)
+            process_argument(fname_str, arg)
         end
     end
 
