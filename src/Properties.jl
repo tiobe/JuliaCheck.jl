@@ -246,7 +246,7 @@ end
 function get_struct_members(node::SyntaxNode)::Vector{SyntaxNode}
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
     if length(children(node)) < 2 || kind(children(node)[2]) != K"block"
-        @debug "[block] not found where expected." node
+        @debug "[block] not found where expected $(JS.source_location(node))." node
         return []
     end
     # Return the children of that [block] node:
@@ -295,7 +295,7 @@ function get_imported_pkg(node::SyntaxNode)::NodeAndString
         if startswith(str, '"') && endswith(str, ".jl\"")
             str = basename(str[2:end-4])
         else
-            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'!" str
+            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'! $(JS.source_location(node))" str
         end
     else
         pkg = children(node)[1]

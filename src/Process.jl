@@ -108,7 +108,7 @@ function process_operator(node::AnyTree)
         if is_assignment(node) process_assignment(node) end
         if is_eq_neq_comparison(node)
             if numchildren(node) != 3
-                @debug "A comparison with a number of children != 3" node
+                @debug "A comparison with a number of children != 3 $(JS.source_location(node))" node
             else
                 lhs, _, rhs = children(node)
                 Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
@@ -146,7 +146,7 @@ function process_function(node::SyntaxNode)
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters"
             if ! haschildren(arg)
-                @debug "Odd case of childless [parameters] node" node
+                @debug "Odd case of childless [parameters] node $(JS.source_location(node)):" node
                 return nothing
             end
             # The last argument in the list is itself a list, of named arguments.
@@ -168,7 +168,6 @@ end
 function process_argument(fname::String, node::SyntaxNode)
     arg = find_lhs_of_kind(K"Identifier", node)
     if isnothing(arg)
-        # @debug "No identifier found in a function argument" node
         # Probably not a real argument, but a `::Val(Type)` to fix dispatch, or
         # something as tricky.
         return nothing
@@ -223,7 +222,8 @@ end
 function process_global(node::SyntaxNode)
     id = find_lhs_of_kind(K"Identifier", node)
     if isnothing(id)
-        @debug "No identifier found in a declaration" node
+        @debug "No identifier found in a declaration $(JS.source_location(node)):" node
+        return nothing
     end
     # Don't bother if already declared before, to prevent multiple reports
     if ! SymbolTable.is_global(id)
