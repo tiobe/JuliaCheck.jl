@@ -84,7 +84,12 @@ function process(node::SyntaxNode)
     end
 
     if haschildren(node)
-        for x in children(node) process(x) end
+        try
+            for x in children(node) process(x) end
+        catch xspt
+            @error "Unexpected error while processing node $(JS.source_location(node)):" xspt
+            return nothing  # stop processing this node, but continue with the rest of the tree
+        end
     end
 
     # "Post-processing", before returning from this level of the tree
