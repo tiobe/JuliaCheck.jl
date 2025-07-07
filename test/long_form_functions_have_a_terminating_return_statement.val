@@ -5,13 +5,13 @@ long_form_functions_have_a_terminating_return_statement.jl(3, 5):
     nothing
 #   └─────┘ ── Long form functions are terminated by an explicit return statement.
 Long form functions are ended by a return statement.
-Rule: asml-long-form-functions-have-a-terminating-return-statement. Severity: 3
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
 
 long_form_functions_have_a_terminating_return_statement.jl(7, 5):
     println("println returns nothing")
 #   └────────────────────────────────┘ ── Long form functions are terminated by an explicit return statement.
 Long form functions are ended by a return statement.
-Rule: asml-long-form-functions-have-a-terminating-return-statement. Severity: 3
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
 
 long_form_functions_have_a_terminating_return_statement.jl(11, 5):
 #   ┌────────
@@ -22,4 +22,4 @@ long_form_functions_have_a_terminating_return_statement.jl(11, 5):
     end
 #─────┘ ── Long form functions are terminated by an explicit return statement.
 Long form functions are ended by a return statement.
-Rule: asml-long-form-functions-have-a-terminating-return-statement. Severity: 3
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3

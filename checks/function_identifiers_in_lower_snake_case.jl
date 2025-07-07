@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: inside, is_lower_snake, is_struct, report_violation
 
 const SEVERITY = 8
-const RULE_ID = "asml-function-identifiers-in-lower-snake-case"
+const RULE_ID = "function-identifiers-in-lower-snake-case"
 const USER_MSG = "Function name should be written in \"lower_snake_case\"."
 const SUMMARY = "Function names are written in lower_snake_case."
 

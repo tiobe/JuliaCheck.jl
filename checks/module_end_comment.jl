@@ -8,7 +8,7 @@ using ...Properties: find_lhs_of_kind, haschildren, is_upper_camel_case,
         source_index, source_text
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-end-comment"
+const RULE_ID = "module-end-comment"
 const USER_MSG = "The end statement of module has a comment with the module name."
 const SUMMARY = "The \"end\" of a module quotes the module name in a comment."
 

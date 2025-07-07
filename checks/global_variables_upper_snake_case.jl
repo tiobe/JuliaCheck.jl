@@ -4,7 +4,7 @@ using JuliaSyntax: SyntaxNode, @K_str, children, kind
 using ...Checks: is_enabled
 using ...Properties: is_fat_snake_case, get_assignee, report_violation
 
-const RULE_ID = "asml-global-variables-upper-snake-case"
+const RULE_ID = "global-variables-upper-snake-case"
 const SUMMARY = USER_MSG = "Casing of globals."
 const SEVERITY = 3
 

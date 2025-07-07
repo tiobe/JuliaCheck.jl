@@ -4,7 +4,7 @@ using JuliaSyntax: SyntaxNode, @K_str, children, kind
 using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, haschildren, report_violation
 
-const RULE_ID = "asml-document-constants"
+const RULE_ID = "document-constants"
 const USER_MSG = "Const value has no docstring."
 const SUMMARY = "Constants must have a docstring."
 const SEVERITY = 7

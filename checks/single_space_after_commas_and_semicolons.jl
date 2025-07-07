@@ -7,7 +7,7 @@ using ...Properties: EOL, fake_green_node, haschildren, is_separator,
     lines_count, report_violation, source_column, source_index, source_text
 
 const SEVERITY = 7
-const RULE_ID = "asml-single-space-after-commas-and-semicolons"
+const RULE_ID = "single-space-after-commas-and-semicolons"
 const USER_MSG = "A comma or a semicolon is followed, but not preceded, by a space."
 const SUMMARY = "Commas and semicolons are followed, but not preceded, by a space."
 

@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_index, source_text
 
 const SEVERITY = 7
-const RULE_ID = "asml-use-spaces-instead-of-tabs"
+const RULE_ID = "use-spaces-instead-of-tabs"
 const USER_MSG = "There are tab characters here."
 const SUMMARY = "Use spaces instead of tabs for indentation."
 

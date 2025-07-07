@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, is_lower_snake, report_violation
 
 const SEVERITY = 8
-const RULE_ID = "asml-struct-members-are-in-lower-snake-case"
+const RULE_ID = "struct-members-are-in-lower-snake-case"
 const USER_MSG = "Struct members are implemented in \"lower_snake_case\"."
 const SUMMARY = "Members of structs are defined in \"lower_snake_case\"."
 

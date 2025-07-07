@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_index, source_text
 
 const SEVERITY = 7
-const RULE_ID = "asml-omit-trailing-white-space"
+const RULE_ID = "omit-trailing-white-space"
 const USER_MSG = "Omit spaces at the end of a line."
 const SUMMARY = "Omit trailing whitespace."
 

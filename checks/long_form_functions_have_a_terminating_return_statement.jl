@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: inside, is_struct, get_func_name, haschildren, report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-long-form-functions-have-a-terminating-return-statement"
+const RULE_ID = "long-form-functions-have-a-terminating-return-statement"
 const USER_MSG = "Long form functions are terminated by an explicit return statement."
 const SUMMARY = "Long form functions are ended by a return statement."
 

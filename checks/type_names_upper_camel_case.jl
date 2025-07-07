@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, is_upper_camel_case, report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-type-names-upper-camel-case"
+const RULE_ID = "type-names-upper-camel-case"
 const SUMMARY = USER_MSG = "Type names in \"UpperCamelCase\"."
 
 function check(user_type::SyntaxNode)

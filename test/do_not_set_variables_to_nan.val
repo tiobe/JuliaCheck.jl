@@ -5,16 +5,16 @@ do_not_set_variables_to_nan.jl(2, 18):
 value::Float64 = NaN
 #                └─┘ ── Do not set variables to NaN.
 Do not set variables to NaN, NaN16, NaN32 or NaN64
-Rule: asml-do-not-set-variables-to-nan. Severity: 3
+Rule: do-not-set-variables-to-nan. Severity: 3
 
 do_not_set_variables_to_nan.jl(3, 15):
 strct.value = NaN16
 #             └───┘ ── Do not set variables to NaN.
 Do not set variables to NaN, NaN16, NaN32 or NaN64
-Rule: asml-do-not-set-variables-to-nan. Severity: 3
+Rule: do-not-set-variables-to-nan. Severity: 3
 
 do_not_set_variables_to_nan.jl(7, 18):
 const my_value = NaN32
 #                └───┘ ── Do not set variables to NaN.
 Do not set variables to NaN, NaN16, NaN32 or NaN64
-Rule: asml-do-not-set-variables-to-nan. Severity: 3
+Rule: do-not-set-variables-to-nan. Severity: 3

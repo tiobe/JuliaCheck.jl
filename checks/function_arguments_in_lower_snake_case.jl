@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, is_lower_snake, report_violation
 
 const SEVERITY = 7
-const RULE_ID = "asml-function-arguments-lower-snake-case"
+const RULE_ID = "function-arguments-lower-snake-case"
 const USER_MSG = "Argument must be written in \"lower_snake_case\"."
 const SUMMARY = "Function arguments are written in \"lower_snake_case\"."
 

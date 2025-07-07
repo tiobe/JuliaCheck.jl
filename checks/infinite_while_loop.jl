@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: haschildren, report_violation
 
 const SEVERITY = 5
-const RULE_ID = "asml-infinite-while-loop"
+const RULE_ID = "infinite-while-loop"
 const USER_MSG = "Implement a proper stop criterion for this while loop."
 const SUMMARY = "Do not use while true."
 

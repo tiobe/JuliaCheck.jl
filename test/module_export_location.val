@@ -5,10 +5,10 @@ module_export_location.jl(15, 5):
     export bar # Bad: exports should be placed below the includes list
 #   └────────┘ ── Exports should be implemented after the include instructions.
 Location of exported functions and exported structs.
-Rule: asml-module-export-location. Severity: 9
+Rule: module-export-location. Severity: 9
 
 module_export_location.jl(16, 5):
     export foo
 #   └────────┘ ── Exports should be implemented after the include instructions.
 Location of exported functions and exported structs.
-Rule: asml-module-export-location. Severity: 9
+Rule: module-export-location. Severity: 9

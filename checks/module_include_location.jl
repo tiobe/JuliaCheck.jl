@@ -6,7 +6,7 @@ using ...Properties: get_imported_pkg, haschildren, is_import, is_include,
                 report_violation
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-include-location"
+const RULE_ID = "module-include-location"
 const USER_MSG = "The list of included files appears after the list of imported packages."
 const SUMMARY = "Location of includes."
 

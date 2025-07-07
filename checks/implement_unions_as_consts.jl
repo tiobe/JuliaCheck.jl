@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: is_assignment, is_constant, is_union_decl, report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-implement-unions-as-consts"
+const RULE_ID = "implement-unions-as-consts"
 const USER_MSG = "Declare this Union as a const type before using it."
 const SUMMARY = "Implement Unions as const."
 

@@ -84,10 +84,9 @@ function process(node::SyntaxNode)
     end
 
     if haschildren(node)
-        try
-            for x in children(node) process(x) end
+        try for x in children(node) process(x) end
         catch xspt
-            @error "Unexpected error while processing node $(JS.source_location(node)):" xspt
+            @error "Unexpected error while processing expression at $(JS.source_location(node)):" xspt
             return nothing  # stop processing this node, but continue with the rest of the tree
         end
     end
@@ -108,7 +107,7 @@ function process_operator(node::AnyTree)
         if is_assignment(node) process_assignment(node) end
         if is_eq_neq_comparison(node)
             if numchildren(node) != 3
-                @debug "A comparison with a number of children != 3 $(JS.source_location(node))" node
+                @debug "A comparison with a number of children != 3 at $(JS.source_location(node))" node
             else
                 lhs, _, rhs = children(node)
                 Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])

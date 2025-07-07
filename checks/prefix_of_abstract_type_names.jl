@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, is_upper_camel_case, report_violation
 
 const SEVERITY = 4
-const RULE_ID = "asml-prefix-of-abstract-type-names"
+const RULE_ID = "prefix-of-abstract-type-names"
 const SUMMARY = USER_MSG = "Abstract type names are prefixed by \"Abstract\"."
 
 function check(user_type::SyntaxNode)

@@ -6,7 +6,7 @@ using ...Properties: haschildren, is_export, is_import, is_include,
             report_violation
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-export-location"
+const RULE_ID = "module-export-location"
 const SUMMARY = "Location of exported functions and exported structs."
 const USER_MSG = "Exports should be implemented after the include instructions."
 

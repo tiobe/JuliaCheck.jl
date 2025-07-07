@@ -100,7 +100,6 @@ end
 @testitem "Integration Tests" begin
     import IOCapture
 
-    const COMPANY_PREFIX = "asml-"
     for f in readdir(@__DIR__)
         if endswith(f, ".val")
             fname = f[1:end-4]
@@ -112,7 +111,7 @@ end
                 @warn x
                 continue
             end
-            corresponding_rule = COMPANY_PREFIX * replace(basename(fname), '_'=>'-')
+            corresponding_rule = replace(basename(fname), '_'=>'-')
             println(join(["--enable", corresponding_rule, "--", in_file], " "))
             result = IOCapture.capture() do
                 JuliaCheck.main(["--enable", corresponding_rule, "--", in_file])

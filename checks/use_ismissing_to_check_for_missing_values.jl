@@ -7,7 +7,7 @@ using ...Properties: NullableString, find_lhs_of_kind, numchildren,
                 haschildren, report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-use-ismissing-to-check-for-missing-values"
+const RULE_ID = "use-ismissing-to-check-for-missing-values"
 const USER_MSG = "Use ismissing to check for missing values."
 const SUMMARY = "Use ismissing to check for missing values."
 

@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-leading-and-trailing-digits"
+const RULE_ID = "leading-and-trailing-digits"
 const USER_MSG = "Floating-point numbers should always have one digit before the decimal point and at least one after."
 const SUMMARY = "Leading and trailing digits."
 

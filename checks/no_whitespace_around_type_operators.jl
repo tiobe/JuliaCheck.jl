@@ -6,7 +6,7 @@ using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_column, source_index
 
 const SEVERITY = 7
-const RULE_ID = "asml-no-whitespace-around-type-operators"
+const RULE_ID = "no-whitespace-around-type-operators"
 const USER_MSG = "Omit white spaces around this operator."
 const SUMMARY = "No whitespace around :: or <:."
 

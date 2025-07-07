@@ -6,7 +6,7 @@ using ...Properties: get_imported_pkg, haschildren, is_import, is_include,
                 is_upper_camel_case, report_violation
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-single-import-line"
+const RULE_ID = "module-single-import-line"
 const USER_MSG = "Keep import/using declarations in alphabetic order."
 const SUMMARY = "The list of packages should be in alphabetic order."
 
