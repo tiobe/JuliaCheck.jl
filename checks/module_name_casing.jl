@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: get_module_name, haschildren, is_upper_camel_case, report_violation
 
 const SEVERITY = 5
-const RULE_ID = "asml-module-name-casing"
+const RULE_ID = "module-name-casing"
 const USER_MSG = "Package and module names should be written in UpperCamelCase."
 const SUMMARY = "Package names and module names."
 

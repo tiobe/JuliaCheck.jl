@@ -3,11 +3,11 @@ module UseIsmissingToCheckForMissingValues
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
 using ...Checks: is_enabled
-using ...Properties: NullableString, find_first_of_kind, numchildren,
+using ...Properties: NullableString, find_lhs_of_kind, numchildren,
                 haschildren, report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-use-ismissing-to-check-for-missing-values"
+const RULE_ID = "use-ismissing-to-check-for-missing-values"
 const USER_MSG = "Use ismissing to check for missing values."
 const SUMMARY = "Use ismissing to check for missing values."
 

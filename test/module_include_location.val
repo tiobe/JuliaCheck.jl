@@ -5,4 +5,4 @@ module_include_location.jl(7, 5):
     using Statistics
 #   └──────────────┘ ── The list of included files appears after the list of imported packages.
 Location of includes.
-Rule: asml-module-include-location. Severity: 9
+Rule: module-include-location. Severity: 9

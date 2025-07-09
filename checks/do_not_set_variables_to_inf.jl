@@ -3,11 +3,11 @@ module DoNotSetVariablesToInf
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 span, untokenize
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, get_assignee, haschildren,
+using ...Properties: find_lhs_of_kind, get_assignee, haschildren,
                 report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-do-not-set-variables-to-inf"
+const RULE_ID = "do-not-set-variables-to-inf"
 const USER_MSG = "Do not set variables to Inf."
 const SUMMARY = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
 

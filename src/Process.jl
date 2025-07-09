@@ -10,6 +10,8 @@ include("SymbolTable.jl"); import .SymbolTable
 
 export check
 
+global const trivia_checks_enabled = false  # TODO enable this when we have our own "green" trees
+
 
 function check(file_name::String;
                print_ast::Bool = false, print_llt::Bool = false)
@@ -24,11 +26,13 @@ function check(file_name::String;
         if print_llt
             show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         end
+
+        SymbolTable.enter_main_module!()
         process(ast)
-        #if trivia_checks_enabled
+        if trivia_checks_enabled
             process_with_trivia(ast.raw, ast.raw)
-        #end
-        SymbolTable.exit_module!()   # leave `Main`
+        end
+        SymbolTable.exit_main_module!()
     end
 end
 
@@ -47,38 +51,44 @@ end
 
 
 function process(node::SyntaxNode)
+    if is_module(node)
+        SymbolTable.enter_module!(node)
+        Checks.SingleModuleFile.check(node)
+        Checks.ModuleNameCasing.check(node)
+        # TODO disabled until we have our own "green" trees: Checks.ModuleEndComment.check(node)
+        Checks.ModuleExportLocation.check(node)
+        Checks.ModuleImportLocation.check(node)
+        Checks.ModuleIncludeLocation.check(node)
+        Checks.ModuleSingleImportLine.check(node)
+    end
+
+    if is_global_decl(node) process_global(node) end
+
+    if is_loop(node) process_loop(node) end
+
+    if is_function(node) process_function(node) end
+
+    if is_struct(node) process_struct(node) end
+
+    if is_abstract(node) process_type_declaration(node) end
+
+    if is_operator(node) process_operator(node) end
+
+    if is_union_decl(node) process_unions(node) end
+
+    if is_literal(node) process_literal(node) end
+
+    if is_eval_call(node) || kind(node) == K"quote"
+        # There are corners we don't want to inspect.
+        return nothing
+    end
+
     if haschildren(node)
-        if is_toplevel(node)
-            SymbolTable.enter_main_module!()
+        try for x in children(node) process(x) end
+        catch xspt
+            @error "Unexpected error while processing expression at $(JS.source_location(node)):" xspt
+            return nothing  # stop processing this node, but continue with the rest of the tree
         end
-        if is_module(node)
-            SymbolTable.enter_module!(node)
-            Checks.SingleModuleFile.check(node)
-            Checks.ModuleNameCasing.check(node)
-            Checks.ModuleEndComment.check(node)
-            Checks.ModuleExportLocation.check(node)
-            Checks.ModuleImportLocation.check(node)
-            Checks.ModuleIncludeLocation.check(node)
-            Checks.ModuleSingleImportLine.check(node)
-        end
-
-        if is_global_decl(node) process_global(node) end
-
-        if is_loop(node) process_loop(node) end
-
-        if is_function(node) process_function(node) end
-
-        if is_struct(node) process_struct(node) end
-
-        if is_abstract(node) process_type_declaration(node) end
-
-        if is_operator(node) process_operator(node) end
-
-        if is_union_decl(node) process_unions(node) end
-
-        for x in children(node) process(x) end
-    else
-        if is_literal(node) process_literal(node) end
     end
 
     # "Post-processing", before returning from this level of the tree
@@ -97,7 +107,7 @@ function process_operator(node::AnyTree)
         if is_assignment(node) process_assignment(node) end
         if is_eq_neq_comparison(node)
             if numchildren(node) != 3
-                @debug "A comparison with a number of children != 3" node
+                @debug "A comparison with a number of children != 3 at $(JS.source_location(node))" node
             else
                 lhs, _, rhs = children(node)
                 Checks.UseIsinfToCheckForInfinite.check.([lhs, rhs])
@@ -121,25 +131,31 @@ function process_function(node::SyntaxNode)
     if isnothing(fname)
         # There is nothing left to check, except the debug logging output, where
         # we might see a clue of what we are dealing with.
-        @debug "Can't find function name" node
-        return nothing
+        @debug "Can't find function name in a function node $(JS.source_location(node)):" node
+        fname_str = "[anonymous]"
+    else
+        if kind(fname) == K"Identifier"
+            Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
+            SymbolTable.declare!(fname)
+        #else
+        # Otherwise, it might be an operator being redefined, which is certainly
+        # not subject to casing inspection, nor we need to get it declared.
+        end
+        fname_str = string(fname)   # in either case, we take it as a string
     end
-    Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
-    SymbolTable.declare!(fname)
     SymbolTable.enter_scope!()
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters"
             if ! haschildren(arg)
-                @debug "Odd case of childless [parameters] node" node
+                @debug "Odd case of childless [parameters] node $(JS.source_location(node)):" node
                 return nothing
             end
             # The last argument in the list is itself a list, of named arguments.
             for arg in children(arg)
-                if kind(arg) == K"=" arg = first(get_assignee(arg)) end
-                process_argument(fname, arg)
+                process_argument(fname_str, arg)
             end
         else
-            process_argument(fname, arg)
+            process_argument(fname_str, arg)
         end
     end
 
@@ -150,17 +166,12 @@ function process_function(node::SyntaxNode)
     end
 end
 
-function process_argument(fname::SyntaxNode, node::SyntaxNode)
-    if kind(node) == K"::"
-        if numchildren(node) == 2
-            arg = children(node)[1]
-        else
-            # Probably not a real argument, but a `::Val(Type)` to fix dispatch,
-            # or maybe some other kind of weird thing.
-            return nothing
-        end
-    else
-        arg = node
+function process_argument(fname::String, node::SyntaxNode)
+    arg = find_lhs_of_kind(K"Identifier", node)
+    if isnothing(arg)
+        # Probably not a real argument, but a `::Val(Type)` to fix dispatch, or
+        # something as tricky.
+        return nothing
     end
     SymbolTable.declare!(arg)
     Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
@@ -183,7 +194,7 @@ function process_literal(node::SyntaxNode)
 end
 
 function process_struct(node::SyntaxNode)
-    type_name = find_first_of_kind(K"Identifier", node)
+    type_name = find_lhs_of_kind(K"Identifier", node)
     SymbolTable.declare!(type_name)
     Checks.TypeNamesUpperCamelCase.check(type_name)
     for field in get_struct_members(node)
@@ -196,8 +207,8 @@ function process_type_declaration(node::SyntaxNode)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
-function process_type_restriction(node::GreenNode)
-    Checks.NoWhitespaceAroundTypeOperators.check(node)
+function process_type_restriction(_::GreenNode) return nothing
+    # TODO disabled until we have our own "green" trees: Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
@@ -210,9 +221,10 @@ function process_loop(node::SyntaxNode)
 end
 
 function process_global(node::SyntaxNode)
-    id = find_first_of_kind(K"Identifier", node)
+    id = find_lhs_of_kind(K"Identifier", node)
     if isnothing(id)
-        @debug "No identifier found in a declaration" node
+        @debug "No identifier found in a declaration $(JS.source_location(node)):" node
+        return nothing
     end
     # Don't bother if already declared before, to prevent multiple reports
     if ! SymbolTable.is_global(id)
@@ -242,7 +254,7 @@ function process_with_trivia(node::GreenNode, parent::GreenNode)
             Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif is_separator(node)
-            Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
+            # TODO disabled until we have our own "green" trees: Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
         end
         increase_counters(node)
     end

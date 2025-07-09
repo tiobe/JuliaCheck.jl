@@ -6,7 +6,7 @@ using ...Properties: MAX_LINE_LENGTH, expr_depth, expr_size, get_func_name,
     report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-short-hand-function-too-complicated"
+const RULE_ID = "short-hand-function-too-complicated"
 const SUMMARY = USER_MSG = "Short-hand notation with concise functions."
 
 function check(node::SyntaxNode)
@@ -24,7 +24,6 @@ function check(node::SyntaxNode)
 
     line_len = length(sourcetext(func))
     if line_len > MAX_LINE_LENGTH
-        @debug "Line length exceeded." line_len
         report()
     elseif line_len > round(Int, 0.9 * MAX_LINE_LENGTH)
         # The line doesn't exceed the hard length limit, but it's long enough

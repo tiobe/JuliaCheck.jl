@@ -2,23 +2,21 @@ module FunctionArgumentsInLowerSnakeCase
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children, numchildren
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, is_lower_snake, report_violation
+using ...Properties: find_lhs_of_kind, is_lower_snake, report_violation
 
 const SEVERITY = 7
-const RULE_ID = "asml-function-arguments-lower-snake-case"
+const RULE_ID = "function-arguments-lower-snake-case"
 const USER_MSG = "Argument must be written in \"lower_snake_case\"."
 const SUMMARY = "Function arguments are written in \"lower_snake_case\"."
 
-function check(f_name::SyntaxNode, f_arg::SyntaxNode)
+function check(f_name::AbstractString, f_arg::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
-
-    @assert kind(f_name) == K"Identifier" "Expected argument 'f_name' to be an [Identifier], not $(kind(f_name))"
 
     if kind(f_arg) == K"::"
         f_arg = numchildren(f_arg) == 1 ? nothing : children(f_arg)[1]
     end
     if f_arg !== nothing
-        f_arg = find_first_of_kind(K"Identifier", f_arg)
+        f_arg = find_lhs_of_kind(K"Identifier", f_arg)
     end
     if isnothing(f_arg)
         # Nothing to check; maybe a ::Val or ::Type, or perhaps a semicolon

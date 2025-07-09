@@ -3,11 +3,11 @@ module DoNotSetVariablesToNan
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 span, untokenize
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, get_assignee, haschildren,
+using ...Properties: find_lhs_of_kind, get_assignee, haschildren,
                 report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-do-not-set-variables-to-nan"
+const RULE_ID = "do-not-set-variables-to-nan"
 const USER_MSG = "Do not set variables to NaN."
 const SUMMARY = "Do not set variables to NaN, NaN16, NaN32 or NaN64"
 

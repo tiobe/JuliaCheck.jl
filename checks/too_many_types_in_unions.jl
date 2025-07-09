@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: is_union_decl, report_violation
 
 const SEVERITY = 6
-const RULE_ID = "asml-too-many-types-in-unions"
+const RULE_ID = "too-many-types-in-unions"
 const USER_MSG = "Union has too many types."
 const SUMMARY = "Too many types in Unions."
 

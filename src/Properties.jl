@@ -5,14 +5,15 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
     fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
-    is_constant, is_eq_neq_comparison, is_export, is_fat_snake_case,
-    is_function, is_global_decl, is_import, is_include, is_infix_operator,
-    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_separator,
-    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
-    expr_depth, expr_size, find_first_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_imported_pkg, get_module_name,
-    get_struct_members, get_struct_name, lines_count, report_violation,
-    reset_counters, SF, source_column, source_index, source_text, to_pascal_case
+    is_constant, is_eq_neq_comparison, is_eval_call, is_export,
+    is_fat_snake_case, is_function, is_global_decl, is_import, is_include,
+    is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
+    is_operator, is_separator, is_struct, is_toplevel, is_type_op,
+    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
+    find_lhs_of_kind, get_assignee, get_func_arguments, get_func_body,
+    get_func_name, get_imported_pkg, get_module_name, get_struct_members,
+    get_struct_name, lines_count, report_violation, reset_counters, SF,
+    source_column, source_index, source_text, to_pascal_case
 
 
 ## Types
@@ -92,6 +93,12 @@ is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
 is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
 
+function is_eval_call(node::AnyTree)::Bool
+    return kind(node) == K"macrocall" &&
+            haschildren(node) &&
+            string(children(node)[1]) == "@eval"
+end
+
 function is_mod_toplevel(node::AnyTree)::Bool
     return is_toplevel(node) ||
             (kind(node) == K"block" && is_module(node.parent))
@@ -163,14 +170,15 @@ end
 """
 Return the node carrying the function's name.
 """
-function get_func_name(node::SyntaxNode)::SyntaxNode
+function get_func_name(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
-    fname = find_first_of_kind(K"Identifier", node)
+    fname = find_lhs_of_kind(K"Identifier", node)
     if isnothing(fname)
-        @debug "Unprocessed corner case:" node
-        return nothing
+        # We give it one more chance to find the function's name: it will return
+        # the name of the operator being redefined, or `nothing`.
+        return _is_exception_op_redef(children(node)[1])
     end
-    if  kind(fname.parent) == K"."  # In this case, the 1st child is a module name
+    if kind(fname.parent) == K"."  # In this case, the 1st child is a module name
         fname = children(fname.parent)[2]
     end
     if kind(fname) == K"quote"  # Overloading an operator, which comes next
@@ -179,23 +187,37 @@ function get_func_name(node::SyntaxNode)::SyntaxNode
     return fname
 end
 
+function _is_exception_op_redef(node::SyntaxNode)::NullableNode
+    if kind(node) == K"call"
+        fname = children(node)[1]
+        if kind(fname) ∈ KSet"$ &"
+            return fname
+
+        elseif kind(fname) == K"quote"
+            fname = children(fname)[1]
+            if kind(fname) == K"::" return fname end
+        end
+    end
+    return nothing
+end
+
 """
 Return a list of nodes representing the arguments of a function.
 """
 function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
-    call = find_first_of_kind(K"call", children(node)[1])
+    call = find_lhs_of_kind(K"call", children(node)[1])
     if isnothing(call)
-        @debug "No [call] node found for a [function] node:\n" node
+        # Probably a function "stub", which declares a function name but no methods.
         return []
     end
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 
-function get_func_body(node::SyntaxNode)::SyntaxNode
+function get_func_body(node::SyntaxNode)::NullableNode
     @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
     if ! haschildren(node) || length(children(node)) < 2
-        @debug "Strange function node. Cannot return its body." node
+        # Probably a function "stub", which declares a function name but no methods.
         return nothing
     end
     return children(node)[2]
@@ -204,7 +226,7 @@ end
 
 function get_assignee(node::SyntaxNode)::NodeAndString
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    assignee = find_first_of_kind(K"Identifier", node)
+    assignee = find_lhs_of_kind(K"Identifier", node)
     # FIXME In case of field access (`my_struct.some_field = value`), this may
     # not be what we want. Perhaps other cases as well?
     if isnothing(assignee)
@@ -218,13 +240,13 @@ end
 
 function get_struct_name(node::SyntaxNode)::NullableNode
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
-    return find_first_of_kind(K"Identifier", node)
+    return find_lhs_of_kind(K"Identifier", node)
 end
 
 function get_struct_members(node::SyntaxNode)::Vector{SyntaxNode}
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
     if length(children(node)) < 2 || kind(children(node)[2]) != K"block"
-        @debug "[block] not found where expected." node
+        @debug "[block] not found where expected $(JS.source_location(node))." node
         return []
     end
     # Return the children of that [block] node:
@@ -255,48 +277,60 @@ representation, which would be:
 
 If there are multiple packages being imported/used, only the first one is returned.
 """
-function get_imported_pkg(node::SyntaxNode)::NodeAndString
+function get_imported_pkg(node::SyntaxNode)::String
     @assert is_import(node) "Expected a package import declaration, got [$(kind(node))]."
     @assert haschildren(node) "How can an [import] or [using] have nothing behind?"
-    local pkg::SyntaxNode
     if is_include(node)
-        pkg = children(node)[2]
-        if !( kind(pkg) == K"string" && haschildren(pkg) )
-            @debug "Unexpected morphology of an 'include':" node
-        else
-            pkg = children(pkg)[1]
-            if kind(pkg) != K"String"
-                @debug "Unexpected morphology of an 'include':" node
-            end
+        pkg = _extract_included_file(node)
+        if isnothing(pkg)
+            @debug "No file name found in an [include] node $(JS.source_location(node))" node
+            return ""
         end
-        str = basename(string(pkg))
+        str = string(pkg)
         if startswith(str, '"') && endswith(str, ".jl\"")
-            str = str[2:end-4]
+            str = basename(str[2:end-4])
         else
-            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'!" str
+            @debug "File name of submodule is not double-quotted and/or does not end with '.jl'! $(JS.source_location(node))" str
         end
     else
         pkg = children(node)[1]
-        if kind(pkg) == K":"    # importing/using items from a package
+        if kind(pkg) == K":" || # importing/using items from a package
+           kind(pkg) == K"as"   # import with an alias
             pkg = children(pkg)[1]
         end
         @assert kind(pkg) == K"importpath"
         pkg = last(children(pkg))
         str = string(pkg)
     end
-    return (pkg, str)
+    return str
+end
+
+function _extract_included_file(included::SyntaxNode)::NullableNode
+    file = children(included)[2]
+    if kind(file) == K"string" return first_child(file)
+
+    elseif kind(file) == K"call"
+        ch1 = first_child(file)
+        if kind(ch1) == K"Identifier" && string(ch1) == "joinpath"
+            # Return the last string given to `joinpath` (the actual string is
+            # the first child of that last node)
+            return first_child(last(children(file)))
+        end
+    end
+    @debug "Can't parse an 'include' $(JS.source_location(included)):" included
+    return nothing
 end
 
 
-# TODO Change name to `find_lhs_of_kind`, because it only looks at the first
-# child in each level it traverses downwards.
+first_child(node::AnyTree)::NullableNode = return haschildren(node) ? children(node)[1] : nothing
+
 """
 Return the first left-hand side node of the given kind, going down the left-most
 sub-tree in each level from the given node.
 """
-function find_first_of_kind(node_kind::Kind, node::AnyTree)::NullableNode
+function find_lhs_of_kind(node_kind::Kind, node::AnyTree)::NullableNode
     return kind(node) == node_kind ? node :
-                haschildren(node) ? find_first_of_kind(node_kind, children(node)[1]) :
+                haschildren(node) ? find_lhs_of_kind(node_kind, children(node)[1]) :
                     nothing
 end
 
@@ -324,10 +358,8 @@ function increase_counters(node::GreenNode)::Int
         if n == 0
             SOURCE_COL += span(node)
         else
+            # Occasionally, a string may contain multiple line breaks.
             SOURCE_LINE += n
-            if n > 1
-                @debug "String with $n line breaks:" txt    # TODO Delete me!
-            end
             SOURCE_COL = length(txt) - last(findfirst(EOL, txt))
         end
     else
@@ -341,7 +373,14 @@ function source_text(node::GreenNode, offset::Integer=0)
     length = span(node)
     return source_text(start, length)
 end
-source_text(from::Integer, howmuch::Integer) = JS.sourcetext(SF)[from : from+howmuch-1]
+function source_text(from::Integer, howmuch::Integer)
+    s = JS.sourcetext(SF)
+    until = from + howmuch - 1
+    if !isvalid(s, until)
+        until = prevind(s, until)
+    end
+    return s[from:until]
+end
 line_breaks(node::GreenNode) = count('\n', source_text(node))
 source_index() = SOURCE_INDEX
 lines_count() = SOURCE_LINE

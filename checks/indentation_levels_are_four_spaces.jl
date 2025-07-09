@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: lines_count, report_violation, source_index, source_text
 
 const SEVERITY = 7
-const RULE_ID = "asml-indentation-levels-are-four-spaces"
+const RULE_ID = "indentation-levels-are-four-spaces"
 const USER_MSG = "Indentation levels are four spaces."
 const SUMMARY = "Indentation will be done in multiples of four spaces."
 

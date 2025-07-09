@@ -3,11 +3,11 @@ module UseIsinfToCheckForInfinite
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
 using ...Checks: is_enabled
-using ...Properties: NullableString, find_first_of_kind, haschildren,
+using ...Properties: NullableString, find_lhs_of_kind, haschildren,
                 report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-use-isinf-to-check-for-infinite"
+const RULE_ID = "use-isinf-to-check-for-infinite"
 const USER_MSG = "Use isinf to check for infinite values."
 const SUMMARY = "Use isinf to check variables for infinity."
 

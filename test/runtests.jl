@@ -1,19 +1,19 @@
-using Test: @testset, @test
+using Test: @test #, @testset
 using TestItems: @testitem
-using IOCapture
+using TestItemRunner
 using JuliaCheck
-using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt, JuliaSyntax as JS
-
 include("../src/Properties.jl"); import .Properties
 include("../src/Checks.jl"); import .Checks
 include("../src/Process.jl"); import .Process
-include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
-    enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
-    exit_scope!, is_declared, is_global, print_state
 
-make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
+@testitem "Symbols Table tests" begin
+    using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt,
+        JuliaSyntax as JS
+    include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
+        enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
+        exit_scope!, is_declared, is_global, print_state
 
-@testset "Symbols Table tests" begin
+    make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
 
     # Add some identifiers to Main module, global scope
     enter_main_module!()
@@ -96,10 +96,11 @@ make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
         """
 end
 
-const COMPANY_PREFIX = "asml-"
 
-@testset "Integration Tests" begin
-    for f in readdir()
+@testitem "Integration Tests" begin
+    import IOCapture
+
+    for f in readdir(@__DIR__)
         if endswith(f, ".val")
             fname = f[1:end-4]
             in_file = fname * ".jl"
@@ -110,7 +111,7 @@ const COMPANY_PREFIX = "asml-"
                 @warn x
                 continue
             end
-            corresponding_rule = COMPANY_PREFIX * replace(basename(fname), '_'=>'-')
+            corresponding_rule = replace(basename(fname), '_'=>'-')
             println(join(["--enable", corresponding_rule, "--", in_file], " "))
             result = IOCapture.capture() do
                 JuliaCheck.main(["--enable", corresponding_rule, "--", in_file])
@@ -119,3 +120,5 @@ const COMPANY_PREFIX = "asml-"
         end
     end
 end
+
+@run_package_tests

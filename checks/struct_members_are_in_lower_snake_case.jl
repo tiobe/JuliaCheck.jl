@@ -2,10 +2,10 @@ module StructMembersAreInLowerSnakeCase
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children
 using ...Checks: is_enabled
-using ...Properties: find_first_of_kind, is_lower_snake, report_violation
+using ...Properties: find_lhs_of_kind, is_lower_snake, report_violation
 
 const SEVERITY = 8
-const RULE_ID = "asml-struct-members-are-in-lower-snake-case"
+const RULE_ID = "struct-members-are-in-lower-snake-case"
 const USER_MSG = "Struct members are implemented in \"lower_snake_case\"."
 const SUMMARY = "Members of structs are defined in \"lower_snake_case\"."
 
@@ -21,7 +21,7 @@ function check(field::SyntaxNode)
         # must follow a different naming convention than functions do.
         return nothing
     end
-    field_name = find_first_of_kind(K"Identifier", field)
+    field_name = find_lhs_of_kind(K"Identifier", field)
     if !is_lower_snake(string(field_name))
         report_violation(field_name; severity = SEVERITY, rule_id = RULE_ID,
                                      user_msg = USER_MSG, summary = SUMMARY)

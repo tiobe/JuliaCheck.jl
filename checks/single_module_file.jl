@@ -5,7 +5,7 @@ using ...Checks: is_enabled
 using ...Properties: haschildren, is_module, report_violation
 
 const SEVERITY = 5
-const RULE_ID = "asml-single-module-file"
+const RULE_ID = "single-module-file"
 const SUMMARY = USER_MSG = "Single module files."
 
 function check(modjule::SyntaxNode)

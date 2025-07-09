@@ -1,17 +1,20 @@
 module ModuleExportLocation
 
 import JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, numchildren, kind
-using ...Properties: get_imported_pkg, haschildren, is_export, is_import,
-                    is_include, report_violation
+using ...Checks: is_enabled
+using ...Properties: haschildren, is_export, is_import, is_include,
+            report_violation
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-export-location"
+const RULE_ID = "module-export-location"
 const SUMMARY = "Location of exported functions and exported structs."
 const USER_MSG = "Exports should be implemented after the include instructions."
 
 no_ex_imports(node::SyntaxNode) = ! (is_import(node) || is_export(node))
 
 function check(modjule::SyntaxNode)
+    if !is_enabled(RULE_ID) return nothing end
+
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
     @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"

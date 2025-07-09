@@ -6,7 +6,7 @@ using ...Properties: get_imported_pkg, haschildren, is_import, is_include,
                 is_upper_camel_case, report_violation
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-single-import-line"
+const RULE_ID = "module-single-import-line"
 const USER_MSG = "Keep import/using declarations in alphabetic order."
 const SUMMARY = "The list of packages should be in alphabetic order."
 
@@ -30,10 +30,10 @@ function check(modjule::SyntaxNode)
                              user_msg = "Import only one package per line.",
                              summary = "Lists of imported/used packages.")
         else
-            (pkg, pkg_name) = get_imported_pkg(node)
+            pkg_name = get_imported_pkg(node)
             if pkg_name < previous
-                report_violation(pkg; severity = SEVERITY, rule_id = RULE_ID,
-                                      user_msg = USER_MSG, summary = SUMMARY)
+                report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                                       user_msg = USER_MSG, summary = SUMMARY)
             else
                 previous = pkg_name
             end
@@ -44,10 +44,10 @@ function check(modjule::SyntaxNode)
     # files at once)
     previous = ""
     for node in filter(is_include, imports[first_include : end])
-        (pkg, pkg_name) = get_imported_pkg(node)
+        pkg_name = get_imported_pkg(node)
         if pkg_name < previous
-            report_violation(pkg; severity = SEVERITY, rule_id = RULE_ID,
-                                  user_msg = USER_MSG, summary = SUMMARY)
+            report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
+                                   user_msg = USER_MSG, summary = SUMMARY)
         else
             previous = pkg_name
         end

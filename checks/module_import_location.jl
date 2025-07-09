@@ -6,7 +6,7 @@ using ...Properties: haschildren, is_import, is_include, is_upper_camel_case,
                 report_violation
 
 const SEVERITY = 9
-const RULE_ID = "asml-module-import-location"
+const RULE_ID = "module-import-location"
 const USER_MSG = "Move imports to the top of the module, before any actual code."
 const SUMMARY = "Packages should be imported after the module keyword."
 

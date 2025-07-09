@@ -5,22 +5,22 @@ module_name_casing.jl(1, 8):
 module bad_module_name
 #      └─────────────┘ ── Package and module names should be written in UpperCamelCase.
 Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
+Rule: module-name-casing. Severity: 5
 
 module_name_casing.jl(7, 8):
 module aBadModuleName
 #      └────────────┘ ── Package and module names should be written in UpperCamelCase.
 Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
+Rule: module-name-casing. Severity: 5
 
 module_name_casing.jl(10, 8):
 module Bad_Module_Name_I_Guess
 #      └─────────────────────┘ ── Package and module names should be written in UpperCamelCase.
 Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
+Rule: module-name-casing. Severity: 5
 
 module_name_casing.jl(13, 8):
 module A    # Is this OK?
 #      ╙ ── Package and module names should be written in UpperCamelCase.
 Package names and module names.
-Rule: asml-module-name-casing. Severity: 5
+Rule: module-name-casing. Severity: 5

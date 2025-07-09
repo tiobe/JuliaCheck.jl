@@ -5,14 +5,14 @@ using ...Checks: is_enabled
 using ...Properties: inside, is_lower_snake, is_struct, report_violation
 
 const SEVERITY = 8
-const RULE_ID = "asml-function-identifiers-in-lower-snake-case"
+const RULE_ID = "function-identifiers-in-lower-snake-case"
 const USER_MSG = "Function name should be written in \"lower_snake_case\"."
 const SUMMARY = "Function names are written in lower_snake_case."
 
 function check(func_name::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
 
-    @assert kind(func_name) == K"Identifier" "Expected an [Identifier] node, got [$(kind(node))]."
+    @assert kind(func_name) == K"Identifier" "Expected an [Identifier] node, got [$(kind(func_name))]."
     if inside(func_name, is_struct)
         # Inner constructors (functions inside a type definition) must match the
         # type's name, which must follow a different naming convention than

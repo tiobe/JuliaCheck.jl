@@ -3,11 +3,11 @@ module UseIsnothingToCheckForNothingValues
 import JuliaSyntax: SyntaxNode, GreenNode, @K_str, @KSet_str, children, kind,
                 numchildren, span, untokenize
 using ...Checks: is_enabled
-using ...Properties: NullableString, find_first_of_kind, get_assignee,
+using ...Properties: NullableString, find_lhs_of_kind, get_assignee,
                 haschildren, report_violation
 
 const SEVERITY = 3
-const RULE_ID = "asml-use-isnothing-to-check-for-nothing-values"
+const RULE_ID = "use-isnothing-to-check-for-nothing-values"
 const USER_MSG = "Use isnothing to check for nothing values."
 const SUMMARY = "Use isnothing to check variables for nothing."
 
