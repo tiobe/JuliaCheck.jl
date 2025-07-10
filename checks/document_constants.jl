@@ -1,6 +1,6 @@
 module DocumentConstants
 
-using JuliaSyntax: SyntaxNode, @K_str, children, kind
+using JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, kind
 using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, haschildren, report_violation
 
@@ -12,7 +12,7 @@ const SEVERITY = 7
 function check(const_node::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
 
-    @assert kind(const_node) == K"const" "Expected a [const] const_node, got $(kind(const_node))."
+    @assert kind(const_node) ∈ KSet"const global" "Expected a [const] const_node, got $(kind(const_node))."
     if haschildren(const_node) && kind(children(const_node)[1]) == K"="
         # This is a constant value declaration.
         assignment = children(const_node)[1]
