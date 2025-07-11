@@ -90,7 +90,6 @@ is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
 is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
-is_constant(  node::AnyTree)::Bool = kind(node) == K"const"
 is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
 
 function is_eval_call(node::AnyTree)::Bool
@@ -108,6 +107,11 @@ function is_global_decl(node::AnyTree)::Bool
             # An assignment or base declaration at the (module's) top-level
             # declares a global variable
             (kind(node) ∈ KSet"= ::" && is_mod_toplevel(node.parent))
+end
+function is_constant(node::AnyTree)::Bool
+    return kind(node) == K"const" ||
+           (kind(node) == K"global" && haschildren(node) &&
+            kind(children(node)[1]) == K"const")
 end
 
 function is_union_decl(node::SyntaxNode)::Bool

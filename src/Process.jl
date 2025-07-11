@@ -233,6 +233,8 @@ function process_global(node::SyntaxNode)
         Checks.GlobalVariablesUpperSnakeCase.check(id)
         if is_constant(node)
             Checks.DocumentConstants.check(node)
+        else
+            Checks.PreferConstVariablesOverNonConstGlobalVariables.check(id)
         end
     end
 end

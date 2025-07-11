@@ -12,6 +12,14 @@ const SEVERITY = 7
 function check(const_node::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
 
+    if kind(const_node) == K"global"
+        if haschildren(const_node)
+            const_node = children(const_node)[1]
+        else
+            @debug "A global node without children:" const_node
+            return nothing
+        end
+    end
     @assert kind(const_node) == K"const" "Expected a [const] const_node, got $(kind(const_node))."
     if haschildren(const_node) && kind(children(const_node)[1]) == K"="
         # This is a constant value declaration.
