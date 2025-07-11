@@ -3,17 +3,18 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
 
-export AnyTree, EOL, MAX_LINE_LENGTH, opens_scope, closes_module, closes_scope,
-    fake_green_node, haschildren, increase_counters, is_abstract, is_assignment,
-    is_constant, is_eq_neq_comparison, is_eval_call, is_export,
-    is_fat_snake_case, is_function, is_global_decl, is_import, is_include,
-    is_infix_operator, is_loop, is_literal, is_lower_snake, is_module,
-    is_operator, is_separator, is_struct, is_toplevel, is_type_op,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size,
-    find_lhs_of_kind, get_assignee, get_func_arguments, get_func_body,
-    get_func_name, get_imported_pkg, get_module_name, get_struct_members,
-    get_struct_name, lines_count, report_violation, reset_counters, SF,
-    source_column, source_index, source_text, to_pascal_case
+export AnyTree, EOL, MAX_LINE_LENGTH, SF,
+    children, closes_module, closes_scope, fake_green_node, first_child,
+    haschildren, increase_counters, is_abstract, is_assignment, is_constant,
+    is_eq_neq_comparison, is_eval_call, is_export, is_fat_snake_case,
+    is_function, is_global_decl, is_import, is_include, is_infix_operator,
+    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_separator,
+    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
+    expr_depth, expr_size, find_lhs_of_kind, get_assignee, get_func_arguments,
+    get_func_body, get_func_name, get_imported_pkg, get_module_name,
+    get_struct_members, get_struct_name, lines_count, opens_scope,
+    report_violation, reset_counters, source_column, source_index, source_text,
+    to_pascal_case
 
 
 ## Types
@@ -67,7 +68,6 @@ function fake_green_node(kind::Kind; length::Int=0)
     return GreenNode{Kind}(kind, length, nothing)
 end
 
-haschildren(node::AnyTree)::Bool = numchildren(node) > 0
 
 function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
@@ -326,7 +326,12 @@ function _extract_included_file(included::SyntaxNode)::NullableNode
 end
 
 
-first_child(node::AnyTree)::NullableNode = return haschildren(node) ? children(node)[1] : nothing
+haschildren(node::AnyTree)::Bool = numchildren(node) > 0
+children(node::AnyTree)::Vector{AnyTree} = isnothing(node.children) ?
+                                                AnyTree[] : node.children
+first_child(node::AnyTree)::NullableNode = haschildren(node) ?
+                                                JS.children(node)[1] : nothing
+
 
 """
 Return the first left-hand side node of the given kind, going down the left-most

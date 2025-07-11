@@ -234,6 +234,7 @@ function process_global(node::SyntaxNode)
         if is_constant(node)
             Checks.DocumentConstants.check(node)
         else
+            Checks.GlobalNonConstVariablesShouldHaveTypeAnnotations.check(node)
             Checks.PreferConstVariablesOverNonConstGlobalVariables.check(id)
         end
     end

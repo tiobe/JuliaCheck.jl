@@ -1,6 +1,6 @@
 module DocumentConstants
 
-using JuliaSyntax: SyntaxNode, @K_str, children, kind
+using JuliaSyntax: SyntaxNode, @K_str, @KSet_str, children, kind
 using ...Checks: is_enabled
 using ...Properties: find_lhs_of_kind, haschildren, report_violation
 
