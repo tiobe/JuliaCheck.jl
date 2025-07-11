@@ -231,6 +231,7 @@ function process_global(node::SyntaxNode)
         SymbolTable.declare!(SymbolTable.global_scope(), id)
         Checks.AvoidGlobalVariables.check(id)
         Checks.GlobalVariablesUpperSnakeCase.check(id)
+        Checks.LocationOfGlobalVariables.check(node)
         if is_constant(node)
             Checks.DocumentConstants.check(node)
         else
