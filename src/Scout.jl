@@ -4,7 +4,7 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
 
 include("JuliaCheck.jl"); import .JuliaCheck: main
-using .JuliaCheck.Properties: report_violation, _report_common
+using .JuliaCheck.Properties: SF, report_violation, _report_common
 
 SINK = IOBuffer()
 
