@@ -17,6 +17,8 @@ module MyBadStylePackage
 
 end # module MyBadStylePackage
 
+const SOME_GLOBAL = 0.7
+
 module MyGoodStylePackage
 
     using Statistics
