@@ -1,20 +1,21 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    children, head, kind, numchildren, span, untokenize, JuliaSyntax as JS
+    children, head, kind, numchildren, sourcetext, span, untokenize,
+    JuliaSyntax as JS
 
 export AnyTree, EOL, MAX_LINE_LENGTH, SF,
-    children, closes_module, closes_scope, fake_green_node, first_child,
+    children, closes_module, closes_scope, expr_depth, expr_size,
+    fake_green_node, find_lhs_of_kind, first_child, get_assignee,
+    get_func_arguments, get_func_body, get_func_name, get_imported_pkg,
+    get_module_name, get_number, get_struct_members, get_struct_name,
     haschildren, increase_counters, is_abstract, is_assignment, is_constant,
     is_eq_neq_comparison, is_eval_call, is_export, is_fat_snake_case,
     is_function, is_global_decl, is_import, is_include, is_infix_operator,
-    is_loop, is_literal, is_lower_snake, is_module, is_operator, is_separator,
-    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
-    expr_depth, expr_size, find_lhs_of_kind, get_assignee, get_func_arguments,
-    get_func_body, get_func_name, get_imported_pkg, get_module_name,
-    get_struct_members, get_struct_name, lines_count, opens_scope,
-    report_violation, reset_counters, source_column, source_index, source_text,
-    to_pascal_case
+    is_literal_number, is_loop, is_lower_snake, is_module, is_operator,
+    is_separator, is_struct, is_toplevel, is_type_op, is_union_decl,
+    is_upper_camel_case, lines_count, opens_scope, report_violation,
+    reset_counters, source_column, source_index, source_text, to_pascal_case
 
 
 ## Types
@@ -85,7 +86,7 @@ end
 is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
 is_module(    node::AnyTree)::Bool = kind(node) == K"module"
 is_assignment(node::AnyTree)::Bool = kind(node) == K"="
-is_literal(   node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
+is_literal_number(   node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
@@ -347,6 +348,25 @@ expr_depth(node::SyntaxNode)::Int = (! haschildren(node)) ? 1 :
                                         (1 + maximum(expr_depth.(children(node))))
 expr_size(node::SyntaxNode)::Int = (! haschildren(node)) ? 1 :
                                         (1 + sum(expr_size.(children(node))))
+
+
+"""
+    get_number(node::SyntaxNode)::Union{Number, Nothing}
+
+Get the number from a literal node, or `nothing` if it cannot be parsed.
+"""
+function get_number(node::SyntaxNode)::Union{Number, Nothing}
+    n = Meta.parse(sourcetext(node); raise=false)
+    if typeof(n) == Expr
+        if n.head == :error
+            @debug "Couldn't parse number from node $(node): $(n.args[1].msg)"
+        else
+            @debug "Expected a number, got an expression: $n"
+        end
+        return nothing
+    end
+    return n
+end
 
 
 function reset_counters()

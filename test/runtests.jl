@@ -2,9 +2,7 @@ using Test: @test #, @testset
 using TestItems: @testitem
 using TestItemRunner
 using JuliaCheck
-include("../src/Properties.jl"); import .Properties
-include("../src/Checks.jl"); import .Checks
-include("../src/Process.jl"); import .Process
+
 
 @testitem "Symbols Table tests" begin
     using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt,
@@ -94,6 +92,19 @@ include("../src/Process.jl"); import .Process
         Symbol Table State:
         Module stack (0 modules):
         """
+end
+
+
+@testitem "Numbers" begin
+    using JuliaSyntax: SyntaxNode, parsestmt, JuliaSyntax as JS
+    include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
+        enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
+        exit_scope!, is_declared, is_global, print_state
+    include("../src/Properties.jl"); using .Properties: get_number
+
+    make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
+
+    @test get_number(make_node("4.493_775_893_684_088e16")) == 4.493775893684088e16
 end
 
 

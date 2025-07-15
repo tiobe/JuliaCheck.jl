@@ -76,7 +76,7 @@ function process(node::SyntaxNode)
 
     if is_union_decl(node) process_unions(node) end
 
-    if is_literal(node) process_literal(node) end
+    if is_literal_number(node) process_literal(node) end
 
     if is_eval_call(node) || kind(node) == K"quote"
         # There are corners we don't want to inspect.
@@ -187,6 +187,7 @@ end
 process_assignment(_::GreenNode) = nothing
 
 function process_literal(node::SyntaxNode)
+    Checks.AvoidHardCodedNumbers.check(node)
     if     (kind(node) == K"Integer")
     elseif (kind(node) == K"Float")
         Checks.LeadingAndTrailingDigits.check(node)
