@@ -5,15 +5,16 @@ import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
 
 export AnyTree, EOL, MAX_LINE_LENGTH, SF, children, closes_module, closes_scope,
     fake_green_node, first_child, haschildren, increase_counters, is_abstract,
-    is_assignment, is_cond, is_constant, is_eq_neq_comparison, is_eval_call,
-    is_export, is_fat_snake_case, is_function, is_global_decl, is_import,
-    is_include, is_infix_operator, is_loop, is_literal, is_lower_snake,
-    is_module, is_operator, is_separator, is_struct, is_toplevel, is_type_op,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size, find_lhs_of_kind,
-    get_assignee, get_func_arguments, get_func_body, get_func_name,
-    get_imported_pkg, get_module_name, get_struct_members, get_struct_name,
-    lines_count, opens_scope, report_violation, reset_counters, source_column,
-    source_index, source_text, to_pascal_case
+    is_assignment, is_constant, is_eq_neq_comparison, is_eval_call,
+    is_export, is_fat_snake_case, is_flow_cntrl, is_function, is_global_decl,
+    is_import, is_include, is_infix_operator, is_loop, is_literal,
+    is_lower_snake, is_module, is_operator, is_separator, is_struct,
+    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, expr_depth,
+    expr_size, find_lhs_of_kind, get_assignee, get_func_arguments,
+    get_func_body, get_func_name, get_imported_pkg, get_module_name,
+    get_struct_members, get_struct_name, lines_count, opens_scope,
+    report_violation, reset_counters, source_column, source_index, source_text,
+    to_pascal_case
 
 
 ## Types
@@ -89,8 +90,8 @@ is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
 is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
-is_cond(      node::AnyTree)::Bool = kind(node) == K"if"
 is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
+is_flow_cntrl(node::AnyTree)::Bool = kind(node) in KSet"if for while try"
 
 function is_eval_call(node::AnyTree)::Bool
     return kind(node) == K"macrocall" &&

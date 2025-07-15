@@ -1,7 +1,7 @@
 function foo()::Nothing
     if A # nesting level 1
-        if B # nesting level 2
-            if C # nesting level 3
+        while B # nesting level 2
+            for c in C # nesting level 3
                 if D # nesting level 4 is a violation
                     println("This is a violation of the nesting level rule.")
                 end
@@ -14,11 +14,11 @@ end
 
 function bar()::Nothing
     if A # nesting level 1
-        if B # nesting level 2
+        while B # nesting level 2
             if C # nesting level 3
                 println("This is almost a violation of the nesting level rule.")
             else
-                if D # nesting level 4 is a violation
+                for d in D # nesting level 4 is a violation
                     println("This is a violation of the nesting level rule.")
                 end
             end
@@ -34,7 +34,7 @@ function zilch()::Nothing
             return nothing
         end
 
-        if F # nesting level 1
+        if C # nesting level 2
             return nothing # too
         end
     end
@@ -43,12 +43,13 @@ function zilch()::Nothing
 end
 
 const NADA_DE_NADA = map(0:10) do n
-    if A
-        if B
-            if C
-                if D
-                    nothing
-                end
+    while A # nesting level 1
+        if B    # nesting level 2
+            for c in C  # nesting level 3
+                d = try D() # nesting level 4 is a violation
+                    catch
+                        nothing
+                    end
             end
         end
     end
