@@ -19,10 +19,7 @@ function check(node::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
 
     @assert is_literal_number(node) "Expected a node with a literal number, got $(kind(node))"
-    is_const::Bool = is_const_declaration(node)
-    magic_number::Bool = is_magic_number(node)
-    # if !is_const_declaration(node) && is_magic_number(node)
-    if magic_number && !is_const
+    if !is_const_declaration(node) && is_magic_number(node)
         n = get_number(node)
         if n ∈ SEEN_BEFORE
             report_violation(node; severity = SEVERITY, rule_id = RULE_ID,
