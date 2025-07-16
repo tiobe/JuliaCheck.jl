@@ -80,6 +80,9 @@ function process(node::SyntaxNode)
 
     if is_flow_cntrl(node) Checks.NestingOfConditionalStatements.check(node) end
 
+    # if is_array_indx(node) Checks.UseEachindexToIterateIndices.check(node) end
+    if kind(node) == K"for" Checks.UseEachindexToIterateIndices.check(node) end
+
     if is_eval_call(node) || kind(node) == K"quote"
         # There are corners we don't want to inspect.
         return nothing
