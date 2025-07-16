@@ -78,6 +78,8 @@ function process(node::SyntaxNode)
 
     if is_literal_number(node) process_literal(node) end
 
+    if is_flow_cntrl(node) Checks.NestingOfConditionalStatements.check(node) end
+
     if is_eval_call(node) || kind(node) == K"quote"
         # There are corners we don't want to inspect.
         return nothing
