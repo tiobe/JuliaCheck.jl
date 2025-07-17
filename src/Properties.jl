@@ -11,8 +11,8 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
     fake_green_node, find_lhs_of_kind, first_child,
 
     get_assignee, get_func_arguments, get_func_body, get_func_name,
-    get_imported_pkg, get_module_name, get_number, get_struct_members,
-    get_struct_name,
+    get_imported_pkg, get_iteration_parts, get_module_name, get_number,
+    get_struct_members, get_struct_name,
 
     haschildren, increase_counters, is_abstract, is_array_indx, is_assignment,
     is_constant, is_eq_neq_comparison, is_eval_call, is_export,
@@ -393,6 +393,39 @@ function get_number(node::SyntaxNode)::Union{Number, Nothing}
     return n
 end
 
+"""
+    get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
+
+Given a [for] node, return a pair where the first part is the loop variable (it
+might be a tuple, if using `enumerate`, for instance), and the second part is the
+iteration expression, which can be a collection object, a call to a function like
+`eachindex`, a range, etc.
+
+If the given node is not a [for] loop, or it has an unexpected shape, then both
+returned parts are `nothing` (but it is still a pair).
+"""
+function get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
+    if kind(for_loop) == K"for"
+        if !( haschildren(for_loop) &&
+              kind(first_child(for_loop)) == K"iteration"
+           )
+            @debug "for loop does not have an [iteration]" for_loop
+            return nothing, nothing
+        end
+        node = first_child(for_loop)
+        if !( haschildren(node) && kind(first_child(node)) == K"in" )
+            @debug "for loop does not have an [iteration]/[in] sequence:" for_loop
+            return nothing, nothing
+        end
+        node = first_child(node)
+        if numchildren(node) != 2
+            @debug "for loop [iteration/in] does not have exactly two children:" for_loop
+            return nothing, nothing
+        end
+        var, expr = children(node)
+        return var, expr
+    end
+end
 
 function reset_counters()
     global SOURCE_COL = 1

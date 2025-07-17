@@ -2,8 +2,9 @@ module UseEachindexToIterateIndices
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, numchildren
 using ...Checks: is_enabled
-using ...Properties: NullableNode, children, first_child, haschildren, is_loop,
-                     is_range, is_stop_point, report_violation
+using ...Properties: NullableNode, children, first_child, get_iteration_parts,
+                     haschildren, is_loop, is_range, is_stop_point,
+                     report_violation
 
 const SEVERITY = 5
 const RULE_ID = "use-eachindex-to-iterate-indices"
@@ -24,24 +25,8 @@ function check(index_ref::SyntaxNode)
         return nothing
     end
 
-    if !( haschildren(for_loop) &&
-          kind(first_child(for_loop)) == K"iteration"
-       )
-        @debug "for loop does not have an [iteration]" for_loop
-        return nothing
-    end
-    node = first_child(for_loop)
-    if !( haschildren(node) && kind(first_child(node)) == K"in" )
-        @debug "for loop does not have an [iteration]/[in] sequence:" for_loop
-        return nothing
-    end
-    node = first_child(node)
-    if numchildren(node) != 2
-        @debug "for loop [iteration/in] does not have exactly two children:" for_loop
-        return nothing
-    end
-    loop_var, loop_expr = children(node)
-    if is_range(loop_expr)
+    loop_var, loop_expr = get_iteration_parts(for_loop)
+    if !isnothing(loop_var) && is_range(loop_expr)
         report_violation(loop_var;
                          severity = SEVERITY, rule_id = RULE_ID,
                          summary = SUMMARY, user_msg = USER_MSG)
