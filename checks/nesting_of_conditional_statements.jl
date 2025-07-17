@@ -3,7 +3,7 @@ module NestingOfConditionalStatements
 import JuliaSyntax: SyntaxNode, @KSet_str, first_byte, kind, source_location
 using ...Checks: is_enabled
 using ...Properties: children, get_imported_pkg, haschildren, is_flow_cntrl,
-                     is_import, is_include, report_violation
+                     is_import, is_include, is_stop_point, report_violation
 
 const SEVERITY = 4
 const RULE_ID = "nesting-of-conditional-statements"
@@ -28,7 +28,7 @@ end
 
 function conditional_nesting_level(node::SyntaxNode)::Int
     level = 0
-    while !isnothing(node) && kind(node) ∉ KSet"function macro module toplevel do let"
+    while !isnothing(node) && is_stop_point(node)
         if is_flow_cntrl(node)
             level += 1
         end
