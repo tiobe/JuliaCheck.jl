@@ -3,16 +3,24 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
-export AnyTree, EOL, MAX_LINE_LENGTH, SF, children, closes_module, closes_scope,
-    fake_green_node, first_child, haschildren, increase_counters, is_abstract,
-    is_assignment, is_constant, is_eq_neq_comparison, is_eval_call, is_export,
-    is_fat_snake_case, is_flow_cntrl, is_function, is_global_decl, is_import,
-    is_include, is_infix_operator, is_loop, is_literal_number, is_lower_snake,
-    is_module, is_operator, is_separator, is_struct, is_toplevel, is_type_op,
-    is_union_decl, is_upper_camel_case, expr_depth, expr_size, find_lhs_of_kind,
+export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
+
+    children, closes_module, closes_scope, expr_depth, expr_size,
+
+    fake_green_node, find_lhs_of_kind, first_child,
+
     get_assignee, get_func_arguments, get_func_body, get_func_name,
-    get_imported_pkg, get_module_name, get_number, get_struct_members,
-    get_struct_name, lines_count, opens_scope, report_violation, reset_counters,
+    get_imported_pkg, get_iteration_parts, get_module_name, get_number,
+    get_struct_members, get_struct_name,
+
+    haschildren, increase_counters, is_abstract, is_array_indx, is_assignment,
+    is_constant, is_eq_neq_comparison, is_eval_call, is_export,
+    is_fat_snake_case, is_flow_cntrl,is_function, is_global_decl, is_import,
+    is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
+    is_module, is_operator, is_range, is_separator, is_stop_point, is_struct,
+    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
+
+    lines_count, opens_scope, report_violation, reset_counters,
     source_column, source_index, source_text, to_pascal_case
 
 
@@ -84,13 +92,18 @@ end
 is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
 is_module(    node::AnyTree)::Bool = kind(node) == K"module"
 is_assignment(node::AnyTree)::Bool = kind(node) == K"="
-is_literal_number(   node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
-is_loop(      node::AnyTree)::Bool = kind(node) in KSet"while for"
-is_separator( node::AnyTree)::Bool = kind(node) in KSet", ;"
-is_flow_cntrl(node::AnyTree)::Bool = kind(node) in KSet"if for while try"
+is_array_indx(node::AnyTree)::Bool = kind(node) == K"ref"
+is_loop(          node::AnyTree)::Bool = kind(node) in KSet"while for"
+is_separator(     node::AnyTree)::Bool = kind(node) in KSet", ;"
+is_flow_cntrl(    node::AnyTree)::Bool = kind(node) in KSet"if for while try"
+is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
+
+# When searching for a parent node of a certain kind, we stop at these nodes:
+is_stop_point(node::AnyTree)::Bool =
+    kind(node) in KSet"function module do let toplevel macro"
 
 function is_eval_call(node::AnyTree)::Bool
     return kind(node) == K"macrocall" &&
@@ -137,6 +150,18 @@ function is_eq_neq_comparison(node::AnyTree)::Bool
     if kind(node) == K"call" && numchildren(node) == 3
         infix_op = children(node)[2]
         return string(infix_op) ∈ ["==", "===", "≡", "!=", "≠", "!==", "≢"]
+    end
+    return false
+end
+
+function is_range(node::SyntaxNode)::Bool
+    if kind(node) == K"call" && numchildren(node) >= 2
+        kids = children(node)
+        return (
+            (kind(kids[1]) == K"Identifier" && string(kids[1]) == "range")
+            ||
+            (kind(kids[2]) == K"Identifier" && string(kids[2]) == ":")
+           )
     end
     return false
 end
@@ -367,6 +392,39 @@ function get_number(node::SyntaxNode)::Union{Number, Nothing}
     return n
 end
 
+"""
+    get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
+
+Given a [for] node, return a pair where the first part is the loop variable (it
+might be a tuple, if using `enumerate`, for instance), and the second part is the
+iteration expression, which can be a collection object, a call to a function like
+`eachindex`, a range, etc.
+
+If the given node is not a [for] loop, or it has an unexpected shape, then both
+returned parts are `nothing` (but it is still a pair).
+"""
+function get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
+    if kind(for_loop) == K"for"
+        if !( haschildren(for_loop) &&
+              kind(first_child(for_loop)) == K"iteration"
+           )
+            @debug "for loop does not have an [iteration]" for_loop
+            return nothing, nothing
+        end
+        node = first_child(for_loop)
+        if !( haschildren(node) && kind(first_child(node)) == K"in" )
+            @debug "for loop does not have an [iteration]/[in] sequence:" for_loop
+            return nothing, nothing
+        end
+        node = first_child(node)
+        if numchildren(node) != 2
+            @debug "for loop [iteration/in] does not have exactly two children:" for_loop
+            return nothing, nothing
+        end
+        var, expr = children(node)
+        return var, expr
+    end
+end
 
 function reset_counters()
     global SOURCE_COL = 1

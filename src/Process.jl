@@ -78,7 +78,9 @@ function process(node::SyntaxNode)
 
     if is_literal_number(node) process_literal(node) end
 
-    if is_flow_cntrl(node) Checks.NestingOfConditionalStatements.check(node) end
+    if is_flow_cntrl(node) process_flow_control(node) end
+
+    if is_array_indx(node) Checks.UseEachindexToIterateIndices.check(node) end
 
     if is_eval_call(node) || kind(node) == K"quote"
         # There are corners we don't want to inspect.
@@ -244,6 +246,12 @@ function process_global(node::SyntaxNode)
     end
 end
 
+function process_flow_control(node::SyntaxNode)
+    Checks.NestingOfConditionalStatements.check(node)
+    if kind(node) == K"for"
+        Checks.DoNotChangeGeneratedIndices.check(node)
+    end
+end
 
 function process_with_trivia(node::GreenNode, parent::GreenNode)
     if haschildren(node)

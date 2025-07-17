@@ -28,8 +28,7 @@ end
 
 function conditional_nesting_level(node::SyntaxNode)::Int
     level = 0
-    while (!isnothing(node) &&
-           kind(node) ∉ KSet"function macro module toplevel do let")
+    while !isnothing(node) && is_stop_point(node)
         if is_flow_cntrl(node)
             level += 1
         end
