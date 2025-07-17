@@ -156,8 +156,8 @@ function is_eq_neq_comparison(node::AnyTree)::Bool
 end
 
 function is_range(node::SyntaxNode)::Bool
-    if kind(node) == K"call" && haschildren(node)
-        kids = children(iterator)
+    if kind(node) == K"call" && numchildren(node) >= 2
+        kids = children(node)
         return (
             (kind(kids[1]) == K"Identifier" && string(kids[1]) == "range")
             ||

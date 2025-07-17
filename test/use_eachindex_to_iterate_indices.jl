@@ -17,3 +17,7 @@ end
 for weight in weights_vec
     println("weight $weight")
 end
+
+for i in 1:10
+    println("i = $i")
+end
