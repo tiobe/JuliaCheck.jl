@@ -2,7 +2,7 @@ module NestingOfConditionalStatements
 
 import JuliaSyntax: SyntaxNode, @KSet_str, first_byte, kind, source_location
 using ...Checks: is_enabled
-using ...Properties: is_flow_cntrl, report_violation
+using ...Properties: is_flow_cntrl, is_stop_point, report_violation
 
 const MAX_ALLOWED_NESTING_LEVELS = 3
 
@@ -28,7 +28,7 @@ end
 
 function conditional_nesting_level(node::SyntaxNode)::Int
     level = 0
-    while !isnothing(node) && is_stop_point(node)
+    while !isnothing(node) && !is_stop_point(node)
         if is_flow_cntrl(node)
             level += 1
         end

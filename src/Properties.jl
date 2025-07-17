@@ -103,7 +103,7 @@ is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =
-    kind(node) in KSet"function module do let toplevel macro"
+    kind(node) ∈ KSet"function module do let toplevel macro"
 
 function is_eval_call(node::AnyTree)::Bool
     return kind(node) == K"macrocall" &&
