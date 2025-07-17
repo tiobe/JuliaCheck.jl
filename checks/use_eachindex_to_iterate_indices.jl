@@ -1,9 +1,9 @@
 module UseEachindexToIterateIndices
 
-import JuliaSyntax: SyntaxNode, @K_str, haschildren, kind, numchildren
+import JuliaSyntax: SyntaxNode, @K_str, kind, numchildren
 using ...Checks: is_enabled
-using ...Properties: NullableNode, children, first_child, is_loop, is_range, is_stop_point,
-                     report_violation
+using ...Properties: NullableNode, children, first_child, haschildren, is_loop,
+                     is_range, is_stop_point, report_violation
 
 const SEVERITY = 5
 const RULE_ID = "use-eachindex-to-iterate-indices"
