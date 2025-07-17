@@ -1,7 +1,7 @@
 module Process
 
 import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
-    children, is_whitespace, kind, numchildren, span, untokenize,
+    is_whitespace, kind, numchildren, span, untokenize,
     JuliaSyntax as JS
 
 using ..Properties

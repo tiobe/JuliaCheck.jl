@@ -1,8 +1,7 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    children, head, kind, numchildren, sourcetext, span, untokenize,
-    JuliaSyntax as JS
+    head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
 export AnyTree, EOL, MAX_LINE_LENGTH, SF, children, closes_module, closes_scope,
     fake_green_node, first_child, haschildren, increase_counters, is_abstract,
@@ -331,7 +330,7 @@ haschildren(node::AnyTree)::Bool = numchildren(node) > 0
 children(node::AnyTree)::Vector{AnyTree} = isnothing(node.children) ?
                                                 AnyTree[] : node.children
 first_child(node::AnyTree)::NullableNode = haschildren(node) ?
-                                                JS.children(node)[1] : nothing
+                                                children(node)[1] : nothing
 
 
 """
