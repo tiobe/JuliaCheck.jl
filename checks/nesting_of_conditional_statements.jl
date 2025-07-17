@@ -2,15 +2,14 @@ module NestingOfConditionalStatements
 
 import JuliaSyntax: SyntaxNode, @KSet_str, first_byte, kind, source_location
 using ...Checks: is_enabled
-using ...Properties: children, get_imported_pkg, haschildren, is_flow_cntrl,
-                     is_import, is_include, is_stop_point, report_violation
+using ...Properties: is_flow_cntrl, is_stop_point, report_violation
+
+const MAX_ALLOWED_NESTING_LEVELS = 3
 
 const SEVERITY = 4
 const RULE_ID = "nesting-of-conditional-statements"
-const USER_MSG = "This conditional expression is too deeply nested (deeper than `X` levels)."
+const USER_MSG = "This conditional expression is too deeply nested (deeper than $MAX_ALLOWED_NESTING_LEVELS levels)."
 const SUMMARY = "Nesting of conditional statements."
-
-const MAX_ALLOWED_NESTING_LEVELS = 3
 
 function check(node::SyntaxNode)
     if !is_enabled(RULE_ID) return nothing end
@@ -20,15 +19,16 @@ function check(node::SyntaxNode)
     # Count the nesting level of conditional statements
     if conditional_nesting_level(node) > MAX_ALLOWED_NESTING_LEVELS
         line, col = source_location(node)
-        report_violation(; line=line, col=col, index=first_byte(node), len=2,
-            severity = SEVERITY, rule_id = RULE_ID, summary = SUMMARY,
-            user_msg = replace(USER_MSG, "`X`" => string(MAX_ALLOWED_NESTING_LEVELS)))
+        report_violation(; line=line, col=col, index=first_byte(node),
+                            len=length(string(kind(node))),
+                            severity = SEVERITY, rule_id = RULE_ID,
+                            summary = SUMMARY, user_msg = USER_MSG)
     end
 end
 
 function conditional_nesting_level(node::SyntaxNode)::Int
     level = 0
-    while !isnothing(node) && is_stop_point(node)
+    while !isnothing(node) && !is_stop_point(node)
         if is_flow_cntrl(node)
             level += 1
         end

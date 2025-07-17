@@ -1,8 +1,7 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    children, head, kind, numchildren, sourcetext, span, untokenize,
-    JuliaSyntax as JS
+    head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
 export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
 
@@ -104,7 +103,7 @@ is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =
-    kind(node) in KSet"function module do let toplevel macro"
+    kind(node) ∈ KSet"function module do let toplevel macro"
 
 function is_eval_call(node::AnyTree)::Bool
     return kind(node) == K"macrocall" &&
@@ -356,7 +355,7 @@ haschildren(node::AnyTree)::Bool = numchildren(node) > 0
 children(node::AnyTree)::Vector{AnyTree} = isnothing(node.children) ?
                                                 AnyTree[] : node.children
 first_child(node::AnyTree)::NullableNode = haschildren(node) ?
-                                                JS.children(node)[1] : nothing
+                                                children(node)[1] : nothing
 
 
 """
