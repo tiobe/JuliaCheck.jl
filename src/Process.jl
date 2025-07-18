@@ -1,16 +1,16 @@
 module Process
 
-import JuliaSyntax: GreenNode, SyntaxNode, SourceFile, ParseError, @K_str,
-    is_whitespace, kind, numchildren, span, untokenize,
-    JuliaSyntax as JS
+import JuliaSyntax: SyntaxNode, SourceFile, ParseError, @K_str, is_leaf,
+                    is_whitespace, kind, numchildren, JuliaSyntax as JS
 
 using ..Properties
+using ..LosslessTrees: LosslessNode, build_enhanced_tree
 import ..Checks
 include("SymbolTable.jl"); import .SymbolTable
 
 export check
 
-global const trivia_checks_enabled = false  # TODO enable this when we have our own "green" trees
+global const trivia_checks_enabled = true
 
 
 function check(file_name::String;
@@ -30,7 +30,7 @@ function check(file_name::String;
         SymbolTable.enter_main_module!()
         process(ast)
         if trivia_checks_enabled
-            process_with_trivia(ast.raw, ast.raw)
+            process_with_trivia(build_enhanced_tree(ast.raw, SF))
         end
         SymbolTable.exit_main_module!()
     end
@@ -188,7 +188,7 @@ function process_assignment(node::SyntaxNode)
     SymbolTable.declare!(first(lhs))
     # Checks.AvoidGlobals.check(node)
 end
-process_assignment(_::GreenNode) = nothing
+process_assignment(_::LosslessNode) = nothing
 
 function process_literal(node::SyntaxNode)
     Checks.AvoidHardCodedNumbers.check(node)
@@ -212,8 +212,8 @@ function process_type_declaration(node::SyntaxNode)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
-function process_type_restriction(_::GreenNode) return nothing
-    # TODO disabled until we have our own "green" trees: Checks.NoWhitespaceAroundTypeOperators.check(node)
+function process_type_restriction(_::LosslessNode) return nothing
+    # TODO Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
@@ -253,25 +253,24 @@ function process_flow_control(node::SyntaxNode)
     end
 end
 
-function process_with_trivia(node::GreenNode, parent::GreenNode)
-    if haschildren(node)
+function process_with_trivia(node::LosslessNode)
+    if is_leaf(node)
+        if is_whitespace(node)
+            Checks.UseSpacesInsteadOfTabs.check(node)
+            # Checks.IndentationLevelsAreFourSpaces.check(node)
+            # Checks.OmitTrailingWhiteSpace.check(node)
+
+        elseif kind(node) == K"String"
+            # Checks.OmitTrailingWhiteSpace.check(node)
+
+        elseif is_separator(node)
+            # Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
+        end
+    else
         if     is_toplevel(node) reset_counters()
         elseif is_operator(node) process_operator(node)
         end
-        for x in children(node) process_with_trivia(x, node) end
-    else
-        if is_whitespace(node)
-            Checks.UseSpacesInsteadOfTabs.check(node)
-            Checks.IndentationLevelsAreFourSpaces.check(node)
-            Checks.OmitTrailingWhiteSpace.check(node)
-
-        elseif kind(node) == K"String"
-            Checks.OmitTrailingWhiteSpace.check(node)
-
-        elseif is_separator(node)
-            # TODO disabled until we have our own "green" trees: Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
-        end
-        increase_counters(node)
+        for x in children(node) process_with_trivia(x) end
     end
 end
 

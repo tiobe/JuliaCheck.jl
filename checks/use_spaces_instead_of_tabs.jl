@@ -1,29 +1,27 @@
 module UseSpacesInsteadOfTabs
 
-import JuliaSyntax: GreenNode, SourceFile, @K_str, kind, children, span
+using JuliaSyntax: @K_str, kind
 using ...Checks: is_enabled
-using ...Properties: lines_count, report_violation, source_index, source_text
+using ...Properties: report_violation
+using ...LosslessTrees: LosslessNode, get_source_text
 
 const SEVERITY = 7
 const RULE_ID = "use-spaces-instead-of-tabs"
-const USER_MSG = "There are tab characters here."
 const SUMMARY = "Use spaces instead of tabs for indentation."
+const USER_MSG = SUMMARY
 
-function check(node::GreenNode)
+function check(node::LosslessNode)
     if !is_enabled(RULE_ID) return nothing end
 
-    if kind(node) != K"NewlineWs"
-        return nothing
-    end
-    textual = source_text(node)
-    match = findfirst("\t", textual)
-    if match !== nothing
-        report_violation(index = source_index() + match.start - 1, len = 1,
-                        line = lines_count() + 1, col = match.start - 1,
-                        severity = SEVERITY, rule_id = RULE_ID,
-                        user_msg = USER_MSG, summary = SUMMARY)
+    if kind(node) == K"NewlineWs"   # otherwise, it wouldn't be indentation
+        match = findfirst('\t', get_source_text(node))
+        if match !== nothing
+            # For a string like "\n\t", `match` would be 2, which is a delta=0
+            report_violation(node; delta = match - 2,
+                                   severity = SEVERITY, rule_id = RULE_ID,
+                                   user_msg = USER_MSG, summary = SUMMARY)
+        end
     end
 end
-
 
 end

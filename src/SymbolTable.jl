@@ -2,7 +2,7 @@ module SymbolTable
 
 import DataStructures: Stack
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
-include("Properties.jl"); using .Properties: get_module_name
+using ..Properties: get_module_name
 
 export current_module, current_scope, declare!, is_declared, enter_main_module!,
     enter_module!, enter_scope!, exit_main_module!, exit_module!, exit_scope!

@@ -3,11 +3,11 @@ module JuliaCheck
 import JuliaSyntax as JS
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 
+include("LosslessTrees.jl")
 include("Properties.jl"); import .Properties
-
 include("Checks.jl"); import .Checks: filter_rules
-
 include("Process.jl"); import .Process
+
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
