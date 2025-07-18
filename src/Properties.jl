@@ -3,6 +3,8 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
+import ..LosslessTrees: LosslessNode, get_start_coordinates
+
 export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
 
     children, closes_module, closes_scope, expr_depth, expr_size,
@@ -25,7 +27,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
 
 
 ## Types
-const AnyTree = Union{SyntaxNode, GreenNode}
+const AnyTree = Union{SyntaxNode, GreenNode, LosslessNode}
 const NullableString = Union{String, Nothing}
 const NullableNode = Union{AnyTree, Nothing}
 const NodeAndString = Tuple{AnyTree, NullableString}
@@ -51,6 +53,21 @@ function report_violation(node::SyntaxNode;
     JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
                                context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
+end
+function report_violation(node::LosslessNode; delta::Int=0,
+                          severity::Int, user_msg::String,
+                          summary::String, rule_id::String)::Nothing
+    line, column = get_start_coordinates(node)
+    if startswith(node.text, '\n')
+        line += 1
+        column = 1
+        delta += 1
+    end
+    report_violation(index = node.span.start_offset + delta,
+                        len = node.span.end_offset - node.span.start_offset - delta,
+                        line = line, col = column + delta,
+                        severity = severity, rule_id = rule_id,
+                        user_msg = user_msg, summary = summary)
 end
 function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
