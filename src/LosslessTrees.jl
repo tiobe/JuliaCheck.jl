@@ -155,6 +155,11 @@ function build_enhanced_node(
     kind = JuliaSyntax.kind(green)
     node_length = JuliaSyntax.span(green)
 
+    if isempty(ctx.source)
+        span = SourceSpan(0, 0, 0, 0, 0, 0)
+        return LosslessNode(kind, "", span, parent, green)
+    end
+
     until = offset + node_length - 1
     if !isvalid(ctx.source, until) until = prevind(ctx.source, until) end
     text = ctx.source[offset:until]     # extract the text for this node

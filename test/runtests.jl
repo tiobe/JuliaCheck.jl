@@ -7,6 +7,7 @@ using JuliaCheck
 @testitem "Symbols Table tests" begin
     using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt,
         JuliaSyntax as JS
+    include("../src/LosslessTrees.jl")
     include("../src/Properties.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
         enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
@@ -97,11 +98,12 @@ end
 
 
 @testitem "Numbers" begin
-    using JuliaSyntax: SyntaxNode, parsestmt, JuliaSyntax as JS
+    using JuliaSyntax: SyntaxNode, parsestmt
+    include("../src/LosslessTrees.jl")
+    include("../src/Properties.jl"); using .Properties: get_number
     include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
         enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
         exit_scope!, is_declared, is_global, print_state
-    include("../src/Properties.jl"); using .Properties: get_number
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
 
