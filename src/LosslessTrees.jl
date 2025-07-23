@@ -3,7 +3,7 @@ module LosslessTrees
 using JuliaSyntax: GreenNode, SourceFile, JuliaSyntax
 
 export LosslessNode,
-    build_enhanced_node, build_enhanced_tree,
+    build_enhanced_node, build_enhanced_tree, children,
     find_nodes_by_kind, find_nodes_by_text,  # TODO Do we need this last one?
     get_ancestors, get_root,    # TODO Do we want these?
     get_source_text, get_start_coordinates,
@@ -174,6 +174,13 @@ function build_enhanced_node(
     return node
 end
 
+# TODO Use `Properties.children`? #deps
+children(node::GreenNode)::Vector{GreenNode} =
+                        isnothing(node.children) ? GreenNode[] : node.children
+
+children(node::LosslessNode)::Vector{LosslessNode} =
+                    isnothing(node.children) ? LosslessNode[] : node.children
+
 # Adapted convenience methods from JuliaSyntax
 
 JuliaSyntax.is_leaf(node::LosslessNode)::Bool = JuliaSyntax.is_leaf(node.green_node)
@@ -182,13 +189,6 @@ JuliaSyntax.is_whitespace(node::LosslessNode)::Bool = JuliaSyntax.is_whitespace(
 # haschildren(node::LosslessNode) = length(node.children) > 0
 JuliaSyntax.numchildren(node::LosslessNode) = isnothing(node.children) ? 0 :
                                                 length(node.children)
-
-# is_string(node::LosslessNode)::Bool = kind(node) == JuliaSyntax.K"string"
-
-# TODO Use `Properties.children`? #deps
-function children(node::GreenNode)::Vector{GreenNode}
-    return isnothing(node.children) ? GreenNode[] : node.children
-end
 
 
 """

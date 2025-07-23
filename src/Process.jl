@@ -212,8 +212,8 @@ function process_type_declaration(node::SyntaxNode)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
-function process_type_restriction(_::LosslessNode) return nothing
-    # TODO Checks.NoWhitespaceAroundTypeOperators.check(node)
+function process_type_restriction(node::LosslessNode)
+    Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
