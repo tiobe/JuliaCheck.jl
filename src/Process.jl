@@ -257,7 +257,7 @@ function process_with_trivia(node::LosslessNode)
     if is_leaf(node)
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
-            # Checks.IndentationLevelsAreFourSpaces.check(node)
+            Checks.IndentationLevelsAreFourSpaces.check(node)
             # Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif kind(node) == K"String"

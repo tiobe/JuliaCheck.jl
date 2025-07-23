@@ -7,7 +7,7 @@ export LosslessNode,
     find_nodes_by_kind, find_nodes_by_text,  # TODO Do we need this last one?
     get_ancestors, get_root,    # TODO Do we want these?
     get_source_text, get_start_coordinates,
-    offset_to_line_col, print_tree
+    offset_to_line_col, print_tree, start_index
 
 
 """
@@ -230,6 +230,10 @@ get_start_coordinates(node::LosslessNode) = node.span.start_line,
 
 JuliaSyntax.head(node::LosslessNode) = JuliaSyntax.head(node.green_node)
 JuliaSyntax.kind(node::LosslessNode) = JuliaSyntax.kind(node.green_node)
+
+start_index(node::LosslessNode) = node.span.start_offset
+Base.length(node::LosslessNode) = length(node.text)
+
 
 """
 Find all nodes of a specific kind in the tree.
