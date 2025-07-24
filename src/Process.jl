@@ -212,8 +212,8 @@ function process_type_declaration(node::SyntaxNode)
 end
 
 function process_type_restriction(_::SyntaxNode) return nothing end
-function process_type_restriction(_::LosslessNode) return nothing
-    # TODO Checks.NoWhitespaceAroundTypeOperators.check(node)
+function process_type_restriction(node::LosslessNode)
+    Checks.NoWhitespaceAroundTypeOperators.check(node)
 end
 
 function process_unions(node::SyntaxNode)
@@ -257,7 +257,7 @@ function process_with_trivia(node::LosslessNode)
     if is_leaf(node)
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
-            # Checks.IndentationLevelsAreFourSpaces.check(node)
+            Checks.IndentationLevelsAreFourSpaces.check(node)
             # Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif kind(node) == K"String"

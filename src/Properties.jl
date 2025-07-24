@@ -3,7 +3,7 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
-import ..LosslessTrees: LosslessNode, get_start_coordinates
+import ..LosslessTrees: LosslessNode, get_start_coordinates, start_index
 
 export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
 
@@ -59,15 +59,16 @@ function report_violation(node::LosslessNode; delta::Int=0,
                           summary::String, rule_id::String)::Nothing
     line, column = get_start_coordinates(node)
     if startswith(node.text, '\n')
-        line += 1
-        column = 1
-        delta += 1
+        leol = length(EOL)
+        line += leol
+        delta += leol
+        column = 0  # invalid index, but will be compensated by `delta`
     end
-    report_violation(index = node.span.start_offset + delta,
-                        len = node.span.end_offset - node.span.start_offset - delta,
-                        line = line, col = column + delta,
-                        severity = severity, rule_id = rule_id,
-                        user_msg = user_msg, summary = summary)
+    report_violation(index = start_index(node) + delta,
+                     len = length(node) - delta,
+                     line = line, col = column + delta,
+                     severity = severity, rule_id = rule_id,
+                     user_msg = user_msg, summary = summary)
 end
 function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,

@@ -3,11 +3,11 @@ module LosslessTrees
 using JuliaSyntax: GreenNode, SourceFile, JuliaSyntax
 
 export LosslessNode,
-    build_enhanced_node, build_enhanced_tree,
+    build_enhanced_node, build_enhanced_tree, children,
     find_nodes_by_kind, find_nodes_by_text,  # TODO Do we need this last one?
     get_ancestors, get_root,    # TODO Do we want these?
     get_source_text, get_start_coordinates,
-    offset_to_line_col, print_tree
+    offset_to_line_col, print_tree, start_index
 
 
 """
@@ -155,6 +155,11 @@ function build_enhanced_node(
     kind = JuliaSyntax.kind(green)
     node_length = JuliaSyntax.span(green)
 
+    if isempty(ctx.source)
+        span = SourceSpan(0, 0, 0, 0, 0, 0)
+        return LosslessNode(kind, "", span, parent, green)
+    end
+
     until = offset + node_length - 1
     if !isvalid(ctx.source, until) until = prevind(ctx.source, until) end
     text = ctx.source[offset:until]     # extract the text for this node
@@ -174,6 +179,13 @@ function build_enhanced_node(
     return node
 end
 
+# TODO Use `Properties.children`? #deps
+children(node::GreenNode)::Vector{GreenNode} =
+                        isnothing(node.children) ? GreenNode[] : node.children
+
+children(node::LosslessNode)::Vector{LosslessNode} =
+                    isnothing(node.children) ? LosslessNode[] : node.children
+
 # Adapted convenience methods from JuliaSyntax
 
 JuliaSyntax.is_leaf(node::LosslessNode)::Bool = JuliaSyntax.is_leaf(node.green_node)
@@ -182,13 +194,6 @@ JuliaSyntax.is_whitespace(node::LosslessNode)::Bool = JuliaSyntax.is_whitespace(
 # haschildren(node::LosslessNode) = length(node.children) > 0
 JuliaSyntax.numchildren(node::LosslessNode) = isnothing(node.children) ? 0 :
                                                 length(node.children)
-
-# is_string(node::LosslessNode)::Bool = kind(node) == JuliaSyntax.K"string"
-
-# TODO Use `Properties.children`? #deps
-function children(node::GreenNode)::Vector{GreenNode}
-    return isnothing(node.children) ? GreenNode[] : node.children
-end
 
 
 """
@@ -230,6 +235,10 @@ get_start_coordinates(node::LosslessNode) = node.span.start_line,
 
 JuliaSyntax.head(node::LosslessNode) = JuliaSyntax.head(node.green_node)
 JuliaSyntax.kind(node::LosslessNode) = JuliaSyntax.kind(node.green_node)
+
+start_index(node::LosslessNode) = node.span.start_offset
+Base.length(node::LosslessNode) = length(node.text)
+
 
 """
 Find all nodes of a specific kind in the tree.
