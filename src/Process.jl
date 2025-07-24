@@ -4,7 +4,7 @@ import JuliaSyntax: SyntaxNode, SourceFile, ParseError, @K_str, is_leaf,
                     is_whitespace, kind, numchildren, JuliaSyntax as JS
 
 using ..Properties
-using ..LosslessTrees: LosslessNode, build_enhanced_tree
+using ..LosslessTrees: LosslessNode, build_enhanced_tree, print_tree
 import ..Checks
 include("SymbolTable.jl"); import .SymbolTable
 
@@ -25,6 +25,7 @@ function check(file_name::String;
         end
         if print_llt
             show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
+            # print_tree(build_enhanced_tree(ast.raw, SF))
         end
 
         SymbolTable.enter_main_module!()
@@ -55,7 +56,6 @@ function process(node::SyntaxNode)
         SymbolTable.enter_module!(node)
         Checks.SingleModuleFile.check(node)
         Checks.ModuleNameCasing.check(node)
-        # TODO disabled until we have our own "green" trees: Checks.ModuleEndComment.check(node)
         Checks.ModuleExportLocation.check(node)
         Checks.ModuleImportLocation.check(node)
         Checks.ModuleIncludeLocation.check(node)
@@ -259,6 +259,9 @@ function process_with_trivia(node::LosslessNode)
             Checks.UseSpacesInsteadOfTabs.check(node)
             Checks.IndentationLevelsAreFourSpaces.check(node)
             # Checks.OmitTrailingWhiteSpace.check(node)
+
+        elseif kind(node) == K"end"
+            Checks.ModuleEndComment.check(node)
 
         elseif kind(node) == K"String"
             # Checks.OmitTrailingWhiteSpace.check(node)
