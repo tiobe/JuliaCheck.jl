@@ -258,13 +258,13 @@ function process_with_trivia(node::LosslessNode)
         if is_whitespace(node)
             Checks.UseSpacesInsteadOfTabs.check(node)
             Checks.IndentationLevelsAreFourSpaces.check(node)
-            # Checks.OmitTrailingWhiteSpace.check(node)
+            Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif kind(node) == K"end"
             Checks.ModuleEndComment.check(node)
 
         elseif kind(node) == K"String"
-            # Checks.OmitTrailingWhiteSpace.check(node)
+            Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif is_separator(node)
             # Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
