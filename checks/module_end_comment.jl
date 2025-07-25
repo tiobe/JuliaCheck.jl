@@ -15,10 +15,10 @@ function check(node::LosslessNode)::Nothing
     if !is_enabled(RULE_ID) return nothing end
 
     @assert kind(node) == K"end" "Expected an [end] node, got [$(kind(node))]."
+    if kind(node.parent) != K"module" return nothing end
+
     mod = node.parent
-    @assert kind(mod) == K"module" "The [end] node's parent should be [module], but it is [$(kind(node.parent))]."
-    above = mod.parent
-    module_siblings = children(above)
+    module_siblings = children(mod.parent)
     pos = findfirst(x -> x === mod, module_siblings)
     @assert pos !== nothing "This [module] node does not seem to be child of its parent!"
     # Whose child is it, then? Julio Iglesias? Jonathan M.?
