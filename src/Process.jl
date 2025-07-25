@@ -91,7 +91,7 @@ function process(node::SyntaxNode)
         try for x in children(node) process(x) end
         catch xspt
             @error "Unexpected error while processing expression at $(JS.source_location(node)):" xspt
-            return nothing  # stop processing this node, but continue with the rest of the tree
+            # Stop processing this branch, but continue with the rest of the tree
         end
     end
 
@@ -186,7 +186,6 @@ function process_assignment(node::SyntaxNode)
     Checks.DoNotSetVariablesToInf.check(node)
     Checks.DoNotSetVariablesToNan.check(node)
     SymbolTable.declare!(first(lhs))
-    # Checks.AvoidGlobals.check(node)
 end
 process_assignment(_::LosslessNode) = nothing
 
