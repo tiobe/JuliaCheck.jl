@@ -52,6 +52,11 @@ end
 
 
 function process(node::SyntaxNode)
+    if is_eval_call(node) || kind(node) == K"quote"
+        # There are corners we don't want to inspect.
+        return nothing
+    end
+
     if is_module(node)
         SymbolTable.enter_module!(node)
         Checks.SingleModuleFile.check(node)
@@ -82,17 +87,10 @@ function process(node::SyntaxNode)
 
     if is_array_indx(node) Checks.UseEachindexToIterateIndices.check(node) end
 
-    if is_eval_call(node) || kind(node) == K"quote"
-        # There are corners we don't want to inspect.
-        return nothing
-    end
-
-    if haschildren(node)
-        try for x in children(node) process(x) end
-        catch xspt
-            @error "Unexpected error while processing expression at $(JS.source_location(node)):" xspt
-            # Stop processing this branch, but continue with the rest of the tree
-        end
+    try for x in children(node) process(x) end
+    catch xspt
+        @error "Unexpected error while processing expression at $(JS.source_location(node)):" xspt
+        # Stop processing this branch, but continue with the rest of the tree
     end
 
     # "Post-processing", before returning from this level of the tree
@@ -269,6 +267,10 @@ function process_with_trivia(node::LosslessNode)
             # Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
         end
     else
+        if is_eval_call(node) || kind(node) == K"quote"
+            # There are corners we don't want to inspect.
+            return nothing
+        end
         if     is_toplevel(node) reset_counters()
         elseif is_operator(node) process_operator(node)
         end

@@ -134,7 +134,7 @@ function is_eval_call(node::AnyTree)::Bool
                 a = children(x)[1]
                 b = children(x)[2]
                 if kind(a) == kind(b) == K"Identifier"
-                    return string(a) == "Base" && string(b) == "eval"
+                    return string(a) == "Core" && string(b) == "eval"
                 end
             end
         end
