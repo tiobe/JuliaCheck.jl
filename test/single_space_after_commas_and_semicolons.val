@@ -55,6 +55,24 @@ single_space_after_commas_and_semicolons.jl(4, 40):
 Commas and semicolons are followed, but not preceded, by a space.
 Rule: single-space-after-commas-and-semicolons. Severity: 7
 
+single_space_after_commas_and_semicolons.jl(6, 26):
+                bold=true ,underline=false , underline=false)
+#                        ╙ ── A comma or a semicolon is followed, but not preceded, by a space.
+Commas and semicolons are followed, but not preceded, by a space.
+Rule: single-space-after-commas-and-semicolons. Severity: 7
+
+single_space_after_commas_and_semicolons.jl(6, 28):
+                bold=true ,underline=false , underline=false)
+#                          └ ── A comma or a semicolon is followed, but not preceded, by a space.
+Commas and semicolons are followed, but not preceded, by a space.
+Rule: single-space-after-commas-and-semicolons. Severity: 7
+
+single_space_after_commas_and_semicolons.jl(6, 43):
+                bold=true ,underline=false , underline=false)
+#                                         ╙ ── A comma or a semicolon is followed, but not preceded, by a space.
+Commas and semicolons are followed, but not preceded, by a space.
+Rule: single-space-after-commas-and-semicolons. Severity: 7
+
 single_space_after_commas_and_semicolons.jl(9, 6):
 fck(;) = π
 #    └ ── A comma or a semicolon is followed, but not preceded, by a space.

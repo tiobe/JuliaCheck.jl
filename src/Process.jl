@@ -264,7 +264,7 @@ function process_with_trivia(node::LosslessNode)
             Checks.OmitTrailingWhiteSpace.check(node)
 
         elseif is_separator(node)
-            # Checks.SingleSpaceAfterCommasAndSemicolons.check(node, parent)
+            Checks.SingleSpaceAfterCommasAndSemicolons.check(node)
         end
     else
         if is_eval_call(node) || kind(node) == K"quote"

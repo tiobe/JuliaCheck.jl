@@ -1,10 +1,10 @@
 module LosslessTrees
 
-using JuliaSyntax: GreenNode, SourceFile, JuliaSyntax, is_leaf
+using JuliaSyntax: GreenNode, SourceFile, Kind, JuliaSyntax, is_leaf
 
 export LosslessNode,
     build_enhanced_node, build_enhanced_tree, children,
-    find_nodes_by_kind, find_nodes_by_text,  # TODO Do we need this last one?
+    find_nodes_by_kind, fake_llt_node,
     get_ancestors, get_root,    # TODO Do we want these?
     get_source_text, get_start_coordinates,
     offset_to_line_col, print_tree, start_index
@@ -46,6 +46,12 @@ mutable struct LosslessNode
         node = new(kind, text, span, parent, LosslessNode[], green_node)
         return node
     end
+end
+
+global const FAKE_SPAN = SourceSpan(0, 0, 0, 0, 0, 0)
+
+function fake_llt_node(kind::Kind; span::SourceSpan = FAKE_SPAN)::LosslessNode
+    return LosslessNode(kind, string(kind), span, nothing, nothing)
 end
 
 """
@@ -190,11 +196,8 @@ children(node::LosslessNode)::Vector{LosslessNode} =
 
 JuliaSyntax.is_leaf(node::LosslessNode)::Bool = JuliaSyntax.is_leaf(node.green_node)
 JuliaSyntax.is_trivia(node::LosslessNode)::Bool = JuliaSyntax.is_trivia(kind(node))
-JuliaSyntax.is_whitespace(node::LosslessNode)::Bool = JuliaSyntax.is_whitespace(node.green_node)
-# haschildren(node::LosslessNode) = length(node.children) > 0
-JuliaSyntax.numchildren(node::LosslessNode) = isnothing(node.children) ? 0 :
-                                                length(node.children)
-
+JuliaSyntax.numchildren(node::LosslessNode)::Int = isnothing(node.children) ?
+                                                 0 : length(node.children)
 
 """
 Get all ancestors of a node, from immediate parent to root.
@@ -234,12 +237,16 @@ get_start_coordinates(node::LosslessNode) = node.span.start_line,
                                             node.span.start_column
 
 JuliaSyntax.head(node::LosslessNode) = JuliaSyntax.head(node.green_node)
-JuliaSyntax.kind(node::LosslessNode) = JuliaSyntax.kind(node.green_node)
+JuliaSyntax.kind(node::LosslessNode) = node.kind
 
 start_index(node::LosslessNode) = node.span.start_offset
+end_index(node::LosslessNode) = node.span.end_offset
 Base.length(node::LosslessNode) = length(node.text)
 
-JuliaSyntax.span(node::LosslessNode) = node.span.end_offset
+JuliaSyntax.span(node::LosslessNode) = end_index(node) - start_index(node) + 1
+# FIXME That +1 indicates, IMO, that the construction of LLTs is kinda buggy.
+# Both offsets are equal for strings of one character, which I don't think is
+# intended.
 
 """
 Find all nodes of a specific kind in the tree.
@@ -280,6 +287,7 @@ function find_nodes_by_text(root::LosslessNode,
     visit(root)
     return results
 end
+# TODO Do we need this one?
 
 """
 Pretty print the enhanced tree structure.

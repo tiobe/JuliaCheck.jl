@@ -22,7 +22,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
     is_module, is_operator, is_range, is_separator, is_stop_point, is_struct,
     is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
 
-    lines_count, opens_scope, report_violation, reset_counters,
+    lines_count, opens_scope, report_violation, reset_counters, safe_index,
     source_column, source_index, source_text, to_pascal_case
 
 
@@ -75,7 +75,10 @@ function report_violation(; index::Int, len::Int, line::Int, col::Int,
                             summary::String, rule_id::String)::Nothing
     printstyled("\n$(JS.filename(SF))($line, $col):\n";
                 underline=true)
-    JS.highlight(stdout, SF, index:index+len-1;
+    s = sourcetext(SF)
+    from = safe_index(s, index)
+    until = safe_index(s, index + len - 1)
+    JS.highlight(stdout, SF, from:until;
                  note=user_msg, notecolor=:yellow,
                  context_lines_after=0, context_lines_before=0)
     _report_common(severity, rule_id, summary)
@@ -492,10 +495,7 @@ function source_text(node::GreenNode, offset::Integer=0)
 end
 function source_text(from::Integer, howmuch::Integer)
     s = JS.sourcetext(SF)
-    until = from + howmuch - 1
-    if !isvalid(s, until)
-        until = prevind(s, until)
-    end
+    until = safe_index(s, from + howmuch - 1)
     return s[from:until]
 end
 line_breaks(node::GreenNode) = count('\n', source_text(node))
@@ -516,6 +516,10 @@ function to_pascal_case(s::String)::String
         end
     end
     return result
+end
+
+function safe_index(s::AbstractString, i::Integer)
+    return isvalid(s, i) ? i : prevind(s, i)
 end
 
 end
