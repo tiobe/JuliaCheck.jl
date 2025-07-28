@@ -15,8 +15,8 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
     get_imported_pkg, get_iteration_parts, get_module_name, get_number,
     get_struct_members, get_struct_name,
 
-    haschildren, increase_counters, is_abstract, is_array_indx, is_assignment,
-    is_constant, is_eq_neq_comparison, is_eval_call, is_export,
+    haschildren, increase_counters, is_abstract, is_array_indx, is_array_init,
+    is_assignment, is_constant, is_eq_neq_comparison, is_eval_call, is_export,
     is_fat_snake_case, is_flow_cntrl,is_function, is_global_decl, is_import,
     is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
     is_module, is_operator, is_range, is_separator, is_stop_point, is_struct,
@@ -117,6 +117,7 @@ is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
 is_array_indx(node::AnyTree)::Bool = kind(node) == K"ref"
+is_array_init(    node::AnyTree)::Bool = kind(node) in KSet"vect hcat"
 is_loop(          node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_separator(     node::AnyTree)::Bool = kind(node) in KSet", ;"
 is_flow_cntrl(    node::AnyTree)::Bool = kind(node) in KSet"if for while try"

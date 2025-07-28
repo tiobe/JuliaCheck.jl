@@ -273,6 +273,8 @@ function process_with_trivia(node::LosslessNode)
         end
         if     is_toplevel(node) reset_counters()
         elseif is_operator(node) process_operator(node)
+        elseif is_array_indx(node) || is_array_init(node)
+            Checks.AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.check(node)
         end
         for x in children(node) process_with_trivia(x) end
     end

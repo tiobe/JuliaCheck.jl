@@ -1,0 +1,32 @@
+
+>> Processing file 'avoid_extraneous_whitespace_between_open_and_close_characters.jl'...
+
+avoid_extraneous_whitespace_between_open_and_close_characters.jl(2, 11):
+spam( ham[ 1 ], [ eggs ] )
+#         ╙ ── Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+avoid_extraneous_whitespace_between_open_and_close_characters.jl(2, 13):
+spam( ham[ 1 ], [ eggs ] )
+#           ╙ ── Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+avoid_extraneous_whitespace_between_open_and_close_characters.jl(2, 18):
+spam( ham[ 1 ], [ eggs ] )
+#                ╙ ── Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+avoid_extraneous_whitespace_between_open_and_close_characters.jl(2, 23):
+spam( ham[ 1 ], [ eggs ] )
+#                     ╙ ── Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+avoid_extraneous_whitespace_between_open_and_close_characters.jl(5, 9):
+    [1 2   3];
+#       └─┘ ── Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
