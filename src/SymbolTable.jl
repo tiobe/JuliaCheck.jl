@@ -160,12 +160,6 @@ function declare!(sc::Scope, symbol::Item)
 end
 
 """
-Checks whether a given node identifier exists in a given module scope.
-Only used for testing for now: tests have been rewritten to
-"""
-
-
-"""
 Display the current state of the symbols table.
 """
 function print_state()::String

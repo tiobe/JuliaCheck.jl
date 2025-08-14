@@ -128,7 +128,7 @@ end
     @test get_number(make_node("4.493_775_893_684_088e16")) == 4.493775893684088e16
 end
 
-#=
+
 @testitem "Integration Tests" begin
     import IOCapture
 
@@ -152,6 +152,6 @@ end
         end
     end
 end
-=#
+
 
 @run_package_tests
