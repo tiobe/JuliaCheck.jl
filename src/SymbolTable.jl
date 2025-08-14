@@ -65,7 +65,7 @@ This function makes sure to reflect that situation.
 """
 function enter_main_module!()
     enter_module!("Main")
-    @assert length(SYMBOL_TABLE) == length(all_scopes()) == 1 """
+    @assert length(SYMBOL_TABLE) == length(scopes_within_module()) == 1 """
         There should be 1 module with 1 scope. Instead, there are $(length(SYMBOL_TABLE)) nested modules
         and $(length(scopes_within_module())) scopes.
         """
@@ -85,7 +85,7 @@ function enter_module!(name::AbstractString)::Nothing
                                     # above doesn't add a scope, despite how it
                                     # looks like that is what happens.
     push!(SYMBOL_TABLE, Module(name, new_sym_table))
-    @assert length(all_scopes()) == 1 "There should be one scope (the global one) on module entry."
+    @assert length(scopes_within_module()) == 1 "There should be one scope (the global one) on module entry."
     return nothing
 end
 
@@ -95,7 +95,7 @@ this, all other scopes and modules must be gone, and afterwards, everything
 must be empty.
 """
 function exit_main_module!()::Nothing
-    @assert length(SYMBOL_TABLE) == length(all_scopes()) == 1
+    @assert length(SYMBOL_TABLE) == length(scopes_within_module()) == 1
     exit_module!()
     @assert isempty(SYMBOL_TABLE)
     return nothing
@@ -115,7 +115,7 @@ Return the symbols table for the current module.
 
 The current module is the one at the peak of the stack of modules.
 """
-all_scopes()::NestedScopes = current_module().nested_scopes
+scopes_within_module()::NestedScopes = current_module().nested_scopes
 
 current_module()::Module = first(SYMBOL_TABLE)
 
@@ -126,24 +126,24 @@ current_module()::Module = first(SYMBOL_TABLE)
 # scope.
 
 function enter_scope!()::Nothing
-    push!(all_scopes(), Scope())
+    push!(scopes_within_module(), Scope())
     return nothing
 end
 
 function exit_scope!()::Nothing
-    pop!(all_scopes())
-    @assert !isempty(all_scopes()) "Exited global scope. This shouldn't happen before leaving the module!"
+    pop!(scopes_within_module())
+    @assert !isempty(scopes_within_module()) "Exited global scope. This shouldn't happen before leaving the module!"
     return nothing
 end
 
-global_scope()::Scope = last(all_scopes())
-current_scope()::Scope = first(all_scopes())
+global_scope()::Scope = last(scopes_within_module())
+current_scope()::Scope = first(scopes_within_module())
 
 """
 Check if an item (the identifier in the node) is declared in any scope in the
 current module.
 """
-is_declared(node::Item)::Bool = !isempty(SYMBOL_TABLE) ? any(scp -> node ∈ scp, all_scopes()) : false
+is_declared(node::Item)::Bool = !isempty(SYMBOL_TABLE) ? any(scp -> node ∈ scp, scopes_within_module()) : false
 
 is_declared_in_current_scope(node::Item)::Bool = node ∈ current_scope()
 
