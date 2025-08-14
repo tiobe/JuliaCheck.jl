@@ -1,0 +1,40 @@
+# Auto detect text files and perform LF normalization
+*          text=auto
+
+# These file should always be checked out with OS line endings (simulated cmdline output)
+*.val text
+
+# Fix syntax highlighting on GitHub to allow comments
+.vscode/*.json linguist-language=JSON-with-Comments
+
+# Julia
+*.jl linguist-language=Julia
+
+# Documents
+*.md       text diff=markdown
+*.txt      text
+
+# Scripts
+*.bash     text eol=lf
+*.fish     text eol=lf
+*.ksh      text eol=lf
+*.sh       text eol=lf
+*.zsh      text eol=lf
+# These are explicitly windows files and should use crlf
+*.bat      text eol=crlf
+*.cmd      text eol=crlf
+*.ps1      text eol=crlf
+
+# Serialisation
+*.json     text
+*.toml     text
+*.xml      text
+*.yaml     text
+*.yml      text
+
+#
+# Exclude files from exporting
+#
+.gitattributes export-ignore
+.gitignore     export-ignore
+.gitkeep       export-ignore
