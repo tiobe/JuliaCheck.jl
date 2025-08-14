@@ -45,6 +45,19 @@ SYMBOL_TABLE = Stack{Module}()
 ## Functions
 
 """
+The clear function assures that the symbol table is emptied between different
+scopes. Not all scopes should be stacked on top of each other; sometimes it is
+necessary to start with an empty scope.
+
+Note that this is strictly a _temporary_ fix to avoid state issues. The symbol
+table requires a bigger rework to deal with control flow rules.
+"""
+
+function clear_symbol_table!()
+    SYMBOL_TABLE = Stack{Module}()
+end
+
+"""
 Module 'Main' is always there, at the bottom of the stack of modules.
 
 This function makes sure to reflect that situation.

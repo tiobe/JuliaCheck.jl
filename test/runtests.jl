@@ -9,11 +9,15 @@ using JuliaCheck
         JuliaSyntax as JS
     include("../src/LosslessTrees.jl")
     include("../src/Properties.jl")
-    include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
-        enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
-        exit_scope!, is_declared, is_global, print_state
+    include("../src/SymbolTable.jl"); using .SymbolTable: clear_symbol_table!,
+        declare!, enter_module!, enter_main_module!, enter_scope!, exit_module!,
+        exit_main_module!, exit_scope!, is_declared, is_global, print_state
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
+
+    # Ensure we always start from a clean symbol table.
+    # If run multiple times, contents of the symbol table are not as expected.
+    clear_symbol_table!()
 
     # Add some identifiers to Main module, global scope
     enter_main_module!()
