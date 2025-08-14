@@ -4,8 +4,9 @@ import DataStructures: Stack
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: get_module_name
 
-export current_module, current_scope, declare!, is_declared, enter_main_module!,
-    enter_module!, enter_scope!, exit_main_module!, exit_module!, exit_scope!
+export is_declared_in_current_scope, current_module, current_scope, declare!, is_declared,
+    enter_main_module!, enter_module!, enter_scope!, exit_main_module!, exit_module!,
+    exit_scope!
 
 ## Types
 
@@ -45,15 +46,28 @@ SYMBOL_TABLE = Stack{Module}()
 ## Functions
 
 """
+The clear function assures that the symbol table is emptied between different
+scopes. Not all scopes should be stacked on top of each other; sometimes it is
+necessary to start with an empty scope.
+
+Note that this is strictly a _temporary_ fix to avoid state issues. The symbol
+table requires a bigger rework to deal with control flow rules.
+"""
+
+function clear_symbol_table!()
+    SYMBOL_TABLE = Stack{Module}()
+end
+
+"""
 Module 'Main' is always there, at the bottom of the stack of modules.
 
 This function makes sure to reflect that situation.
 """
 function enter_main_module!()
     enter_module!("Main")
-    @assert length(SYMBOL_TABLE) == length(current_scopes()) == 1 """
+    @assert length(SYMBOL_TABLE) == length(scopes_within_module()) == 1 """
         There should be 1 module with 1 scope. Instead, there are $(length(SYMBOL_TABLE)) nested modules
-        and $(length(current_scopes())) scopes.
+        and $(length(scopes_within_module())) scopes.
         """
 end
 
@@ -71,7 +85,7 @@ function enter_module!(name::AbstractString)::Nothing
                                     # above doesn't add a scope, despite how it
                                     # looks like that is what happens.
     push!(SYMBOL_TABLE, Module(name, new_sym_table))
-    @assert length(current_scopes()) == 1 "There should be one scope (the global one) on module entry."
+    @assert length(scopes_within_module()) == 1 "There should be one scope (the global one) on module entry."
     return nothing
 end
 
@@ -81,7 +95,7 @@ this, all other scopes and modules must be gone, and afterwards, everything
 must be empty.
 """
 function exit_main_module!()::Nothing
-    @assert length(SYMBOL_TABLE) == length(current_scopes()) == 1
+    @assert length(SYMBOL_TABLE) == length(scopes_within_module()) == 1
     exit_module!()
     @assert isempty(SYMBOL_TABLE)
     return nothing
@@ -101,7 +115,7 @@ Return the symbols table for the current module.
 
 The current module is the one at the peak of the stack of modules.
 """
-current_scopes()::NestedScopes = current_module().nested_scopes
+scopes_within_module()::NestedScopes = current_module().nested_scopes
 
 current_module()::Module = first(SYMBOL_TABLE)
 
@@ -112,24 +126,26 @@ current_module()::Module = first(SYMBOL_TABLE)
 # scope.
 
 function enter_scope!()::Nothing
-    push!(current_scopes(), Scope())
+    push!(scopes_within_module(), Scope())
     return nothing
 end
 
 function exit_scope!()::Nothing
-    pop!(current_scopes())
-    @assert !isempty(current_scopes()) "Exited global scope. This shouldn't happen before leaving the module!"
+    pop!(scopes_within_module())
+    @assert !isempty(scopes_within_module()) "Exited global scope. This shouldn't happen before leaving the module!"
     return nothing
 end
 
-global_scope()::Scope = last(current_scopes())
-current_scope()::Scope = first(current_scopes())
+global_scope()::Scope = last(scopes_within_module())
+current_scope()::Scope = first(scopes_within_module())
 
 """
 Check if an item (the identifier in the node) is declared in any scope in the
 current module.
 """
-is_declared(node::Item)::Bool = any(scp -> node ∈ scp, current_scopes())
+is_declared(node::Item)::Bool = !isempty(SYMBOL_TABLE) && any(scp -> node ∈ scp, scopes_within_module())
+
+is_declared_in_current_scope(node::Item)::Bool = node ∈ current_scope()
 
 is_global(node::Item)::Bool = node ∈ global_scope()
 
