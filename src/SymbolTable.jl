@@ -143,7 +143,7 @@ current_scope()::Scope = first(scopes_within_module())
 Check if an item (the identifier in the node) is declared in any scope in the
 current module.
 """
-is_declared(node::Item)::Bool = !isempty(SYMBOL_TABLE) ? any(scp -> node ∈ scp, scopes_within_module()) : false
+is_declared(node::Item)::Bool = !isempty(SYMBOL_TABLE) && any(scp -> node ∈ scp, scopes_within_module())
 
 is_declared_in_current_scope(node::Item)::Bool = node ∈ current_scope()
 
