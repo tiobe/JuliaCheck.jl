@@ -11,7 +11,7 @@
             "program": "${workspaceFolder}/.vscode/DebugCheck.jl",
             "args": [ "${file}" ],
             "stopOnEntry": false,
-            "cwd": "${workspaceFolder}/.vscode",
+            "cwd": "${workspaceFolder}",
             "env": {},
             "juliaEnv": "${command:activeJuliaEnvironment}",
             "presentation": {
