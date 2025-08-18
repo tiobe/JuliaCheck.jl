@@ -89,9 +89,6 @@ function run_analysis(text::String, checkTypes::Vector{Any})
     ctxt = AnalysisContext(text)
     for checkType in checkTypes
         local check = checkType()
-        local name = id(check);
-        println("Typeof check: $(typeof(check))")
-        println("Instantiating check: $(id(check))")
         init(check, ctxt)
     end
 
@@ -100,8 +97,8 @@ function run_analysis(text::String, checkTypes::Vector{Any})
     print("Showing green tree\n")
     show(stdout, MIME"text/plain"(), greenNode, text)
 
-    print("Printing node\n")
-    print(syntaxNode)
+    #print("Printing node\n")
+    #print(syntaxNode)
 
     print("Running all checks\n")
     invoke_checks(ctxt, syntaxNode)
