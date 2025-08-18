@@ -38,4 +38,6 @@ end
 module lowercase_module # Violation ModuleNameCasing
 end 
 
+struct myStruct end # Violation for TypeNamesUpperCamelCase
+
 """, enabledChecks)
