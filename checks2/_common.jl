@@ -1,2 +1,2 @@
-import ..Analysis: id, init, synopsis, check, severity
+import ..Analysis: id, init, synopsis, severity
 using ..Analysis

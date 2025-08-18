@@ -11,10 +11,10 @@ severity(::Check) = 3
 synopsis(::Check) = "Floating-point numbers should always have one digit before the decimal point and at least one after."
 
 function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, n -> kind(n) == K"Float", n -> check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, n -> kind(n) == K"Float", n -> checkFloatNode(this, ctxt, n))
 end
 
-function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function checkFloatNode(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     text = sourcetext(node)
     index = findfirst('.', text)    
 

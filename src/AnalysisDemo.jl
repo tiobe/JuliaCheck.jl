@@ -23,6 +23,9 @@ TEST = .5;
 function test(x)
     println("Hello World")
     INSIDE = .25 + x
-    return 1
+
+    while true
+    end
+    return 1    
 end
 """, enabledChecks)

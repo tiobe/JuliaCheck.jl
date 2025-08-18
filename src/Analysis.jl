@@ -14,7 +14,6 @@ id(this::Check) = error("id() not implemented for this check")
 synopsis(this::Check) = error("synopsis() not implemented for this check")
 severity(this::Check) = error("severity() not implemented for this check")
 init(this::Check, ctxt) = error("init() not implemented for this check")
-check(this::Check, ctxt, node) = error("check() not implemented for this check")
 
 struct Violation
     check::Check
