@@ -1,11 +1,9 @@
 module LeadingAndTrailingDigits
 
-using JuliaSyntax: SyntaxNode, kind, @K_str, sourcetext
+using JuliaSyntax: sourcetext
 include("_common.jl")
 
-struct Check <: Analysis.Check
-end
-
+struct Check <: Analysis.Check end
 id(::Check) = "leading-and-trailing-digits"
 severity(::Check) = 3
 synopsis(::Check) = "Floating-point numbers should always have one digit before the decimal point and at least one after."

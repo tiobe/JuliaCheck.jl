@@ -1,6 +1,5 @@
 module GlobalVariablesUpperSnakeCase
 
-using JuliaSyntax: SyntaxNode, @K_str, children, kind
 using ...Properties: is_fat_snake_case, is_global_decl, find_lhs_of_kind, NullableNode
 
 include("_common.jl")

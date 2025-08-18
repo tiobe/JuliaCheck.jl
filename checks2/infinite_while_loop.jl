@@ -1,6 +1,5 @@
 module InfiniteWhileLoop
 
-import JuliaSyntax: SyntaxNode, @K_str, kind, children, numchildren
 include("_common.jl")
 
 struct Check <: Analysis.Check end

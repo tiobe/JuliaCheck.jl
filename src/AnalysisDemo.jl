@@ -34,4 +34,8 @@ function test(x)
 
     return 1    
 end
+
+module lowercase_module # Violation ModuleNameCasing
+end 
+
 """, enabledChecks)
