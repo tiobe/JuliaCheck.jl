@@ -1,12 +1,9 @@
 module InfiniteWhileLoop
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children, numchildren
-
 include("_common.jl")
 
-struct Check <: Analysis.Check
-end
-
+struct Check <: Analysis.Check end
 id(::Check) = "infinite-while-loop"
 severity(::Check) = 5
 synopsis(::Check) = "Do not use while true."

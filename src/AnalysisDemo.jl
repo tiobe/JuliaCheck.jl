@@ -3,6 +3,7 @@
 using InteractiveUtils
 
 include("Analysis.jl")
+include("SyntaxNodeHelpers.jl")
 
 # Load all check modules in checks2
 for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks2"), join=true))
@@ -22,10 +23,12 @@ TEST = .5;
 
 function test(x)
     println("Hello World")
-    INSIDE = .25 + x
+    INSIDE = .25 + x # Violation for LeadingAndTrailingDigits
 
-    while true
-    end
+    while true end # Violation for InfiniteWhileLoop
+
+    const ReturnTypes = Union{Nothing, String, Int32, Int64, Float64} # Violation for TooManyTypesInUnions
+
     return 1    
 end
 """, enabledChecks)
