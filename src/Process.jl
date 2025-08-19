@@ -179,7 +179,7 @@ function process_argument(fname::String, node::SyntaxNode)
         return nothing
     end
     SymbolTable.declare!(arg)
-    Checks.FunctionArgumentsInLowerSnakeCase.check(fname, arg)
+    Checks.FunctionArgumentsLowerSnakeCase.check(fname, arg)
 end
 
 function process_assignment(node::SyntaxNode)

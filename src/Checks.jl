@@ -24,8 +24,8 @@ function __init_checks__()
                 mod = getfield(Checks, Symbol(fname))
                 id = getfield(mod, Symbol("RULE_ID"))
                 push!(LOADED_CHECKS, id)
-            catch x
-                @warn "Failed to load '$f':" x
+            catch exception
+                @warn "Failed to load '$f':" exception
             end
         end
     end

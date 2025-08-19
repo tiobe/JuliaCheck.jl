@@ -3,6 +3,7 @@ module GlobalVariablesUpperSnakeCase
 using ...Properties: is_fat_snake_case, is_global_decl, find_lhs_of_kind, NullableNode
 
 include("_common.jl")
+
 struct Check <: Analysis.Check end
 id(::Check) = "global-variables-upper-snake-case"
 severity(::Check) = 3
