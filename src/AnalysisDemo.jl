@@ -9,9 +9,11 @@ include("Properties.jl");
 Analysis.load_all_checks2()
 
 using .Analysis
+using JuliaSyntax
 
 global checks = map(c -> c(), subtypes(Check))
 
+ 
 run_analysis("""
 TEST = .5
 const global some_other_number = 42
@@ -32,4 +34,5 @@ end
 
 struct myStruct end # Violation for TypeNamesUpperCamelCase
 
-""", checks)
+""", checks;
+    filename="dummy.jl", print_ast=true, print_llt=true)

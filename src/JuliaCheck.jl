@@ -50,6 +50,19 @@ function parse_commandline(args::Vector{String})
     return parse_args(args, s)
 end
 
+function highlighting_violation_printer(violations)
+    for v in violations
+        Properties.report_violation(
+            v.node;
+            severity = severity(v.check),
+            user_msg = v.msg,
+            summary = synopsis(v.check),
+            rule_id = id(v.check)
+            )
+    end
+end
+
+
 function main(args::Vector{String})
     if isempty(args)
         parse_commandline(["-h"])
@@ -79,7 +92,11 @@ function main(args::Vector{String})
 
             if arguments["checks2"]
                 text::String = read(in_file, String)
-                Analysis.run_analysis(text, checks_to_run; print_ast = arguments["ast"], print_llt = arguments["llt"])
+                Analysis.run_analysis(text, checks_to_run; 
+                    filename=in_file,
+                    violationprinter = highlighting_violation_printer,
+                    print_ast = arguments["ast"], 
+                    print_llt = arguments["llt"])
             else
                 Process.check(in_file; print_ast = arguments["ast"],
                               print_llt = arguments["llt"])

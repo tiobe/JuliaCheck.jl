@@ -8,19 +8,21 @@ using JuliaSyntax
 import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext
 import InteractiveUtils: subtypes
 
-" The abstract base type for all checks."
+"The abstract base type for all checks."
 abstract type Check end
-id(this::Check) = error("id() not implemented for this check")
-synopsis(this::Check) = error("synopsis() not implemented for this check")
-severity(this::Check) = error("severity() not implemented for this check")
+id(this::Check)::String = error("id() not implemented for this check")
+synopsis(this::Check)::String = error("synopsis() not implemented for this check")
+severity(this::Check)::Int = error("severity() not implemented for this check")
 init(this::Check, ctxt) = error("init() not implemented for this check")
 
 struct Violation
     check::Check
+    node::SyntaxNode
     line::Int
     column::Int
     msg::String
 end
+
 
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
@@ -29,7 +31,7 @@ end
 
 struct AnalysisContext
     sourcecode::String
-    syntaxNodeActions::Vector{CheckRegistration}
+    registrations::Vector{CheckRegistration} # Holds registrations of syntax node actions.
     violations::Vector{Violation}
 
     AnalysisContext(sourcecode::String) = new(sourcecode, CheckRegistration[], Violation[])
@@ -37,13 +39,13 @@ end
 
 "Should be called by checks in their init function to register actions."
 function register_syntaxnode_action(ctxt::AnalysisContext, predicate::Function, func::Function)
-    push!(ctxt.syntaxNodeActions, CheckRegistration(predicate, func))
+    push!(ctxt.registrations, CheckRegistration(predicate, func))
 end
 
 "Reports a violation for a check in the analysis context."
 function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String)
     line, column = JuliaSyntax.source_location(node)
-    push!(ctxt.violations, Violation(check, line, column, msg))
+    push!(ctxt.violations, Violation(check, node, line, column, msg))
 end
 
 
@@ -74,7 +76,7 @@ end
 
 function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
     visitor = function(n)
-        for reg in ctxt.syntaxNodeActions
+        for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
                 reg.action(n)
@@ -86,35 +88,46 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
     dfs_traversal(node, visitor)
 end
 
-function run_analysis(text::String, checks::Vector{Check};
-    print_ast::Bool = false, print_llt::Bool = false)
 
-    println("Checks to run ($(length(checks))): " * string(checks))
+function simple_violation_printer(violations)
+    if length(violations) == 0
+        println("No violations found.")
+    else 
+        println("Found $(length(violations)) violations:")
+        idx = 1
+        for v in violations
+            println("$(idx). Check: $(id(v.check)), Line: $(v.line), Column: $(v.column), Severity: $(severity(v.check)), Message: $(v.msg)")
+            idx += 1
+        end
+    end    
+end
+
+function run_analysis(text::String, checks::Vector{Check};
+    filename::String = nothing,
+    print_ast::Bool = false, 
+    print_llt::Bool = false, 
+    violationprinter::Function = simple_violation_printer
+    )
+
+    #println("($(length(checks))) checks to run: $(string(checks))")
     ctxt = AnalysisContext(text)
     for check in checks
         init(check, ctxt)
     end
 
-    syntaxNode = JuliaSyntax.parseall(SyntaxNode, text)
-    greenNode = JuliaSyntax.parseall(GreenNode, text)
+    syntaxNode = JuliaSyntax.parseall(SyntaxNode, text; filename=filename)
+    if print_ast
+        println("Showing AST:")
+        show(stdout, MIME"text/plain"(), syntaxNode)
+    end
     if print_llt
         println("Showing green tree:")
-        show(stdout, MIME"text/plain"(), greenNode, text)
+        show(stdout, MIME"text/plain"(), syntaxNode.raw, text)
     end
-
-    #print("Printing node\n")
-    #print(syntaxNode)
 
     invoke_checks(ctxt, syntaxNode)
 
-    if length(ctxt.violations) == 0
-        println("No violations found.")
-    else 
-        println("Found $(length(ctxt.violations)) violations:")
-        for v in ctxt.violations
-            println("Check: $(id(v.check)), Line: $(v.line), Column: $(v.column), Severity: $(severity(v.check)), Message: $(v.msg)")
-        end
-    end
+    violationprinter(ctxt.violations)
 
 end
 
