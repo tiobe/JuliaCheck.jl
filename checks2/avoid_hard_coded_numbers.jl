@@ -5,8 +5,10 @@ include("_common.jl")
 using ...Properties: get_number, is_constant, is_global_decl, is_literal_number
 
 struct Check <: Analysis.Check 
-    seen_before # FIXME Fine for integers but, for floats, we should
-                # probably use a tolerance to compare them.
+    seen_before 
+    
+    # FIXME Fine for integers but, for floats, we should
+    # probably use a tolerance to compare them.
     Check() = new(Set{Number}())                      
 end
 id(::Check) = "avoid-hard-coded-numbers"
