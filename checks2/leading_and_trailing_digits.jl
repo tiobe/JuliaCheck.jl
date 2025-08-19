@@ -1,7 +1,8 @@
 module LeadingAndTrailingDigits
 
-using JuliaSyntax: sourcetext
 include("_common.jl")
+
+using JuliaSyntax: sourcetext
 
 struct Check <: Analysis.Check end
 id(::Check) = "leading-and-trailing-digits"
