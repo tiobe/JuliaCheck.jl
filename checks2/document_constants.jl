@@ -1,11 +1,10 @@
 module DocumentConstants
 
-using JuliaSyntax: SyntaxNode, @KSet_str
 using ...Properties: find_lhs_of_kind, haschildren, is_constant
 
 include("_common.jl")
-struct Check <: Analysis.Check end
 
+struct Check <: Analysis.Check end
 id(::Check) = "document-constants"
 severity(::Check) = 7
 synopsis(::Check) = "Constants must have a docstring."

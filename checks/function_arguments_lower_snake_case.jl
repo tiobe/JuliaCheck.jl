@@ -1,4 +1,4 @@
-module FunctionArgumentsInLowerSnakeCase
+module FunctionArgumentsLowerSnakeCase
 
 import JuliaSyntax: SyntaxNode, @K_str, kind, children, numchildren
 using ...Checks: is_enabled
