@@ -78,6 +78,7 @@ function main(args::Vector{String})
 
     if arguments["checks2"]
         checks_to_run = filter(c -> id(c) in rules_arg, checks_to_run)
+        @debug "Enabled rules:\n" * join(map(id, checks_to_run), "\n")
     else
         filter_rules(rules_arg)
     end
