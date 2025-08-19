@@ -1,7 +1,7 @@
 module Analysis
 
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
-export Check
+export Check, id, synopsis, severity, init
 
 using JuliaSyntax
 
@@ -61,6 +61,17 @@ function dfs_traversal(node::SyntaxNode, visitor_func::Function)
     end
 end
 
+"Load all check modules in checks2 directory."
+function load_all_checks2()
+    for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks2"), join=true))
+        try
+            include(file)
+        catch exception
+            @warn "Failed to load check '$(basename(file))':" exception
+        end
+    end
+end
+
 function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
     visitor = function(n)
         for reg in ctxt.syntaxNodeActions
@@ -75,32 +86,25 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
     dfs_traversal(node, visitor)
 end
 
-function run_analysis(text::String)
-    run_analysis(text, subtypes(Check))
-end
+function run_analysis(text::String, checks::Vector{Check};
+    print_ast::Bool = false, print_llt::Bool = false)
 
-function run_analysis(text::String, checkTypes::Vector{Any})
-    if length(checkTypes) == 0
-        println("!!! No checks found. Please define some checks in the `checks` directory.")
-        return
-    end
-
-    println("Found checks: " * string(checkTypes))
+    println("Checks to run ($(length(checks))): " * string(checks))
     ctxt = AnalysisContext(text)
-    for checkType in checkTypes
-        local check = checkType()
+    for check in checks
         init(check, ctxt)
     end
 
     syntaxNode = JuliaSyntax.parseall(SyntaxNode, text)
     greenNode = JuliaSyntax.parseall(GreenNode, text)
-    print("Showing green tree\n")
-    show(stdout, MIME"text/plain"(), greenNode, text)
+    if print_llt
+        println("Showing green tree:")
+        show(stdout, MIME"text/plain"(), greenNode, text)
+    end
 
     #print("Printing node\n")
     #print(syntaxNode)
 
-    print("Running all checks\n")
     invoke_checks(ctxt, syntaxNode)
 
     if length(ctxt.violations) == 0

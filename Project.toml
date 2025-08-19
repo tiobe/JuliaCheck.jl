@@ -6,23 +6,25 @@ version = "0.2.1"
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
 DataStructures = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
+InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 JuliaSyntax = "70703baa-626e-46a2-a12c-08ffd08c73b4"
-
-[extras]
-IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-TestItems = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
-TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
-
-[targets]
-test = ["IOCapture", "Test", "TestItems", "TestItemRunner"]
 
 [compat]
 ArgParse = "1.2"
 DataStructures = "0.18.22"
 IOCapture = "0.2.5"
+InteractiveUtils = "1.11.0"
 JuliaSyntax = "1"
 Test = "1.11.0"
-TestItems = "1.0.0"
 TestItemRunner = "1.1.0"
+TestItems = "1.0.0"
 julia = "1.0"
+
+[extras]
+IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+TestItemRunner = "f8b46487-2199-4994-9208-9a1283c18c0a"
+TestItems = "1c621080-faea-4a02-84b6-bbd5e436b8fe"
+
+[targets]
+test = ["IOCapture", "Test", "TestItems", "TestItemRunner"]

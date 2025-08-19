@@ -5,20 +5,12 @@ using InteractiveUtils
 include("Analysis.jl")
 include("LosslessTrees.jl")
 include("Properties.jl");
-include("SyntaxNodeHelpers.jl")
 
-# Load all check modules in checks2
-for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks2"), join=true))
-    try
-        include(file)
-    catch exception
-        @warn "Failed to load check '$(basename(file))':" exception
-    end
-end
+Analysis.load_all_checks2()
 
 using .Analysis
 
-global enabledChecks = subtypes(Check)
+global checks = map(c -> c(), subtypes(Check))
 
 run_analysis("""
 TEST = .5
@@ -40,4 +32,4 @@ end
 
 struct myStruct end # Violation for TypeNamesUpperCamelCase
 
-""", enabledChecks)
+""", checks)

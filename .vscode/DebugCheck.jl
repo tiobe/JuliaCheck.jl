@@ -13,6 +13,10 @@ function Debug(filename::String)
         testfile = realpath(joinpath(dirname(filename), "..", "test", basename(filename)))
         rulename = replace(splitext(basename(filename))[1], "_" => "-")
         JuliaCheck.main(["--verbose", "--enable", rulename, "--", testfile])
+    elseif basename(dirname(filename)) === "checks2"
+        testfile = realpath(joinpath(dirname(filename), "..", "test", basename(filename)))
+        rulename = replace(splitext(basename(filename))[1], "_" => "-")
+        JuliaCheck.main(["--checks2", "--verbose", "--enable", rulename, "--", testfile])
     else 
         include(filename)
     end

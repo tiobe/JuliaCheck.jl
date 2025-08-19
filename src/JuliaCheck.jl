@@ -2,12 +2,17 @@ module JuliaCheck
 
 import JuliaSyntax as JS
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
+using InteractiveUtils
 
 include("LosslessTrees.jl")
 include("Properties.jl"); import .Properties
 include("Checks.jl"); import .Checks: filter_rules
 include("Process.jl"); import .Process
+include("Analysis.jl")
 
+using .Analysis
+ 
+Analysis.load_all_checks2()
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
@@ -32,6 +37,9 @@ function parse_commandline(args::Vector{String})
         "--llt"
             help = "Print lossless tree for each input file."
             action = :store_true
+        "--checks2"
+            help = "Use checks from checks2 directory."
+            action = :store_true
         "infiles"
             help = "One or more Julia files to check with available rules."
             nargs = '+'
@@ -52,7 +60,14 @@ function main(args::Vector{String})
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
 
-    filter_rules(Set(arguments["rules"]))
+    rules_arg = Set(arguments["rules"])
+    checks_to_run = map(c -> c(), subtypes(Analysis.Check))
+
+    if arguments["checks2"]
+        checks_to_run = filter(c -> id(c) in rules_arg, checks_to_run)
+    else
+        filter_rules(rules_arg)
+    end
 
     for in_file::String in arguments["infiles"]
         if !(isfile(in_file))
@@ -61,8 +76,14 @@ function main(args::Vector{String})
             print("\n>> Processing file '")
             printstyled(in_file; color=:green)
             print("'...\n")
-            Process.check(in_file; print_ast = arguments["ast"],
-                                   print_llt = arguments["llt"])
+
+            if arguments["checks2"]
+                text::String = read(in_file, String)
+                Analysis.run_analysis(text, checks_to_run; print_ast = arguments["ast"], print_llt = arguments["llt"])
+            else
+                Process.check(in_file; print_ast = arguments["ast"],
+                              print_llt = arguments["llt"])
+            end
         end
     end
     println()
