@@ -17,11 +17,9 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 
 struct Violation
     check::Check
-    node::SyntaxNode
-    line::Int
-    column::Int
+    linepos::Tuple{Int,Int} # The line and column of the violation
+    bufferrange::UnitRange{Int} # The range in the source code buffer
     msg::String
-    offsetspan::Union{Nothing, Tuple{Int,Int}}
 end
 
 
@@ -43,12 +41,30 @@ function register_syntaxnode_action(ctxt::AnalysisContext, predicate::Function, 
     push!(ctxt.registrations, CheckRegistration(predicate, func))
 end
 
-"Reports a violation for a check in the analysis context."
+"""
+    Reports a violation for a check in the analysis context.
+    
+    Use `offsetspan` to specify the range of the violation relative to the node's position.
+ """
 function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String; 
     offsetspan::Union{Nothing, Tuple{Int,Int}} = nothing
     )
-    line, column = JuliaSyntax.source_location(node)
-    push!(ctxt.violations, Violation(check, node, line, column, msg, offsetspan))
+    linepos = JuliaSyntax.source_location(node)
+    bufferrange = JuliaSyntax.byte_range(node)
+
+    if offsetspan !== nothing
+        bufferrange = range(bufferrange.start + offsetspan[1], length=offsetspan[2])
+    end
+
+    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+end
+
+function report_violation(ctxt::AnalysisContext, check::Check, 
+    linepos::Tuple{Int,Int}, 
+    bufferrange::UnitRange{Int},
+    msg::String
+    )
+    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
 end
 
 

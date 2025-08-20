@@ -2,7 +2,7 @@ module NoWhitespaceAroundTypeOperators
 
 include("_common.jl")
 
-using JuliaSyntax: first_byte, last_byte, SyntaxData, GreenNode, children, is_whitespace
+using JuliaSyntax: first_byte, last_byte
 using ...Properties: is_toplevel
 
 struct Check <: Analysis.Check end

@@ -2,23 +2,17 @@ module ViolationPrinters
 
 export highlighting_violation_printer
 
-using JuliaSyntax: SyntaxNode, first_byte, last_byte
+using JuliaSyntax: SyntaxNode, first_byte, last_byte, source, source_location
 using ...Analysis
 using ...Properties
 
 function highlighting_violation_printer(violations)
     for v in violations
-        start = first_byte(v.node)
-        len = last_byte(v.node) - start + 1
-        if v.offsetspan !== nothing
-            start += v.offsetspan[1]
-            len = v.offsetspan[2]
-        end
         Properties.report_violation(
-            index = start,
-            len = len,
-            line = v.line,
-            col = v.column,
+            index = v.bufferrange.start,
+            len = v.bufferrange.stop - v.bufferrange.start + 1,
+            line = v.linepos[1],
+            col = v.linepos[2],
             severity = severity(v.check),
             user_msg = v.msg,
             summary = synopsis(v.check),
