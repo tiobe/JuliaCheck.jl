@@ -9,9 +9,11 @@ include("Properties.jl"); import .Properties
 include("Checks.jl"); import .Checks: filter_rules
 include("Process.jl"); import .Process
 include("Analysis.jl")
+include("ViolationPrinters.jl")
 
 using .Analysis
- 
+using .ViolationPrinters
+
 Analysis.load_all_checks2()
 
 function parse_commandline(args::Vector{String})
@@ -49,28 +51,6 @@ function parse_commandline(args::Vector{String})
 
     return parse_args(args, s)
 end
-
-function highlighting_violation_printer(violations)
-    for v in violations
-        start = first_byte(v.node)
-        len = last_byte(v.node) - start + 1
-        if v.offsetspan !== nothing
-            start += v.offsetspan[1]
-            len = v.offsetspan[2]
-        end
-        Properties.report_violation(
-            index = start,
-            len = len,
-            line = v.line,
-            col = v.column,
-            severity = severity(v.check),
-            user_msg = v.msg,
-            summary = synopsis(v.check),
-            rule_id = id(v.check)
-            )
-    end
-end  
-
 
 function main(args::Vector{String})
     if isempty(args)
