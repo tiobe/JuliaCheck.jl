@@ -8,6 +8,9 @@ using JuliaSyntax
 import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext
 import InteractiveUtils: subtypes
 
+include("SymbolTable.jl"); import .SymbolTable: SymbolTableStruct,
+    update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!
+
 "The abstract base type for all checks."
 abstract type Check end
 id(this::Check)::String = error("id() not implemented for this check")
@@ -33,8 +36,10 @@ struct AnalysisContext
     sourcecode::String
     registrations::Vector{CheckRegistration} # Holds registrations of syntax node actions.
     violations::Vector{Violation}
+    symboltable::SymbolTableStruct
 
-    AnalysisContext(sourcecode::String) = new(sourcecode, CheckRegistration[], Violation[])
+    AnalysisContext(sourcecode::String) =
+        new(sourcecode, CheckRegistration[], Violation[], SymbolTableStruct())
 end
 
 "Should be called by checks in their init function to register actions."
@@ -75,7 +80,11 @@ function load_all_checks2()
 end
 
 function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
-    visitor = function(n)
+    visitor = function(n::SyntaxNode)
+        # To ensure we handle everything in the correct order:
+        # * Update symbol table
+        # * Update rules
+        update_symbol_table_on_node_enter!(ctxt.symboltable, node)
         for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
@@ -84,10 +93,10 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
                 #println("Not a match: $(reg.nodeType) vs $(kind(n))")
             end
         end
+        update_symbol_table_on_node_leave!(ctxt.symboltable, node)
     end
     dfs_traversal(node, visitor)
 end
-
 
 function simple_violation_printer(violations)
     if length(violations) == 0
