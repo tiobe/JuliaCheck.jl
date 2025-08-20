@@ -38,6 +38,12 @@ function init_array_right()
     return d_right
 end
 
+function init_array_and_resize()
+    e_sizehint = Int64[]
+    sizehint!(e_sizehint, 2*N)
+    return e_sizehint
+end
+
 N = 100
 w_pre_allocate = Vector{Int64}(undef, 2*N)
 index = 1

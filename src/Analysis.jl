@@ -92,20 +92,20 @@ end
 function simple_violation_printer(violations)
     if length(violations) == 0
         println("No violations found.")
-    else 
+    else
         println("Found $(length(violations)) violations:")
         idx = 1
         for v in violations
             println("$(idx). Check: $(id(v.check)), Line: $(v.line), Column: $(v.column), Severity: $(severity(v.check)), Message: $(v.msg)")
             idx += 1
         end
-    end    
+    end
 end
 
 function run_analysis(text::String, checks::Vector{Check};
     filename::String = nothing,
-    print_ast::Bool = false, 
-    print_llt::Bool = false, 
+    print_ast::Bool = false,
+    print_llt::Bool = false,
     violationprinter::Function = simple_violation_printer
     )
 
