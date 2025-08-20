@@ -2,7 +2,7 @@ module ModuleImportLocation
 
 include("_common.jl")
 
-using ...Properties: haschildren, is_import, is_include, is_module
+using ...Properties: is_import, is_include, is_module
 
 struct Check <: Analysis.Check end
 id(::Check) = "module-import-location"
