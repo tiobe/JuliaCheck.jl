@@ -1,6 +1,6 @@
 module JuliaCheck
 
-import JuliaSyntax as JS
+using JuliaSyntax: first_byte, last_byte, SourceFile
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
@@ -52,15 +52,24 @@ end
 
 function highlighting_violation_printer(violations)
     for v in violations
+        start = first_byte(v.node)
+        len = last_byte(v.node) - start + 1
+        if v.offsetspan !== nothing
+            start += v.offsetspan[1]
+            len = v.offsetspan[2]
+        end
         Properties.report_violation(
-            v.node;
+            index = start,
+            len = len,
+            line = v.line,
+            col = v.column,
             severity = severity(v.check),
             user_msg = v.msg,
             summary = synopsis(v.check),
             rule_id = id(v.check)
             )
     end
-end
+end  
 
 
 function main(args::Vector{String})
@@ -95,6 +104,7 @@ function main(args::Vector{String})
             printstyled(in_file; color=:green)
             print("'...\n")
 
+            Properties.SF = SourceFile(; filename=in_file)
             if arguments["checks2"]
                 text::String = read(in_file, String)
                 Analysis.run_analysis(text, checks_to_run; 

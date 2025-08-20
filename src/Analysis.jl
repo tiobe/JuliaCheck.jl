@@ -21,6 +21,7 @@ struct Violation
     line::Int
     column::Int
     msg::String
+    offsetspan::Union{Nothing, Tuple{Int,Int}}
 end
 
 
@@ -43,9 +44,11 @@ function register_syntaxnode_action(ctxt::AnalysisContext, predicate::Function, 
 end
 
 "Reports a violation for a check in the analysis context."
-function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String)
+function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String; 
+    offsetspan::Union{Nothing, Tuple{Int,Int}} = nothing
+    )
     line, column = JuliaSyntax.source_location(node)
-    push!(ctxt.violations, Violation(check, node, line, column, msg))
+    push!(ctxt.violations, Violation(check, node, line, column, msg, offsetspan))
 end
 
 
