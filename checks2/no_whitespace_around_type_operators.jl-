@@ -1,0 +1,108 @@
+module NoWhitespaceAroundTypeOperators
+
+include("_common.jl")
+
+using JuliaSyntax: first_byte, last_byte, SyntaxData, GreenNode, children, is_whitespace
+using ...Properties: is_toplevel
+# using ...LosslessTrees: LosslessNode, children, get_source_text,
+#                         get_start_coordinates, start_index
+
+struct Check <: Analysis.Check end
+id(::Check) = "no-whitespace-around-type-operators"
+severity(::Check) = 7
+synopsis(::Check) = "Do not add whitespace around type operators"
+
+function init(this::Check, ctxt::AnalysisContext)
+    register_syntaxnode_action(ctxt, is_type_assertion_or_constraint, n -> check2(this, ctxt, n))
+end
+
+function is_type_assertion_or_constraint(node)
+    return kind(node) in KSet":: <: >:"
+end
+
+struct GreenStruct
+    node::GreenNode
+    pos::Int
+    span::Int
+    text::String
+end
+
+function get_green_nodes_leaves!(list, sourcetext::String, node::GreenNode, pos::Int = 0)
+    cs = children(node)
+    if cs === nothing
+        text = sourcetext[pos:pos+node.span-1]
+        push!(list, GreenStruct(node, pos, node.span, text))
+        return
+    end
+
+    p = pos
+    for child in cs
+        get_green_nodes_leaves!(list, sourcetext, child, p)
+        p += child.span
+    end
+end
+
+function check2(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+    local greennode = node.data.raw
+    list = Vector{GreenStruct}()
+    get_green_nodes_leaves!(list, ctxt.sourcecode, greennode, node.data.position)
+    
+    for i in 1:length(list)
+        if is_type_assertion_or_constraint(list[i].node) 
+            if ((i < length(list) && is_whitespace(list[i+1].node))
+                || (i >= 2 && is_whitespace(list[i-1].node)))
+                start = list[i].pos - node.data.position
+                report_violation(ctxt, this, node, synopsis(this), offsetspan=(start, list[i].span))
+            end
+        end
+    end
+
+    # before = ctxt.sourcecode[prevind(ctxt.sourcecode, first_byte(node))]
+    # after = ctxt.sourcecode[nextind(ctxt.sourcecode, last_byte(node))]
+    # if any(isspace, [before, after])
+    #     report_violation(ctxt, this, node, synopsis(this))
+    # end
+end
+
+# function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+#     function same_kind(x) return kind(x) == kind(node) end
+#     expr = children(node)
+#     op_node = findfirst(same_kind, expr)
+#     # if isnothing(op_node)
+#     #     # See here: # https://github.com/JuliaLang/JuliaSyntax.jl/issues/555
+#     #     # But we can still check the node's text.
+#     #     function same_op(x::LosslessNode) return x.text == node.text end
+#     #     op_node = findfirst(same_op, expr)
+#     #     if isnothing(op_node)
+#     #         @debug "Operator token not found inside operator expression subtree." node
+#     #         return nothing
+#     #     end
+#     # end
+#     if kind(node) == K"::"
+#         before = op_node == 1 ? K"(" : expr[op_node - 1]
+#         after  = op_node == length(expr) ? K")" : expr[op_node + 1]
+#         if kind(after) == K"curly"
+#             after = children(after)[1]
+#         end
+
+#     elseif kind(node) == K"<:"
+#         before = op_node == 1 ? K"{" : expr[op_node - 1]
+#         after  = expr[op_node + 1]
+
+#     elseif kind(node) == K">:"
+#         before = expr[op_node - 1]
+#         after = op_node == length(expr) ? K"}" : expr[op_node + 1]
+#     end
+
+#     if any(is_whitespace, [before, after])
+#         offset::Int = sum(length.(expr[1:op_node])) - 2     # accounts for length of operator itself
+#         ln, cl = get_start_coordinates(node)
+#         report_violation(; index = start_index(node) + offset, len = 2,
+#                          line = ln, col = cl + offset,
+#                          severity = SEVERITY, rule_id = RULE_ID,
+#                          user_msg = USER_MSG, summary = SUMMARY)
+#     end
+# end
+
+end # module NoWhitespaceAroundTypeOperators
+

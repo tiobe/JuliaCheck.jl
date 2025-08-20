@@ -2,7 +2,6 @@ module NestingOfConditionalStatements
 
 include("_common.jl")
 
-using JuliaSyntax: source_location
 using ...Properties: is_flow_cntrl, is_stop_point
 
 struct Check <: Analysis.Check end
@@ -22,7 +21,6 @@ function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
 
     # Count the nesting level of conditional statements
     if conditional_nesting_level(node) > MAX_ALLOWED_NESTING_LEVELS
-        line, col = source_location(node)
         length_of_keyword = length(string(kind(node)))
         report_violation(ctxt, this, node, USER_MSG; offsetspan=(0, length_of_keyword))
     end
