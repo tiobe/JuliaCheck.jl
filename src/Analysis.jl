@@ -9,7 +9,8 @@ import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext
 import InteractiveUtils: subtypes
 
 include("SymbolTable.jl"); import .SymbolTable: SymbolTableStruct,
-    update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!
+    update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!,
+    enter_main_module!, exit_main_module!
 
 "The abstract base type for all checks."
 abstract type Check end
@@ -84,7 +85,7 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
         # To ensure we handle everything in the correct order:
         # * Update symbol table
         # * Update rules
-        update_symbol_table_on_node_enter!(ctxt.symboltable, node)
+        update_symbol_table_on_node_enter!(ctxt.symboltable, n)
         for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
@@ -93,9 +94,13 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
                 #println("Not a match: $(reg.nodeType) vs $(kind(n))")
             end
         end
-        update_symbol_table_on_node_leave!(ctxt.symboltable, node)
+        update_symbol_table_on_node_leave!(ctxt.symboltable, n)
     end
+
+    # TODO: Is the enter and exit on the main level really necessary?
+    enter_main_module!(ctxt.symboltable)
     dfs_traversal(node, visitor)
+    exit_main_module!(ctxt.symboltable)
 end
 
 function simple_violation_printer(violations)
@@ -137,7 +142,6 @@ function run_analysis(text::String, checks::Vector{Check};
     invoke_checks(ctxt, syntaxNode)
 
     violationprinter(ctxt.violations)
-
 end
 
 end # module Analysis
