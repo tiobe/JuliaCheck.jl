@@ -8,7 +8,7 @@ using ...SyntaxNodeHelpers
 struct Check <: Analysis.Check end
 id(::Check) = "prefer-const-variables-over-non-const-global-variables"
 severity(::Check) = 3
-synopsis(::Check) = "Prefer const variables over non-const global variables."
+synopsis(::Check) = "Prefer const variables over non-const global variables"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"=", node -> begin

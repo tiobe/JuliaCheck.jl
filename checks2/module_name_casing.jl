@@ -6,7 +6,7 @@ using ...Properties: get_module_name, is_upper_camel_case
 struct Check <: Analysis.Check end
 id(::Check) = "module-name-casing"
 severity(::Check) = 5
-synopsis(::Check) = "Package names and module names should be written in UpperCamelCase."
+synopsis(::Check) = "Package names and module names should be written in UpperCamelCase"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"module", node -> begin

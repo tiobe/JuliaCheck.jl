@@ -13,7 +13,7 @@ struct Check <: Analysis.Check
 end
 id(::Check) = "avoid-hard-coded-numbers"
 severity(::Check) = 3
-synopsis(::Check) = "Avoid hard-coded numbers."
+synopsis(::Check) = "Avoid hard-coded numbers"
 const USER_MSG = "Implement hard-coded numbers via a const variable."
 
 function init(this::Check, ctxt::AnalysisContext)

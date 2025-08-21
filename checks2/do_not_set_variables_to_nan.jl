@@ -23,7 +23,7 @@ function checkAssignment(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     # Check if right-hand side is a NaN value
     if is_nan_value(rhs)
         # TODO #36595 nan_type = extract_nan_type(rhs)
-        report_violation(ctxt, this, node, synopsis(this))
+        report_violation(ctxt, this, rhs, synopsis(this))
     end
 end
 

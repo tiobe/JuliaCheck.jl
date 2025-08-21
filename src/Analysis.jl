@@ -115,7 +115,7 @@ function simple_violation_printer(violations)
         println("Found $(length(violations)) violations:")
         idx = 1
         for v in violations
-            println("$(idx). Check: $(id(v.check)), Line: $(v.line), Column: $(v.column), Severity: $(severity(v.check)), Message: $(v.msg)")
+            println("$(idx). Check: $(id(v.check)), Line/col: $(v.linepos), Severity: $(severity(v.check)), Message: $(v.msg)")
             idx += 1
         end
     end    

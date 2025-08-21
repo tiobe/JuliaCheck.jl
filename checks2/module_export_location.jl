@@ -7,7 +7,7 @@ using ...Properties: is_export, is_import, is_module
 struct Check <: Analysis.Check end
 id(::Check) = "module-export-location"
 severity(::Check) = 9
-synopsis(::Check) = "Exports should be implemented after the include instructions."
+synopsis(::Check) = "Exports should be implemented after the include instructions"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))

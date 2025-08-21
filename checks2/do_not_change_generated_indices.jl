@@ -7,7 +7,7 @@ using ...Properties: first_child, get_assignee, get_iteration_parts,
 struct Check <: Analysis.Check end
 id(::Check) = "do-not-change-generated-indices"
 severity(::Check) = 5
-synopsis(::Check) = "Do not change generated indices."
+synopsis(::Check) = "Do not change generated indices"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"for", n -> checkForLoop(this, ctxt, n))

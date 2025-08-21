@@ -9,7 +9,7 @@ id(::Check) = "module-import-location"
 severity(::Check) = 9
 synopsis(::Check) = "Packages should be imported after the module keyword."
 
-const USER_MSG = "Move imports to the top of the module, before any actual code."
+const USER_MSG = "Move imports to the top of the module, before any actual code"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))

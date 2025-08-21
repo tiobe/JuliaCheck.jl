@@ -129,27 +129,37 @@ end
 end
 
 
-@testitem "Integration Tests" begin
+@testitem "Golden File Tests" begin
     import IOCapture
+    normalize(text) = strip(replace(replace(text, "\r\n" => "\n"))) * "\n"
+    checks2_that_exist = map(basename, readdir(joinpath(dirname(@__DIR__), "checks2")))
 
-    for f in readdir(@__DIR__)
-        if endswith(f, ".val")
-            fname = f[1:end-4]
-            in_file = fname * ".jl"
-            expected::String = ""
-            try
-                expected = read(f, String)
-            catch x
-                @warn x
-                continue
-            end
-            corresponding_rule = replace(basename(fname), '_'=>'-')
-            println(join(["--enable", corresponding_rule, "--", in_file], " "))
-            result = IOCapture.capture() do
-                JuliaCheck.main(["--enable", corresponding_rule, "--", in_file])
-            end
-            @test replace(chomp(result.output), "\r\n" => "\n") == expected
+    @testset for valfile in filter(f -> endswith(f, ".val"), readdir(@__DIR__))
+        fname = valfile[1:end-4]
+        in_file = fname * ".jl"
+        checkname = replace(basename(fname), '_'=>'-')
+        has_checks2 = basename(in_file) ∈ checks2_that_exist
+        expected::String = normalize(read(valfile, String))
+        args = ["--checks2", "--enable", checkname, "--", in_file]
+        #println("Executing check $checkname, args: " * join(args, " "))
+        result = IOCapture.capture() do
+            JuliaCheck.main(args)
         end
+        actual = normalize(result.output)
+        if has_checks2
+            actualfile::String = valfile * ".actual"
+            if actual == expected
+                if isfile(actualfile)
+                    rm(actualfile)
+                end
+            else
+                write(actualfile, actual)
+            end
+            @test actual == expected
+        else
+            println("Skipping $checkname because it does not exist yet")
+            @test_skip actual == expected
+        end 
     end
 end
 

@@ -5,34 +5,24 @@ using InteractiveUtils
 include("Analysis.jl")
 include("LosslessTrees.jl")
 include("Properties.jl");
+include("ViolationPrinters.jl")
+include("SyntaxNodeHelpers.jl")
 
 Analysis.load_all_checks2()
 
+using JuliaSyntax: SourceFile
 using .Analysis
-using JuliaSyntax
+using .ViolationPrinters
+using .Properties
 
 global checks = map(c -> c(), subtypes(Check))
-
+global checks1 = filter(c -> id(c) === "no-whitespace-around-type-operators", checks)
  
-run_analysis("""
-TEST = .5
-const global some_other_number = 42
+filename = "dummy.jl"
+text = """
+Base.string(:: Type{NotOKStatus}) = "NOK"
+"""
+Properties.SF = SourceFile(text, filename=filename)
+run_analysis(text, checks1;
+    filename="dummy.jl", print_ast=true, print_llt=true, violationprinter=highlighting_violation_printer)
 
-function test(x)
-    println("Hello World")
-    INSIDE = .25 + x # Violation for LeadingAndTrailingDigits
-
-    while true end # Violation for InfiniteWhileLoop
-
-    returnTypes = Union{Nothing, String, Int32, Int64, Float64} # Violation for TooManyTypesInUnions
-
-    return 1    
-end
-
-module lowercase_module # Violation ModuleNameCasing
-end 
-
-struct myStruct end # Violation for TypeNamesUpperCamelCase
-
-""", checks;
-    filename="dummy.jl", print_ast=true, print_llt=true)

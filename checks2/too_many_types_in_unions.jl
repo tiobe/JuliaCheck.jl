@@ -6,7 +6,7 @@ using ...Properties: is_union_decl
 struct Check <: Analysis.Check end
 id(::Check) = "too-many-types-in-unions"
 severity(::Check) = 6
-synopsis(::Check) = "Too many types in Unions."
+synopsis(::Check) = "Too many types in Unions"
 
 const MAX_UNION_TYPES = 4
 

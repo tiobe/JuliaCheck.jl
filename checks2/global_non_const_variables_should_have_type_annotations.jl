@@ -6,7 +6,7 @@ using ...Properties: first_child, is_constant, is_global_decl, haschildren
 struct Check <: Analysis.Check end
 id(::Check) = "global-non-const-variables-should-have-type-annotations"
 severity(::Check) = 6
-synopsis(::Check) = "Global non-const variables should have type annotations."
+synopsis(::Check) = "Global non-const variables should have type annotations"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> is_global_decl(n) && !is_constant(n), node -> begin
