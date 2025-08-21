@@ -3,7 +3,7 @@ module SymbolTable
 import DataStructures: Stack
 using JuliaSyntax: SyntaxNode, @K_str, children, haschildren, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
-    get_module_name, is_assignment, is_function, is_module, opens_scope
+    get_module_name, is_assignment, is_function, is_global_decl, is_module, opens_scope
 
 export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!
 
@@ -178,6 +178,8 @@ Register an identifier.
 """
 declare!(table::SymbolTableStruct, symbol::Item) = declare!(table, current_scope(table), symbol)
 
+declare_global!(table::SymbolTableStruct, symbol::Item) = declare!(table, global_scope(table), symbol)
+
 function declare!(table::SymbolTableStruct, sc::Scope, symbol::Item)
     @assert kind(symbol) == K"Identifier" "kind(symbol) = $(kind(symbol))"
     push!(sc, symbol)
@@ -188,6 +190,8 @@ function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::Synt
         enter_module!(table, node)
     elseif is_function(node)
         _process_function!(table, node)
+    elseif is_global_decl(node)
+        _process_global!(table, node)
     elseif is_assignment(node)
         _process_assignment!(table, node)
     end
@@ -214,6 +218,14 @@ function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
             _process_argument!(table, arg)
         end
     end
+end
+
+function _process_global!(table::SymbolTableStruct, node::SyntaxNode)
+    arg = find_lhs_of_kind(K"Identifier", node)
+    if isnothing(arg)
+        return nothing
+    end
+    declare_global!(table, arg)
 end
 
 function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
