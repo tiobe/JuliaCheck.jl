@@ -171,10 +171,7 @@ end
 
 is_declared_in_current_scope(table::SymbolTableStruct, node::Item)::Bool = node ∈ current_scope(table)
 
-function is_global(table::SymbolTableStruct, node::Item)::Bool
-    scope_global = global_scope(table)
-    return node ∈ global_scope(table)
-end
+is_global(table::SymbolTableStruct, node::Item)::Bool = node ∈ global_scope(table)
 
 """
 Register an identifier.

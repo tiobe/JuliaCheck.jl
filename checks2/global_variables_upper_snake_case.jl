@@ -1,6 +1,7 @@
 module GlobalVariablesUpperSnakeCase
 
-using ...Properties: is_fat_snake_case, is_global_decl, find_lhs_of_kind, NullableNode
+using ..SymbolTable: is_global
+using ...Properties: is_assignment, is_fat_snake_case, find_lhs_of_kind, NullableNode
 
 include("_common.jl")
 
@@ -10,11 +11,11 @@ severity(::Check) = 3
 synopsis(::Check) = "Casing of globals"
 
 function init(this::Check, ctxt::AnalysisContext)
-    # FIXME: this does not check whether identifier refers to global variable
-    # We need use a proper symbol table for this.
-
-    register_syntaxnode_action(ctxt, n -> is_global_decl(n), n -> begin
+    register_syntaxnode_action(ctxt, n -> is_assignment(n), n -> begin
         id::NullableNode = find_lhs_of_kind(K"Identifier", n)
+        if ! is_global(ctxt.symboltable, id)
+            return nothing
+        end
         if id !== nothing
             var_name::String = string(id)
             if !is_fat_snake_case(var_name)
