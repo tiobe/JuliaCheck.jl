@@ -2,7 +2,6 @@ module ViolationPrinters
 
 export highlighting_violation_printer
 
-using JuliaSyntax: SyntaxNode, first_byte, last_byte, source, source_location
 using ...Analysis
 using ...Properties
 

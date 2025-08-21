@@ -10,6 +10,7 @@ include("Checks.jl"); import .Checks: filter_rules
 include("Process.jl"); import .Process
 include("Analysis.jl")
 include("ViolationPrinters.jl")
+include("SyntaxNodeHelpers.jl")
 
 using .Analysis
 using .ViolationPrinters
