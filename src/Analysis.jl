@@ -60,18 +60,26 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
 end
 
 
-function dfs_traversal(node::SyntaxNode, visitor_func::Function)
-    # 1. Process the current node (Pre-order: process before children)
+function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Function)
+    # 1. Update the symbol table before running on the node.
+    update_symbol_table_on_node_enter!(ctxt.symboltable, node)
+
+    # 2. Process the current node (Pre-order: process before children)
     visitor_func(node)
 
-    # 2. Recursively visit children
+    # 3. Recursively visit children
     local children = JuliaSyntax.children(node)
     if children === nothing
         return
     end
     for child_node in children
-        dfs_traversal(child_node, visitor_func)
+        dfs_traversal(ctxt, child_node, visitor_func)
     end
+
+    # 4. Update the symbol table when leaving a node.
+    #    Needs to be done here, in the DFS - because
+    #    a node needs to be processed inside its scope.
+    update_symbol_table_on_node_leave!(ctxt.symboltable, node)
 end
 
 "Load all check modules in checks2 directory."
@@ -87,10 +95,6 @@ end
 
 function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
     visitor = function(n::SyntaxNode)
-        # To ensure we handle everything in the correct order:
-        # * Update symbol table
-        # * Update rules
-        update_symbol_table_on_node_enter!(ctxt.symboltable, n)
         for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
@@ -99,12 +103,11 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
                 #println("Not a match: $(reg.nodeType) vs $(kind(n))")
             end
         end
-        update_symbol_table_on_node_leave!(ctxt.symboltable, n)
     end
 
     # TODO: Is the enter and exit on the main level really necessary?
     enter_main_module!(ctxt.symboltable)
-    dfs_traversal(node, visitor)
+    dfs_traversal(ctxt, node, visitor)
     exit_main_module!(ctxt.symboltable)
 end
 
