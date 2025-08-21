@@ -7,7 +7,7 @@ using ...Properties: MAX_LINE_LENGTH, expr_depth, expr_size, get_func_name, get_
 struct Check <: Analysis.Check end
 id(::Check) = "short-hand-function-too-complicated"
 severity(::Check) = 3
-synopsis(::Check) = "Short-hand notation with concise functions."
+synopsis(::Check) = "Short-hand notation with concise functions"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", func -> begin
