@@ -1,8 +1,8 @@
 # Auto detect text files and perform LF normalization
-*          text=auto
+* text=auto
 
-# These file should always be checked out with OS line endings (simulated cmdline output)
-*.val text
+# Check out val files with lf, actual output EOL will be converted in tests for Windows
+*.val text eol=lf
 
 # Fix syntax highlighting on GitHub to allow comments
 .vscode/*.json linguist-language=JSON-with-Comments

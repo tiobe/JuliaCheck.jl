@@ -148,7 +148,7 @@ end
             result = IOCapture.capture() do
                 JuliaCheck.main(["--enable", corresponding_rule, "--", in_file])
             end
-            @test chomp(result.output) == expected
+            @test replace(chomp(result.output), "\r\n" => "\n") == expected
         end
     end
 end
