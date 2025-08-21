@@ -1,6 +1,6 @@
 module JuliaCheck
 
-import JuliaSyntax as JS
+using JuliaSyntax: first_byte, last_byte, SourceFile
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
@@ -9,8 +9,11 @@ include("Properties.jl"); import .Properties
 include("Checks.jl"); import .Checks: filter_rules
 include("Process.jl"); import .Process
 include("Analysis.jl")
+include("ViolationPrinters.jl")
+include("SyntaxNodeHelpers.jl")
 
 using .Analysis
+using .ViolationPrinters
 
 Analysis.load_all_checks2()
 
@@ -50,19 +53,6 @@ function parse_commandline(args::Vector{String})
     return parse_args(args, s)
 end
 
-function highlighting_violation_printer(violations)
-    for v in violations
-        Properties.report_violation(
-            v.node;
-            severity = severity(v.check),
-            user_msg = v.msg,
-            summary = synopsis(v.check),
-            rule_id = id(v.check)
-            )
-    end
-end
-
-
 function main(args::Vector{String})
     if isempty(args)
         parse_commandline(["-h"])
@@ -95,6 +85,7 @@ function main(args::Vector{String})
             printstyled(in_file; color=:green)
             print("'...\n")
 
+            Properties.SF = SourceFile(; filename=in_file)
             if arguments["checks2"]
                 text::String = read(in_file, String)
                 Analysis.run_analysis(text, checks_to_run;

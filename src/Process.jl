@@ -16,7 +16,6 @@ global const trivia_checks_enabled = true
 function check(file_name::String;
                print_ast::Bool = false, print_llt::Bool = false)
     SymbolTable.clear_symbol_table!()
-    Properties.SF = SourceFile(; filename=file_name)
     ast = parse(SF)
     if isnothing(ast)
         @error "Couldn't parse file '$file_name'"
