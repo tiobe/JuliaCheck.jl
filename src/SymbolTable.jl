@@ -1,9 +1,10 @@
 module SymbolTable
 
 import DataStructures: Stack
-using JuliaSyntax: SyntaxNode, @K_str, children, haschildren, head, kind, sourcetext
+using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
-    get_module_name, is_assignment, is_function, is_global_decl, is_module, opens_scope
+    get_module_name, haschildren, is_assignment, is_function, is_global_decl, is_module,
+    opens_scope
 
 export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!
 
