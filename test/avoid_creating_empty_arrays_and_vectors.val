@@ -1,5 +1,5 @@
 
->> Processing file 'C:\checkers\JuliaCheck.jl\test\avoid_creating_empty_arrays_and_vectors.jl'...
+>> Processing file 'avoid_creating_empty_arrays_and_vectors.jl'...
 
 C:\checkers\JuliaCheck.jl\test\avoid_creating_empty_arrays_and_vectors.jl(3, 1):
 a_wrong = empty([1.0, 2.0, 3.0])
