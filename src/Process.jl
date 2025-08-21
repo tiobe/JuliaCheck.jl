@@ -6,7 +6,6 @@ import JuliaSyntax: SyntaxNode, SourceFile, ParseError, @K_str, is_leaf,
 using ..Properties
 using ..LosslessTrees: LosslessNode, build_enhanced_tree
 import ..Checks
-include("SymbolTable.jl"); import .SymbolTable
 
 export check
 
@@ -15,7 +14,6 @@ global const trivia_checks_enabled = true
 
 function check(file_name::String;
                print_ast::Bool = false, print_llt::Bool = false)
-    SymbolTable.clear_symbol_table!()
     ast = parse(SF)
     if isnothing(ast)
         @error "Couldn't parse file '$file_name'"
@@ -27,12 +25,10 @@ function check(file_name::String;
             show(stdout, MIME"text/plain"(), ast.raw, string(JS.sourcetext(SF)))
         end
 
-        SymbolTable.enter_main_module!()
         process(ast)
         if trivia_checks_enabled
             process_with_trivia(build_enhanced_tree(ast.raw, SF))
         end
-        SymbolTable.exit_main_module!()
     end
 end
 
@@ -52,7 +48,6 @@ end
 
 function process(node::SyntaxNode)
     if is_module(node)
-        SymbolTable.enter_module!(node)
         Checks.SingleModuleFile.check(node)
         Checks.ModuleNameCasing.check(node)
         # TODO disabled until we have our own "green" trees: Checks.ModuleEndComment.check(node)
@@ -93,11 +88,6 @@ function process(node::SyntaxNode)
             @error "Unexpected error while processing expression at $(JS.source_location(node)):" xspt
             return nothing  # stop processing this node, but continue with the rest of the tree
         end
-    end
-
-    # "Post-processing", before returning from this level of the tree
-    if is_module(node) SymbolTable.exit_module!()
-    elseif opens_scope(node) SymbolTable.exit_scope!()
     end
 end
 
@@ -140,14 +130,9 @@ function process_function(node::SyntaxNode)
     else
         if kind(fname) == K"Identifier"
             Checks.FunctionIdentifiersInLowerSnakeCase.check(fname)
-            SymbolTable.declare!(fname)
-        #else
-        # Otherwise, it might be an operator being redefined, which is certainly
-        # not subject to casing inspection, nor we need to get it declared.
         end
         fname_str = string(fname)   # in either case, we take it as a string
     end
-    SymbolTable.enter_scope!()
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters"
             if ! haschildren(arg)
@@ -177,7 +162,6 @@ function process_argument(fname::String, node::SyntaxNode)
         # something as tricky.
         return nothing
     end
-    SymbolTable.declare!(arg)
     Checks.FunctionArgumentsLowerSnakeCase.check(fname, arg)
 end
 
@@ -185,7 +169,6 @@ function process_assignment(node::SyntaxNode)
     lhs = get_assignee(node)
     Checks.DoNotSetVariablesToInf.check(node)
     Checks.DoNotSetVariablesToNan.check(node)
-    SymbolTable.declare!(first(lhs))
     # Checks.AvoidGlobals.check(node)
 end
 process_assignment(_::LosslessNode) = nothing
@@ -200,7 +183,6 @@ end
 
 function process_struct(node::SyntaxNode)
     type_name = find_lhs_of_kind(K"Identifier", node)
-    SymbolTable.declare!(type_name)
     Checks.TypeNamesUpperCamelCase.check(type_name)
     for field in get_struct_members(node)
         Checks.StructMembersAreInLowerSnakeCase.check(field)
@@ -232,17 +214,14 @@ function process_global(node::SyntaxNode)
         return nothing
     end
     # Don't bother if already declared before, to prevent multiple reports
-    if ! SymbolTable.is_global(id)
-        SymbolTable.declare!(SymbolTable.global_scope(), id)
-        Checks.AvoidGlobalVariables.check(id)
-        Checks.GlobalVariablesUpperSnakeCase.check(id)
-        Checks.LocationOfGlobalVariables.check(node)
-        if is_constant(node)
-            Checks.DocumentConstants.check(node)
-        else
-            Checks.GlobalNonConstVariablesShouldHaveTypeAnnotations.check(node)
-            Checks.PreferConstVariablesOverNonConstGlobalVariables.check(id)
-        end
+    Checks.AvoidGlobalVariables.check(id)
+    Checks.GlobalVariablesUpperSnakeCase.check(id)
+    Checks.LocationOfGlobalVariables.check(node)
+    if is_constant(node)
+        Checks.DocumentConstants.check(node)
+    else
+        Checks.GlobalNonConstVariablesShouldHaveTypeAnnotations.check(node)
+        Checks.PreferConstVariablesOverNonConstGlobalVariables.check(id)
     end
 end
 
