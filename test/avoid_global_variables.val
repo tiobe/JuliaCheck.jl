@@ -19,12 +19,6 @@ avoid_global_variables.jl(5, 12):
 Avoid global variables when possible.
 Rule: avoid-global-variables. Severity: 3
 
-avoid_global_variables.jl(9, 1):
-SOME_NUMBER::Float64
-└─────────┘ ── Avoid global variables wherever possible.
-Avoid global variables when possible.
-Rule: avoid-global-variables. Severity: 3
-
 avoid_global_variables.jl(10, 14):
 global const SOME_OTHER_NUMBER::Int = 42
 #            └───────────────┘ ── Avoid global variables wherever possible.
