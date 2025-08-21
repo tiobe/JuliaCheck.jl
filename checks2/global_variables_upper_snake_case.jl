@@ -13,10 +13,10 @@ synopsis(::Check) = "Casing of globals"
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> is_assignment(n), n -> begin
         id::NullableNode = find_lhs_of_kind(K"Identifier", n)
-        if ! is_global(ctxt.symboltable, id)
-            return nothing
-        end
         if id !== nothing
+            if ! is_global(ctxt.symboltable, id)
+                return nothing
+            end
             var_name::String = string(id)
             if !is_fat_snake_case(var_name)
                 report_violation(ctxt, this, id, "Variable $var_name should be written in UPPER_SNAKE_CASE.")
