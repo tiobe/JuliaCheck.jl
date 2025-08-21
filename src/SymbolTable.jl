@@ -12,8 +12,9 @@ export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_t
 Item = SyntaxNode
 
 #=
-A scope is represented by a set of symbols (for now, each stored symbol is a
-SyntaxNode, directly). Scopes are stacked, as they are nested, with the global
+A scope is represented by a vector (because we would like to keep the ordering!)
+of symbols (for now, each stored symbol is a SyntaxNode, directly).
+Scopes are stacked, as they are nested, with the global
 scope always at the base of that stack, and the current scope at the top.
 
 Each module introduces a new global scope, and modules can be nested, like
@@ -24,13 +25,15 @@ top to bottom. Symbols from other modules have to be qualified, or entered into
 the current module's global scope with a `using` declaration.
 =#
 
-Scope = Set{Item}
+Scope = Vector{Item}
 NestedScopes = Stack{Scope}
 """
 A module containing an identifier and a stack of scopes.
 
 The top of the scopes stack is the current scope, and the bottom is the global
-scope for this module.
+scope for this module. There is a stack of scopes to reflect the fact that there are
+multiple scopes within a module (eg. various constructs within the module itself -
+a function with a for loop in it, with another let construct in there)
 """
 struct Module
     mod_name::String

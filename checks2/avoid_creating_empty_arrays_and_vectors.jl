@@ -1,7 +1,7 @@
 module AvoidCreatingEmptyArraysAndVectors
 
 using JuliaSyntax: SyntaxNode, @K_str, children, kind
-using ...Checks: is_enabled
+#using ..SymbolTable: is_declaration
 using ...Properties: is_array_indx, is_assignment, is_call, is_vect
 
 include("_common.jl")

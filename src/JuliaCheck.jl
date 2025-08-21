@@ -11,7 +11,7 @@ include("Process.jl"); import .Process
 include("Analysis.jl")
 
 using .Analysis
- 
+
 Analysis.load_all_checks2()
 
 function parse_commandline(args::Vector{String})
@@ -80,7 +80,7 @@ function main(args::Vector{String})
         checks_to_run = filter(c -> id(c) in rules_arg, checks_to_run)
         if length(checks_to_run) >= 1
             @debug "Enabled rules:\n" * join(map(id, checks_to_run), "\n")
-        else 
+        else
             @warn "No rules enabled"
         end
     else
@@ -97,10 +97,10 @@ function main(args::Vector{String})
 
             if arguments["checks2"]
                 text::String = read(in_file, String)
-                Analysis.run_analysis(text, checks_to_run; 
+                Analysis.run_analysis(text, checks_to_run;
                     filename=in_file,
                     violationprinter = highlighting_violation_printer,
-                    print_ast = arguments["ast"], 
+                    print_ast = arguments["ast"],
                     print_llt = arguments["llt"])
             else
                 Process.check(in_file; print_ast = arguments["ast"],
