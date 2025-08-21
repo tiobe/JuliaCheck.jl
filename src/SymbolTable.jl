@@ -127,15 +127,13 @@ current_module(table::SymbolTableStruct)::Module = first(table.stack)
 # the file under analysis, and we will surely get confused about its
 # scope.
 
-function enter_scope!(table::SymbolTableStruct)::Nothing
+function enter_scope!(table::SymbolTableStruct)
     push!(scopes_within_module(table), Scope())
-    return nothing
 end
 
-function exit_scope!(table::SymbolTableStruct)::Nothing
+function exit_scope!(table::SymbolTableStruct)
     pop!(scopes_within_module(table))
     @assert !isempty(scopes_within_module(table)) "Exited global scope. This shouldn't happen before leaving the module!"
-    return nothing
 end
 
 global_scope(table::SymbolTableStruct)::Scope = last(scopes_within_module(table))
@@ -147,9 +145,36 @@ current module.
 """
 is_declared(table::SymbolTableStruct, node::Item)::Bool = !isempty(table.stack) && any(scp -> node ∈ scp, scopes_within_module(table))
 
+"""
+Check if an item is the declaration (ie. the first assignment) of a variable
+within the given scope. This is a common operation, as often we wish to check
+whether a declaration meets certain requirements.
+"""
+
+function id_is_declaration(table::SymbolTableStruct, node::Item)::Bool
+    var_declared = node.data.val
+    for elem in current_scope(table)
+        if kind(elem) != K"Identifier"
+            continue
+        end
+        var_applied = elem.data.val
+        if var_applied == var_declared
+            if node === elem
+                return true
+            else
+                break
+            end
+        end
+    end
+    return false
+end
+
 is_declared_in_current_scope(table::SymbolTableStruct, node::Item)::Bool = node ∈ current_scope(table)
 
-is_global(table::SymbolTableStruct, node::Item)::Bool = node ∈ global_scope(table)
+function is_global(table::SymbolTableStruct, node::Item)::Bool
+    scope_global = global_scope(table)
+    return node ∈ global_scope(table)
+end
 
 """
 Register an identifier.

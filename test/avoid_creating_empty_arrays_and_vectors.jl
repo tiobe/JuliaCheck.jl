@@ -44,6 +44,12 @@ function init_array_and_resize()
     return e_sizehint
 end
 
+function init_array_second()
+    f_right = [1, 2, 3]
+	f_right = []
+    return f_right
+end
+
 N = 100
 w_pre_allocate = Vector{Int64}(undef, 2*N)
 index = 1
@@ -59,6 +65,3 @@ for _ in 1:N
     end
 end
 resize!(w_pre_allocate, index-1)
-
-# TODO: sizehint case
-# TODO: not_initialized case

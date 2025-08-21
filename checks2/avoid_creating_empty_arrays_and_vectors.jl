@@ -1,7 +1,7 @@
 module AvoidCreatingEmptyArraysAndVectors
 
 using JuliaSyntax: SyntaxNode, @K_str, children, kind
-#using ..SymbolTable: is_declaration
+using ..SymbolTable: id_is_declaration
 using ...Properties: is_array_indx, is_assignment, is_call, is_vect
 
 include("_common.jl")
@@ -16,13 +16,17 @@ function init(this::Check, ctxt::AnalysisContext)
 end
 
 function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
-    rhs = last(children(assignment_node))
+    assignment_variable_node = first(children(assignment_node))
+    assignment_value_node = last(children(assignment_node))
+    if ! id_is_declaration(ctxt.symboltable, assignment_variable_node)
+        return
+    end
     if _has_sizehint(assignment_node)
         return
     end
-    _check_for_naive_empty_initialization(this, ctxt, assignment_node, rhs)
-    _check_for_usage_of_empty_keyword(this, ctxt, assignment_node, rhs)
-    _check_for_empty_array_initialization(this, ctxt, assignment_node, rhs)
+    _check_for_naive_empty_initialization(this, ctxt, assignment_node, assignment_value_node)
+    _check_for_usage_of_empty_keyword(this, ctxt, assignment_node, assignment_value_node)
+    _check_for_empty_array_initialization(this, ctxt, assignment_node, assignment_value_node)
 end
 
 function _has_sizehint(assignment_node::SyntaxNode)::Bool
