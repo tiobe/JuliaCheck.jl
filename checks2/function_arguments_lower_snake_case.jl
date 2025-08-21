@@ -45,7 +45,7 @@ function checkArgument(this::Check, ctxt::AnalysisContext, f_name::AbstractStrin
     arg_name = string(f_arg)
     if ! is_lower_snake(arg_name)
         report_violation(ctxt, this, f_arg, 
-            "Argument '$arg_name' of function '$f_name' must be written in \"lower_snake_case\"." # TODO #36595
+            "Argument '$arg_name' of function '$f_name' must be written in \"lower_snake_case\"."
             )
     end
 end
