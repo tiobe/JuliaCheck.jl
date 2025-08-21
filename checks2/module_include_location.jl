@@ -7,7 +7,7 @@ using ...Properties: get_imported_pkg, is_import, is_include, is_module
 struct Check <: Analysis.Check end
 id(::Check) = "module-include-location"
 severity(::Check) = 9
-synopsis(::Check) = "The list of included files should be after the list of imported packages."
+synopsis(::Check) = "The list of included files should be after the list of imported packages"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))

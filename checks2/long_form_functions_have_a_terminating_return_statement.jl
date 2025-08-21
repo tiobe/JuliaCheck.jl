@@ -7,7 +7,7 @@ using ...Properties: inside, is_struct, get_func_name, get_func_body, haschildre
 struct Check <: Analysis.Check end
 id(::Check) = "long-form-functions-have-a-terminating-return-statement"
 severity(::Check) = 3
-synopsis(::Check) = "Long form functions are ended by an explicit return statement."
+synopsis(::Check) = "Long form functions should end with an explicit return statement"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin
@@ -47,4 +47,5 @@ function _ends_with_return(node::SyntaxNode)::Bool
         end
 end
 
-end
+end # module LongFormFunctionsHaveATerminatingReturnStatement
+

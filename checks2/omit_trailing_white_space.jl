@@ -7,7 +7,7 @@ using ...Properties: is_toplevel
 struct Check <: Analysis.Check end
 id(::Check) = "omit-trailing-white-space"
 severity(::Check) = 7
-synopsis(::Check) = "Omit spaces at the end of a line."
+synopsis(::Check) = "Omit spaces at the end of a line"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_toplevel, n -> check(this, ctxt, n))

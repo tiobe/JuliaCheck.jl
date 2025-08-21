@@ -13,12 +13,6 @@ prefer_const_variables_over_non_const_global_variables.jl(5, 12):
 Prefer const variables over non-const global variables.
 Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
 
-prefer_const_variables_over_non_const_global_variables.jl(9, 1):
-SOME_NUMBER::Float64
-└─────────┘ ── Consider making global variable SOME_NUMBER a const.
-Prefer const variables over non-const global variables.
-Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
-
 prefer_const_variables_over_non_const_global_variables.jl(14, 12):
     global YET_ANOTHER_NUMBER = 7.0
 #          └────────────────┘ ── Consider making global variable YET_ANOTHER_NUMBER a const.

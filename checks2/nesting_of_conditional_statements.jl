@@ -7,7 +7,7 @@ using ...Properties: is_flow_cntrl, is_stop_point
 struct Check <: Analysis.Check end
 id(::Check) = "nesting-of-conditional-statements"
 severity(::Check) = 4
-synopsis(::Check) = "Avoid deep nesting of conditional statements."
+synopsis(::Check) = "Avoid deep nesting of conditional statements"
 
 const MAX_ALLOWED_NESTING_LEVELS = 3
 const USER_MSG = "This conditional expression is too deeply nested (deeper than $MAX_ALLOWED_NESTING_LEVELS levels)."

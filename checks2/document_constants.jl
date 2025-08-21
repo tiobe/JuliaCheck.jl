@@ -7,7 +7,7 @@ include("_common.jl")
 struct Check <: Analysis.Check end
 id(::Check) = "document-constants"
 severity(::Check) = 7
-synopsis(::Check) = "Constants must have a docstring."
+synopsis(::Check) = "Constants must have a docstring"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_constant, n -> check(this, ctxt, n))

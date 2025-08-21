@@ -7,7 +7,7 @@ using ...Properties: is_assignment, is_constant, is_union_decl
 struct Check <: Analysis.Check end
 id(::Check) = "implement-unions-as-consts"
 severity(::Check) = 3
-synopsis(::Check) = "Implement Unions as const."
+synopsis(::Check) = "Implement Unions as const"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_union_decl, node -> begin

@@ -1,0 +1,19 @@
+>> Processing file 'module_end_comment.jl'...
+
+module_end_comment.jl(4, 3):
+end
+└─┘ ── Missing end module comment.
+The end statement of a module should have a comment with the module name.
+Rule: module-end-comment. Severity: 9
+
+module_end_comment.jl(10, 3):
+end
+└─┘ ── Missing end module comment.
+The end statement of a module should have a comment with the module name.
+Rule: module-end-comment. Severity: 9
+
+module_end_comment.jl(14, 3):
+end  # not the right comment
+#    └─────────────────────┘ ── The end statement of a module should have a comment with the module name.
+The end statement of a module should have a comment with the module name.
+Rule: module-end-comment. Severity: 9

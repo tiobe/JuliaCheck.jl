@@ -6,7 +6,7 @@ using ...Properties: get_imported_pkg, is_import, is_include, is_module
 struct Check <: Analysis.Check end
 id(::Check) = "module-single-import-line"
 severity(::Check) = 9
-synopsis(::Check) = "The list of packages should be in alphabetic order."
+synopsis(::Check) = "The list of packages should be in alphabetic order"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))

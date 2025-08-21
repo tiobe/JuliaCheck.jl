@@ -7,7 +7,7 @@ include("_common.jl")
 struct Check <: Analysis.Check end
 id(::Check) = "function-arguments-lower-snake-case"
 severity(::Check) = 7
-synopsis(::Check) = "Function arguments must be written in \"lower_snake_case\"."
+synopsis(::Check) = "Function arguments must be written in \"lower_snake_case\""
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin

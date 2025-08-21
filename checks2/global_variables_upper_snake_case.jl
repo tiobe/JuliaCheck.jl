@@ -5,7 +5,10 @@ using ...Properties: is_assignment, is_fat_snake_case, find_lhs_of_kind, Nullabl
 
 include("_common.jl")
 
-struct Check <: Analysis.Check end
+struct Check <: Analysis.Check
+    already_reported::Set{SyntaxNode}
+    Check() = new(Set{SyntaxNode}())
+end
 id(::Check) = "global-variables-upper-snake-case"
 severity(::Check) = 3
 synopsis(::Check) = "Casing of globals"

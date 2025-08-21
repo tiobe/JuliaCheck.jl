@@ -5,7 +5,7 @@ include("_common.jl")
 struct Check <: Analysis.Check end
 id(::Check) = "use-spaces-instead-of-tabs"
 severity(::Check) = 7
-synopsis(::Check) = "Use spaces instead of tabs for indentation."
+synopsis(::Check) = "Use spaces instead of tabs for indentation"
 
 const REGEX = r"(\s*)\t+.*"
 

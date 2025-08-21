@@ -7,7 +7,7 @@ using ...Properties: inside, is_lower_snake, is_struct, get_func_name
 struct Check <: Analysis.Check end
 id(::Check) = "function-identifiers-in-lower-snake-case"
 severity(::Check) = 8
-synopsis(::Check) = "Function name should be written in \"lower_snake_case\"."
+synopsis(::Check) = "Function name should be written in \"lower_snake_case\""
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin
@@ -18,7 +18,7 @@ function init(this::Check, ctxt::AnalysisContext)
 end
 
 function checkFunctionName(this::Check, ctxt::AnalysisContext, func_name::SyntaxNode)
-    @assert kind(func_name) == K"Identifier" "Expected an [Identifier] node, got [$(kind(func_name))]."
+    @assert kind(func_name) == K"Identifier" "Expected an [Identifier] node, got [$(kind(func_name))]"
     if inside(func_name, is_struct)
         # Inner constructors (functions inside a type definition) must match the
         # type's name, which must follow a different naming convention than

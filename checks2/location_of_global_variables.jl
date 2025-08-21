@@ -7,7 +7,7 @@ using ...Properties: haschildren, is_export, is_global_decl, is_import, is_mod_t
 struct Check <: Analysis.Check end
 id(::Check) = "location-of-global-variables"
 severity(::Check) = 7
-synopsis(::Check) = "Global variables should be placed at the top of a module or file."
+synopsis(::Check) = "Global variables should be placed at the top of a module or file"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_global_decl, n -> check(this, ctxt, n))

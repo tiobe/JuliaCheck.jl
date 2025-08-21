@@ -1,7 +1,8 @@
 module module_single_import_line
 
 module BadStyle
-
+    using .SomeSubmodule
+    using .SomeOtherSubmodule
 
     using LinearAlgebra, Random, Statistics, Test
 

@@ -1,16 +1,15 @@
-
 >> Processing file 'long_form_functions_have_a_terminating_return_statement.jl'...
 
 long_form_functions_have_a_terminating_return_statement.jl(3, 5):
     nothing
-#   └─────┘ ── Long form functions are terminated by an explicit return statement.
-Long form functions are ended by a return statement.
+#   └─────┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
 
 long_form_functions_have_a_terminating_return_statement.jl(7, 5):
     println("println returns nothing")
-#   └────────────────────────────────┘ ── Long form functions are terminated by an explicit return statement.
-Long form functions are ended by a return statement.
+#   └────────────────────────────────┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
 
 long_form_functions_have_a_terminating_return_statement.jl(11, 5):
@@ -20,6 +19,6 @@ long_form_functions_have_a_terminating_return_statement.jl(11, 5):
 ⋮
         println(x)
     end
-#─────┘ ── Long form functions are terminated by an explicit return statement.
-Long form functions are ended by a return statement.
+#─────┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
