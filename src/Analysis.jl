@@ -8,6 +8,11 @@ using JuliaSyntax
 import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext
 import InteractiveUtils: subtypes
 
+# Here to keep Properties importable as ..Properties by SymbolTable.
+# Mainly to ensure that it's imported in the same way by both
+# production code and tests.
+using ..Properties
+
 include("SymbolTable.jl"); import .SymbolTable: SymbolTableStruct,
     update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!,
     enter_main_module!, exit_main_module!
