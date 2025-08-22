@@ -67,10 +67,25 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
 end
 
+function _stop_traversal(node::SyntaxNode)::Bool
+    if kind(node) == K"quote"
+        return true
+    elseif kind(node) == K"macrocall" &&
+            numchildren(node) >= 1 &&
+            string(children(node)[1]) == "@eval"
+        return true
+    else 
+        return false
+    end
+end
 
 function dfs_traversal(node::SyntaxNode, visitor_func::Function)
     # 1. Process the current node (Pre-order: process before children)
     visitor_func(node)
+
+    if _stop_traversal(node)
+        return nothing
+    end
 
     # 2. Recursively visit children
     local children = JuliaSyntax.children(node)

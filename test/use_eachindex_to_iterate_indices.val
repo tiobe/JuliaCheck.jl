@@ -1,14 +1,13 @@
-
 >> Processing file 'use_eachindex_to_iterate_indices.jl'...
 
 use_eachindex_to_iterate_indices.jl(4, 5):
 for index in 1:5 # This raises a BoundsError
-#   └───┘ ── Use `eachindex` instead of creating a range to iterate over.
-Use eachindex instead of a constructed range for iteration over a collection.
+#   └───┘ ── Use eachindex() instead of a constructed range for iteration over a collection.
+Use eachindex() instead of a constructed range for iteration over a collection.
 Rule: use-eachindex-to-iterate-indices. Severity: 5
 
 use_eachindex_to_iterate_indices.jl(8, 5):
 for index in range(1:length(weights_vec))
-#   └───┘ ── Use `eachindex` instead of creating a range to iterate over.
-Use eachindex instead of a constructed range for iteration over a collection.
+#   └───┘ ── Use eachindex() instead of a constructed range for iteration over a collection.
+Use eachindex() instead of a constructed range for iteration over a collection.
 Rule: use-eachindex-to-iterate-indices. Severity: 5
