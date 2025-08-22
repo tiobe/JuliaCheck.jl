@@ -3,6 +3,7 @@ module UseIsinfToCheckForInfinite
 include("_common.jl")
 
 using ...Properties: is_eq_neq_comparison
+using ...SyntaxNodeHelpers
 
 struct Check <: Analysis.Check end
 id(::Check) = "use-isinf-to-check-for-infinite"
@@ -11,13 +12,7 @@ synopsis(::Check) = "Use isinf to check for infinite values"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_eq_neq_comparison, node -> begin
-        if numchildren(node) != 3
-            @debug "Skipping comparison with a number of children != 3 at $(JS.source_location(node))" node
-        else
-            lhs, _, rhs = children(node)
-            checkExpr(this, ctxt, lhs)
-            checkExpr(this, ctxt, rhs)
-        end
+        apply_to_operands(node, n -> checkExpr(this, ctxt, n))
     end)
 end
 

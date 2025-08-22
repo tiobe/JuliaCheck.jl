@@ -1,9 +1,9 @@
 module SyntaxNodeHelpers
 
-export ancestors, is_scope_construct
+export ancestors, is_scope_construct, apply_to_operands
 
-using JuliaSyntax: SyntaxNode, kind
-
+using JuliaSyntax: SyntaxNode, kind, numchildren, children, source_location, is_operator,
+    is_infix_op_call, is_prefix_op_call
 import JuliaSyntax: @KSet_str
 
 "Returns list of ancestors for given node, excluding self, ordered by increasing distance."
@@ -16,6 +16,21 @@ function ancestors(node::SyntaxNode)::Vector{SyntaxNode}
     end
     return list
 end
+
+"Applies function to operands of given operator node."
+function apply_to_operands(node::SyntaxNode, func::Function)
+    if numchildren(node) != 3
+        @debug "Skipping comparison with a number of children != 3 at $(source_location(node))" node
+    elseif is_infix_op_call(node)
+        lhs, _, rhs = children(node)
+        func(lhs)
+        func(rhs)
+    elseif is_prefix_op_call(node)
+        _, op = children(node)
+        func(op)
+    end
+end
+
 
 """
 Whether this node introduces a new scope.

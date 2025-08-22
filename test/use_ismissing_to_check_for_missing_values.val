@@ -1,15 +1,14 @@
-
 >> Processing file 'use_ismissing_to_check_for_missing_values.jl'...
 
 use_ismissing_to_check_for_missing_values.jl(1, 33):
-my_is_missing(value) = value == missing || typeof(value) == Missing
+my_is_missing(value) = value == missing || typeof(value) ≠ Missing
 #                               └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
 Rule: use-ismissing-to-check-for-missing-values. Severity: 3
 
-use_ismissing_to_check_for_missing_values.jl(1, 61):
-my_is_missing(value) = value == missing || typeof(value) == Missing
-#                                                           └─────┘ ── Use ismissing to check for missing values.
+use_ismissing_to_check_for_missing_values.jl(1, 60):
+my_is_missing(value) = value == missing || typeof(value) ≠ Missing
+#                                                          └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
 Rule: use-ismissing-to-check-for-missing-values. Severity: 3
 
@@ -22,5 +21,11 @@ Rule: use-ismissing-to-check-for-missing-values. Severity: 3
 use_ismissing_to_check_for_missing_values.jl(2, 62):
 my_not_missing(value) = value != missing || typeof(value) != Missing
 #                                                            └─────┘ ── Use ismissing to check for missing values.
+Use ismissing to check for missing values.
+Rule: use-ismissing-to-check-for-missing-values. Severity: 3
+
+use_ismissing_to_check_for_missing_values.jl(4, 26):
+bad_lhs_missing(value) = missing != (value + 3)
+#                        └─────┘ ── Use ismissing to check for missing values.
 Use ismissing to check for missing values.
 Rule: use-ismissing-to-check-for-missing-values. Severity: 3
