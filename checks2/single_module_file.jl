@@ -2,7 +2,7 @@ module SingleModuleFile
 
 include("_common.jl")
 using JuliaSyntax: filename
-using ...Properties: haschildren, is_module
+using ...Properties: is_module
 
 struct Check <: Analysis.Check end
 id(::Check) = "single-module-file"
