@@ -42,6 +42,11 @@ struct Module
 end
 Module(identifier::String) = Module(identifier, [Scope()])  # Start with global scope
 
+"""
+A symbol table structure currently containing the basic stack of scopes.
+
+Keeps it extendable in the case there are rules that contain more.
+"""
 struct SymbolTableStruct
     stack::Stack{Module}
 
@@ -149,9 +154,10 @@ is_declared(table::SymbolTableStruct, node::Item)::Bool = !isempty(table.stack) 
 """
 Check if an item is the declaration (ie. the first assignment) of a variable
 within the given scope. This is a common operation, as often we wish to check
-whether a declaration meets certain requirements.
+whether a declaration meets certain requirements, and we wish to be able to
+treat the first item (ie. the declaration) different from others - as we
+then want to check whether certain operations might be redefining.
 """
-
 function id_is_declaration(table::SymbolTableStruct, node::Item)::Bool
     var_declared = node.data.val
     for elem in current_scope(table)
@@ -186,6 +192,20 @@ function declare!(table::SymbolTableStruct, sc::Scope, symbol::Item)
     push!(sc, symbol)
 end
 
+"""
+Handles symbol table updates when a new node is entered.
+
+The idea is that this function slots into the DFS used to walk through
+the abstract syntax tree. When a node is hit, this ensures that the
+syntax tree is updated as expected.
+
+The reason why this cannot easily be done as a part of other functionality
+(for example, also making this use predicate behaviour like the rules do)
+is that there is also a necessity to have this work on _exiting_ a node
+while preserving the state in between.
+
+Currently logs new modules, functions, and (global) variables.
+"""
 function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::SyntaxNode)
     if is_module(node)
         enter_module!(table, node)
@@ -245,6 +265,13 @@ function _process_struct!(table::SymbolTableStruct, node::SyntaxNode)
     declare!(table, find_lhs_of_kind(K"Identifier", node))
 end
 
+"""
+Handles symbol table updates when a node is exited.
+
+When a module or a scope-opening function is left, this is then
+used to exit scopes and move back to the table below it (so scoped
+variables within the current scope are no longer present then).
+"""
 function update_symbol_table_on_node_leave!(table::SymbolTableStruct, node::SyntaxNode)
     if is_module(node)
         exit_module!(table)
