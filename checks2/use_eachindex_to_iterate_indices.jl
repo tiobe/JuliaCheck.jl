@@ -2,7 +2,6 @@ module UseEachindexToIterateIndices
 
 include("_common.jl")
 
-using JuliaSyntax: filename
 using ...Properties: get_iteration_parts, is_loop, is_range, is_stop_point
 
 struct Check <: Analysis.Check end
