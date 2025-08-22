@@ -8,6 +8,7 @@ struct MyStruct     # Good
         new(length(x))
     end
 end
+abstract type myabstracttype end      # Bad
 
 struct Parametric{T}
     x::T

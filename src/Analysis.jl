@@ -54,10 +54,10 @@ end
 
 """
     Reports a violation for a check in the analysis context.
-    
+
     Use `offsetspan` to specify the range of the violation relative to the node's position.
  """
-function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String; 
+function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String;
     offsetspan::Union{Nothing, Tuple{Int,Int}} = nothing
     )
     linepos = JuliaSyntax.source_location(node)
@@ -70,14 +70,25 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
 end
 
-function report_violation(ctxt::AnalysisContext, check::Check, 
-    linepos::Tuple{Int,Int}, 
+function report_violation(ctxt::AnalysisContext, check::Check,
+    linepos::Tuple{Int,Int},
     bufferrange::UnitRange{Int},
     msg::String
     )
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
 end
 
+function _stop_traversal(node::SyntaxNode)::Bool
+    if kind(node) == K"quote"
+        return true
+    elseif kind(node) == K"macrocall" &&
+            numchildren(node) >= 1 &&
+            string(children(node)[1]) == "@eval"
+        return true
+    else
+        return false
+    end
+end
 
 function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Function)
     # 1. Update the symbol table before running on the node.
@@ -85,6 +96,10 @@ function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Fu
 
     # 2. Process the current node (Pre-order: process before children)
     visitor_func(node)
+
+    if _stop_traversal(node)
+        return nothing
+    end
 
     # 3. Recursively visit children
     local children = JuliaSyntax.children(node)

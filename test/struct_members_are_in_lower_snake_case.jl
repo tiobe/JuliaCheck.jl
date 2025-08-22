@@ -6,10 +6,12 @@ struct Point{T} <: Pointy{T}
     x::T
     y::T
 end
-struct MeasurementContextBad
-    Dir::Direction
+mutable struct MeasurementContextBad
+    Dir
     NominalPosition::Point
     IntrafieldPosition::Point
+
+    MeasurementContextBad()=new("foo", nothing, nothing)
 end
 struct MeasurementContextGood <: AbstractMeasurementContext
     direction::Direction

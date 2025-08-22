@@ -11,3 +11,9 @@ struct MYSTRUCT end     # Bad
 #      └──────┘ ── Type names such as 'MYSTRUCT' should be written in "UpperCamelCase".
 Type names should be in "UpperCamelCase".
 Rule: type-names-upper-camel-case. Severity: 3
+
+type_names_upper_camel_case.jl(11, 15):
+abstract type myabstracttype end      # Bad
+#             └────────────┘ ── Type names such as 'myabstracttype' should be written in "UpperCamelCase".
+Type names should be in "UpperCamelCase".
+Rule: type-names-upper-camel-case. Severity: 3

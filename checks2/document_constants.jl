@@ -30,7 +30,7 @@ function check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
             if kind(const_node.parent) != K"doc"
                 const_id = find_lhs_of_kind(K"Identifier", const_node)
                 report_violation(ctxt, this, const_node,
-                        "Const value $(string(const_id)) has no docstring.", # TODO #36595
+                        "Const value $(string(const_id)) has no docstring."
                         )
             end
         else

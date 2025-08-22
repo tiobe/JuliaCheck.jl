@@ -28,7 +28,7 @@ function checkFunctionName(this::Check, ctxt::AnalysisContext, func_name::Syntax
     fname = string(func_name)
     if ! is_lower_snake(fname)
         report_violation(ctxt, this, func_name, 
-            "Function name $fname should be written in lower_snake_case.", # TODO #36595
+            "Function name $fname should be written in lower_snake_case."
             )
     end
 end
