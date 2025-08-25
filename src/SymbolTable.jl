@@ -168,7 +168,7 @@ then want to check whether certain operations might be redefining.
 """
 function id_is_declaration(table::SymbolTableStruct, node::SyntaxNode)::Bool
     var_declared = node.data.val
-    for elem in current_scope(table)
+    for elem in [x.item_node for x in current_scope(table)]
         if kind(elem) != K"Identifier"
             continue
         end
