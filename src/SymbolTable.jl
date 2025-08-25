@@ -33,7 +33,7 @@ A module containing an identifier and a stack of scopes.
 
 The top of the scopes stack is the current scope, and the bottom is the global
 scope for this module. There is a stack of scopes to reflect the fact that there are
-multiple scopes within a module (eg. various constructs within the module itself -
+multiple nested scopes within a module (eg. various constructs within the module itself -
 a function with a for loop in it, with another let construct in there)
 """
 struct Module
@@ -46,6 +46,19 @@ Module(identifier::String) = Module(identifier, [Scope()])  # Start with global 
 A symbol table structure currently containing the basic stack of scopes.
 
 Keeps it extendable in the case there are rules that contain more.
+
+Visual representation of the SymbolTableStruct for convenience:
+
+SymbolTableStruct
+ |--Module (name)
+ | |----NestedScopes
+       |  Scope
+          |-Scope
+
+
+ |--Module (name2)
+
+
 """
 struct SymbolTableStruct
     stack::Stack{Module}
@@ -75,10 +88,6 @@ This function makes sure to reflect that situation.
 """
 function enter_main_module!(table::SymbolTableStruct)
     enter_module!(table, "Main")
-    @assert length(table.stack) == length(scopes_within_module(table)) == 1 """
-        There should be 1 module with 1 scope. Instead, there are $(length(SYMBOL_TABLE)) nested modules
-        and $(length(scopes_within_module(table))) scopes.
-        """
 end
 
 """
@@ -93,7 +102,6 @@ function enter_module!(table::SymbolTableStruct, name::AbstractString)::Nothing
     new_sym_table = NestedScopes()
     push!(new_sym_table, Scope())
     push!(table.stack, Module(name, new_sym_table))
-    @assert length(scopes_within_module(table)) == 1 "There should be one scope (the global one) on module entry."
     return nothing
 end
 
@@ -103,9 +111,7 @@ this, all other scopes and modules must be gone, and afterwards, everything
 must be empty.
 """
 function exit_main_module!(table::SymbolTableStruct)::Nothing
-    @assert length(table.stack) == length(scopes_within_module(table)) == 1
     exit_module!(table)
-    @assert isempty(table.stack)
     return nothing
 end
 
@@ -113,7 +119,6 @@ end
 Leave a module, thus popping it from the stack.
 """
 function exit_module!(table::SymbolTableStruct)::Nothing
-    @assert !isempty(table.stack) "Somehow, the global scope is not there before leaving the module."
     pop!(table.stack)
     return nothing
 end
@@ -139,7 +144,6 @@ end
 
 function exit_scope!(table::SymbolTableStruct)
     pop!(scopes_within_module(table))
-    @assert !isempty(scopes_within_module(table)) "Exited global scope. This shouldn't happen before leaving the module!"
 end
 
 global_scope(table::SymbolTableStruct)::Scope = last(scopes_within_module(table))
@@ -185,12 +189,18 @@ Register an identifier.
 """
 declare!(table::SymbolTableStruct, symbol::Item) = declare!(table, current_scope(table), symbol)
 
-declare_global!(table::SymbolTableStruct, symbol::Item) = declare!(table, global_scope(table), symbol)
-
 function declare!(table::SymbolTableStruct, sc::Scope, symbol::Item)
-    @assert kind(symbol) == K"Identifier" "kind(symbol) = $(kind(symbol))"
     push!(sc, symbol)
 end
+
+"""
+Register a (change to a) global identifier.
+
+Global identifiers have their own convenience method. Special checks exist on global variables,
+and potentially global identifiers / variables might also be changed in a way that crosses through
+the scope they are changed in.
+"""
+declare_global!(table::SymbolTableStruct, symbol::Item) = declare!(table, global_scope(table), symbol)
 
 """
 Handles symbol table updates when a new node is entered.

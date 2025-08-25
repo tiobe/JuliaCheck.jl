@@ -35,7 +35,7 @@ function _has_sizehint(assignment_node::SyntaxNode)::Bool
     for sibling_node in sibling_nodes
         if is_call(sibling_node)
             var_node = sibling_node.children[2]
-            if _get_string_of_call_type(sibling_node) == "sizehint!"
+            if _get_function_name_from_call_node(sibling_node) == "sizehint!"
                 if var_node.data.val == assigned_variable
                     return true
                 end
@@ -45,10 +45,10 @@ function _has_sizehint(assignment_node::SyntaxNode)::Bool
     return false
 end
 
-function _get_string_of_call_type(call_node::SyntaxNode)::String
-    call_type_node = call_node.children[1]
-    call_string = String(call_type_node.data.val)
-    return call_string
+function _get_function_name_from_call_node(call_node::SyntaxNode)::String
+    call_type_node = first(call_node.children)
+    function_name = String(call_type_node.data.val)
+    return function_name
 end
 
 function _check_for_naive_empty_initialization(this::Check, ctxt::AnalysisContext, basenode::SyntaxNode, rhs::SyntaxNode)
