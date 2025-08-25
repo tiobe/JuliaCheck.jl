@@ -30,15 +30,13 @@ function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
 end
 
 function _has_sizehint(assignment_node::SyntaxNode)::Bool
-    assigned_variable = assignment_node.children[1].data.val
+    assigned_variable = first(children(assignment_node)).data.val
     sibling_nodes = assignment_node.parent.children
     for sibling_node in sibling_nodes
-        if is_call(sibling_node)
+        if is_call(sibling_node) && _get_function_name_from_call_node(sibling_node) == "sizehint!"
             var_node = sibling_node.children[2]
-            if _get_function_name_from_call_node(sibling_node) == "sizehint!"
-                if var_node.data.val == assigned_variable
-                    return true
-                end
+            if var_node.data.val == assigned_variable
+                return true
             end
         end
     end
@@ -46,7 +44,7 @@ function _has_sizehint(assignment_node::SyntaxNode)::Bool
 end
 
 function _get_function_name_from_call_node(call_node::SyntaxNode)::String
-    call_type_node = first(call_node.children)
+    call_type_node = first(children(call_node))
     function_name = String(call_type_node.data.val)
     return function_name
 end
@@ -61,7 +59,7 @@ end
 
 function _check_for_usage_of_empty_keyword(this::Check, ctxt::AnalysisContext, basenode::SyntaxNode, rhs::SyntaxNode)
     if is_call(rhs)
-        keyword = children(rhs)[1]
+        keyword = first(children(rhs))
         if string(keyword) == "empty"
             report_violation(ctxt, this, basenode, "Avoid resizing arrays after initialization.")
         end
