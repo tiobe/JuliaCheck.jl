@@ -10,7 +10,9 @@ export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_t
 
 ## Types
 
-Item = SyntaxNode
+struct SymbolTableItem
+    item_node::SyntaxNode
+end
 
 #=
 A scope is represented by a vector (because we would like to keep the ordering!)
@@ -26,7 +28,7 @@ top to bottom. Symbols from other modules have to be qualified, or entered into
 the current module's global scope with a `using` declaration.
 =#
 
-Scope = Vector{Item}
+Scope = Vector{SymbolTableItem}
 NestedScopes = Stack{Scope}
 """
 A module containing an identifier and a stack of scopes.
@@ -153,7 +155,9 @@ current_scope(table::SymbolTableStruct)::Scope = first(scopes_within_module(tabl
 Check if an item (the identifier in the node) is declared in any scope in the
 current module.
 """
-is_declared(table::SymbolTableStruct, node::Item)::Bool = !isempty(table.stack) && any(scp -> node ∈ scp, scopes_within_module(table))
+function is_declared(table::SymbolTableStruct, node::SyntaxNode)::Bool
+    return !isempty(table.stack) && any(scp -> _node_is_in_scope(node, scp), scopes_within_module(table))
+end
 
 """
 Check if an item is the declaration (ie. the first assignment) of a variable
@@ -162,7 +166,7 @@ whether a declaration meets certain requirements, and we wish to be able to
 treat the first item (ie. the declaration) different from others - as we
 then want to check whether certain operations might be redefining.
 """
-function id_is_declaration(table::SymbolTableStruct, node::Item)::Bool
+function id_is_declaration(table::SymbolTableStruct, node::SyntaxNode)::Bool
     var_declared = node.data.val
     for elem in current_scope(table)
         if kind(elem) != K"Identifier"
@@ -180,17 +184,19 @@ function id_is_declaration(table::SymbolTableStruct, node::Item)::Bool
     return false
 end
 
-is_declared_in_current_scope(table::SymbolTableStruct, node::Item)::Bool = node ∈ current_scope(table)
+is_declared_in_current_scope(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, current_scope(table))
 
-is_global(table::SymbolTableStruct, node::Item)::Bool = node ∈ global_scope(table)
+is_global(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, global_scope(table))
+
+_node_is_in_scope(node::SyntaxNode, scp::Scope)::Bool = node ∈ [x.item_node for x in scp]
 
 """
 Register an identifier.
 """
-declare!(table::SymbolTableStruct, symbol::Item) = declare!(table, current_scope(table), symbol)
+declare!(table::SymbolTableStruct, symbol::SyntaxNode) = declare!(table, current_scope(table), symbol)
 
-function declare!(table::SymbolTableStruct, sc::Scope, symbol::Item)
-    push!(sc, symbol)
+function declare!(table::SymbolTableStruct, sc::Scope, symbol::SyntaxNode)
+    push!(sc, SymbolTableItem(symbol))
 end
 
 """
@@ -200,7 +206,7 @@ Global identifiers have their own convenience method. Special checks exist on gl
 and potentially global identifiers / variables might also be changed in a way that crosses through
 the scope they are changed in.
 """
-declare_global!(table::SymbolTableStruct, symbol::Item) = declare!(table, global_scope(table), symbol)
+declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = declare!(table, global_scope(table), symbol)
 
 """
 Handles symbol table updates when a new node is entered.
