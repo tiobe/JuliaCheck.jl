@@ -1,10 +1,10 @@
 module SyntaxNodeHelpers
 
-export ancestors, is_scope_construct, apply_to_operands, extract_special_value
+export ancestors, is_scope_construct, apply_to_operands, extract_special_value, find_node_at_position
 export SpecialValue
 
 using JuliaSyntax: SyntaxNode, kind, numchildren, children, source_location, is_operator,
-    is_infix_op_call, is_prefix_op_call
+    is_infix_op_call, is_prefix_op_call, byte_range
 import JuliaSyntax: @K_str, @KSet_str
 
 "Returns list of ancestors for given node, excluding self, ordered by increasing distance."
@@ -19,7 +19,7 @@ function ancestors(node::SyntaxNode)::Vector{SyntaxNode}
 end
 
 "Applies function to operands of given operator node."
-function apply_to_operands(node::SyntaxNode, func::Function)
+function apply_to_operands(node::SyntaxNode, func::Function)::Nothing
     if numchildren(node) != 3
         @debug "Skipping comparison with a number of children != 3 at $(source_location(node))" node
     elseif is_infix_op_call(node)
@@ -30,6 +30,7 @@ function apply_to_operands(node::SyntaxNode, func::Function)
         _, op = children(node)
         func(op)
     end
+    return nothing
 end
 
 const INF_VALUES = Set(["Inf", "Inf16", "Inf32", "Inf64"])
@@ -74,6 +75,28 @@ function extract_special_value(expr::SyntaxNode)::Union{String, Nothing}
     return nothing
 end
 
+
+"""
+Finds deepest node containing the given `pos`.
+If there is no `SyntaxNode` that contains the position, the `toplevel` node is returned.
+"""
+function find_node_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode,Nothing}
+    # Check if the current node contains the position
+    if ! (pos in byte_range(node))
+        return nothing
+    end
+
+    # Search through children to find the most specific node
+    for child in something(children(node), [])
+        found_child = find_node_at_position(child, pos)
+        if found_child !== nothing
+            return found_child
+        end
+    end
+
+    # If no child matches, this is the most specific node
+    return node
+end
 
 """
 Whether this node introduces a new scope.

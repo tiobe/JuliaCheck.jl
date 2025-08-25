@@ -2,6 +2,7 @@ module Analysis
 
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
+export GreenLeaf, find_greenleaf
 
 using JuliaSyntax
 
@@ -18,10 +19,14 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 struct Violation
     check::Check
     linepos::Tuple{Int,Int} # The line and column of the violation
-    bufferrange::UnitRange{Int} # The range in the source code buffer
+    bufferrange::UnitRange{Integer} # The range in the source code buffer
     msg::String
 end
 
+struct GreenLeaf
+    node::GreenNode
+    range::UnitRange{Int}
+end
 
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
@@ -29,16 +34,66 @@ struct CheckRegistration
 end
 
 struct AnalysisContext
-    sourcecode::String
+    rootNode::SyntaxNode
+    greenleaves::Vector{GreenLeaf}
     registrations::Vector{CheckRegistration} # Holds registrations of syntax node actions.
     violations::Vector{Violation}
 
-    AnalysisContext(sourcecode::String) = new(sourcecode, CheckRegistration[], Violation[])
+    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[])
 end
 
+"Finds GreenLeaf containing given position."
+function find_greenleaf(ctxt::AnalysisContext, pos::Int)::Union{GreenLeaf, Nothing}
+    return _find_greenleaf(ctxt.greenleaves, pos)
+end
+
+"Performs a binary search to find the GreenLeaf containing given position."
+function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, Nothing}
+    low = 1
+    high = length(leaves)
+    while low <= high
+        mid_idx = low + (high - low) ÷ 2
+        mid_leaf = leaves[mid_idx]
+        mid_range = mid_leaf.range
+
+        if pos in mid_range
+            return mid_leaf
+        elseif pos < mid_range.start
+            high = mid_idx - 1
+        else # pos > mid_range.stop
+            low = mid_idx + 1
+        end
+    end
+    return nothing
+end
+
+function _get_green_leaves!(list::Vector{GreenLeaf}, sourcetext::AbstractString, node::GreenNode, pos::Int)
+    cs = children(node)
+    if cs === nothing
+        range = pos:pos+node.span-1
+        push!(list, GreenLeaf(node, range))
+        return
+    end
+
+    p = pos
+    for child in cs
+        _get_green_leaves!(list, sourcetext, child, p)
+        p += child.span
+    end
+end
+
+function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
+    list::Vector{GreenLeaf} = Vector()
+    _get_green_leaves!(list, node.source.code, node.raw, node.data.position)
+    return list
+end
+
+
+
 "Should be called by checks in their init function to register actions."
-function register_syntaxnode_action(ctxt::AnalysisContext, predicate::Function, func::Function)
+function register_syntaxnode_action(ctxt::AnalysisContext, predicate::Function, func::Function)::Nothing
     push!(ctxt.registrations, CheckRegistration(predicate, func))
+    return nothing
 end
 
 """
@@ -48,7 +103,7 @@ end
  """
 function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String; 
     offsetspan::Union{Nothing, Tuple{Int,Int}} = nothing
-    )
+    )::Nothing
     linepos = JuliaSyntax.source_location(node)
     bufferrange = JuliaSyntax.byte_range(node)
 
@@ -57,14 +112,16 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
     end
 
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    return nothing
 end
 
 function report_violation(ctxt::AnalysisContext, check::Check, 
-    linepos::Tuple{Int,Int}, 
-    bufferrange::UnitRange{Int},
+    linepos::Tuple{<:Integer,<:Integer}, 
+    bufferrange::UnitRange{<:Integer},
     msg::String
-    )
+    )::Nothing
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    return nothing
 end
 
 function _stop_traversal(node::SyntaxNode)::Bool
@@ -79,7 +136,7 @@ function _stop_traversal(node::SyntaxNode)::Bool
     end
 end
 
-function dfs_traversal(node::SyntaxNode, visitor_func::Function)
+function dfs_traversal(node::SyntaxNode, visitor_func::Function)::Nothing
     # 1. Process the current node (Pre-order: process before children)
     visitor_func(node)
 
@@ -95,6 +152,7 @@ function dfs_traversal(node::SyntaxNode, visitor_func::Function)
     for child_node in children
         dfs_traversal(child_node, visitor_func)
     end
+    return nothing
 end
 
 "Load all check modules in checks2 directory."
@@ -108,7 +166,7 @@ function load_all_checks2()
     end
 end
 
-function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
+function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     visitor = function(n)
         for reg in ctxt.registrations
             if reg.predicate(n)
@@ -120,10 +178,11 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)
         end
     end
     dfs_traversal(node, visitor)
+    return nothing
 end
 
 
-function simple_violation_printer(violations)
+function simple_violation_printer(violations)::Nothing
     if length(violations) == 0
         println("No violations found.")
     else 
@@ -134,6 +193,7 @@ function simple_violation_printer(violations)
             idx += 1
         end
     end    
+    return nothing
 end
 
 function run_analysis(text::String, checks::Vector{Check};
@@ -144,12 +204,12 @@ function run_analysis(text::String, checks::Vector{Check};
     )
 
     #println("($(length(checks))) checks to run: $(string(checks))")
-    ctxt = AnalysisContext(text)
+    syntaxNode = JuliaSyntax.parseall(SyntaxNode, text; filename=filename)
+    ctxt = AnalysisContext(syntaxNode, _get_green_leaves(syntaxNode))
     for check in checks
         init(check, ctxt)
     end
 
-    syntaxNode = JuliaSyntax.parseall(SyntaxNode, text; filename=filename)
     if print_ast
         println("Showing AST:")
         show(stdout, MIME"text/plain"(), syntaxNode)
