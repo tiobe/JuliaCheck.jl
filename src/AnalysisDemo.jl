@@ -16,14 +16,14 @@ using .ViolationPrinters
 using .Properties
 
 global checks = map(c -> c(), subtypes(Check))
-global checks1 = filter(c -> id(c) === "single-space-after-commas-and-semicolons", checks)
+global checks1 = filter(c -> id(c) === "do-not-nest-multiline-comments", checks)
 if isempty(checks1) 
     @error "No checks!"
 end
  
 filename = "dummy.jl"
 text = """
-foo(a,   b)
+ ##=#= Not a multiline comment =#=#
 """
 Properties.SF = SourceFile(text, filename=filename)
 run_analysis(text, checks1;

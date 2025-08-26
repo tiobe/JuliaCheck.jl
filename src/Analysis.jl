@@ -2,7 +2,7 @@ module Analysis
 
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
-export GreenLeaf, find_greenleaf
+export GreenLeaf, find_greenleaf, kind, sourcetext
 
 using JuliaSyntax
 
@@ -19,14 +19,19 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 struct Violation
     check::Check
     linepos::Tuple{Int,Int} # The line and column of the violation
-    bufferrange::UnitRange{Integer} # The range in the source code buffer
+    bufferrange::UnitRange{Integer} # The character range in the source code
     msg::String
 end
 
 struct GreenLeaf
+    sourcefile::SourceFile
     node::GreenNode
-    range::UnitRange{Int}
+    range::UnitRange{Int} # The character range in the source code
 end
+"Returns the source code for the GreenLeaf."
+sourcetext(gl::GreenLeaf)::String = gl.sourcefile.code[gl.range]
+"Returns the kind of the GreenNode inside the GreenLeaf."
+kind(gl::GreenLeaf) = kind(gl.node)
 
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
@@ -67,24 +72,24 @@ function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, 
     return nothing
 end
 
-function _get_green_leaves!(list::Vector{GreenLeaf}, sourcetext::AbstractString, node::GreenNode, pos::Int)
+function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)
     cs = children(node)
     if cs === nothing
         range = pos:pos+node.span-1
-        push!(list, GreenLeaf(node, range))
+        push!(list, GreenLeaf(sf, node, range))
         return
     end
 
     p = pos
     for child in cs
-        _get_green_leaves!(list, sourcetext, child, p)
+        _get_green_leaves!(list, sf, child, p)
         p += child.span
     end
 end
 
 function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
     list::Vector{GreenLeaf} = Vector()
-    _get_green_leaves!(list, node.source.code, node.raw, node.data.position)
+    _get_green_leaves!(list, node.source, node.raw, node.data.position)
     return list
 end
 

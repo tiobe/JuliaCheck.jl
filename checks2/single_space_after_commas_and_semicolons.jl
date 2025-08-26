@@ -2,9 +2,7 @@ module SingleSpaceAfterCommasAndSemicolons
 
 include("_common.jl")
 
-using JuliaSyntax: byte_range
-using ...Properties: EOL, fake_green_node, haschildren, is_separator,
-    lines_count, source_column, source_index, source_text, is_toplevel
+using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers
 
 struct Check <: Analysis.Check end
