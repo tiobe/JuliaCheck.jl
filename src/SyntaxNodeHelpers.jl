@@ -1,9 +1,10 @@
 module SyntaxNodeHelpers
 
-export ancestors, is_scope_construct, apply_to_operands, extract_special_constant
+export ancestors, is_scope_construct, apply_to_operands, extract_special_value, find_node_at_position
+export SpecialValue
 
 using JuliaSyntax: SyntaxNode, kind, numchildren, children, source_location, is_operator,
-    is_infix_op_call, is_prefix_op_call
+    is_infix_op_call, is_prefix_op_call, byte_range
 import JuliaSyntax: @K_str, @KSet_str
 
 "Returns list of ancestors for given node, excluding self, ordered by increasing distance."
@@ -18,7 +19,7 @@ function ancestors(node::SyntaxNode)::Vector{SyntaxNode}
 end
 
 "Applies function to operands of given operator node."
-function apply_to_operands(node::SyntaxNode, func::Function)
+function apply_to_operands(node::SyntaxNode, func::Function)::Nothing
     if numchildren(node) != 3
         @debug "Skipping comparison with a number of children != 3 at $(source_location(node))" node
     elseif is_infix_op_call(node)
@@ -29,22 +30,32 @@ function apply_to_operands(node::SyntaxNode, func::Function)
         _, op = children(node)
         func(op)
     end
+    return nothing
 end
 
+const INF_VALUES = Set(["Inf", "Inf16", "Inf32", "Inf64"])
+const NAN_VALUES = Set(["NaN", "NaN16", "NaN32", "NaN64"])
+const MISSING_VALUES = Set(["missing", "Missing"])
+const NOTHING_VALUES = Set(["nothing", "Nothing"])
+const SPECIAL_VALUES = union(INF_VALUES, NAN_VALUES, MISSING_VALUES, NOTHING_VALUES)
+
 """
-Extract special (i.e. Inf or Nan) constant value from given expression,
-but only if the constant occurs in `allowed_set`.
+Extract special value from given expression.
+Special values are `Inf`, `NaN`, `nothing`, `missing`, and variants (Inf16, NaN64, etc).
+
+Example input -> output:
+    ```
+    Base.Inf32 -> Inf32
+    Inf64 -> Inf64
+    ````
 
 See https://docs.julialang.org/en/v1/manual/integers-and-floating-point-numbers/#Special-floating-point-values
 """
-function extract_special_constant(expr::SyntaxNode, allowed_set::Set{String})::Union{String, Nothing}
+function extract_special_value(expr::SyntaxNode)::Union{String, Nothing}
     sign = ""
     if kind(expr) == K"call" && numchildren(expr) > 1
         first, second = children(expr)[1:2]
         if kind(first) == K"Identifier" && string(first) ∈ ("-", "+")
-            if string(first) == "-" 
-                sign = "-" 
-            end
             expr = second
         end
     end
@@ -56,8 +67,8 @@ function extract_special_constant(expr::SyntaxNode, allowed_set::Set{String})::U
 
     if kind(expr) == K"Identifier"
         value = string(expr)
-        if value ∈ allowed_set
-            return sign * value
+        if value ∈ SPECIAL_VALUES
+            return value
         end
     end
 
@@ -65,6 +76,27 @@ function extract_special_constant(expr::SyntaxNode, allowed_set::Set{String})::U
 end
 
 
+"""
+Finds deepest node containing the given `pos`.
+If there is no `SyntaxNode` that contains the position, the `toplevel` node is returned.
+"""
+function find_node_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode,Nothing}
+    # Check if the current node contains the position
+    if ! (pos in byte_range(node))
+        return nothing
+    end
+
+    # Search through children to find the most specific node
+    for child in something(children(node), [])
+        found_child = find_node_at_position(child, pos)
+        if found_child !== nothing
+            return found_child
+        end
+    end
+
+    # If no child matches, this is the most specific node
+    return node
+end
 
 """
 Whether this node introduces a new scope.

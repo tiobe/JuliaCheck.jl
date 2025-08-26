@@ -16,13 +16,16 @@ using .ViolationPrinters
 using .Properties
 
 global checks = map(c -> c(), subtypes(Check))
-global checks1 = filter(c -> id(c) === "no-whitespace-around-type-operators", checks)
+global checks1 = filter(c -> id(c) === "do-not-nest-multiline-comments", checks)
+if isempty(checks1) 
+    @error "No checks!"
+end
  
 filename = "dummy.jl"
 text = """
-Base.string(:: Type{NotOKStatus}) = "NOK"
+ ##=#= Not a multiline comment =#=#
 """
 Properties.SF = SourceFile(text, filename=filename)
 run_analysis(text, checks1;
-    filename="dummy.jl", print_ast=true, print_llt=true, violationprinter=highlighting_violation_printer)
+    filename=filename, print_ast=true, print_llt=true, violationprinter=highlighting_violation_printer)
 
