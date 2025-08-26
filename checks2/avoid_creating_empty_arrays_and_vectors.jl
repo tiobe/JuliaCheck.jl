@@ -1,7 +1,7 @@
 module AvoidCreatingEmptyArraysAndVectors
 
 using JuliaSyntax: SyntaxNode, @K_str, children, kind
-using ..SymbolTable: id_is_declaration
+using ..SymbolTable: node_is_declaration_of_variable
 using ...Properties: is_array_indx, is_assignment, is_call, is_vect
 
 include("_common.jl")
@@ -18,7 +18,7 @@ end
 function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
     assignment_variable_node = first(children(assignment_node))
     assignment_value_node = last(children(assignment_node))
-    if ! id_is_declaration(ctxt.symboltable, assignment_variable_node)
+    if ! node_is_declaration_of_variable(ctxt.symboltable, assignment_variable_node)
         return
     end
     if _has_sizehint(assignment_node)

@@ -11,7 +11,7 @@ export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_t
 ## Types
 
 struct SymbolTableItem
-    item_node::SyntaxNode
+    all_nodes::Vector{SyntaxNode}
 end
 
 #=
@@ -28,7 +28,7 @@ top to bottom. Symbols from other modules have to be qualified, or entered into
 the current module's global scope with a `using` declaration.
 =#
 
-Scope = Vector{SymbolTableItem}
+Scope = Dict{String, SymbolTableItem}
 NestedScopes = Stack{Scope}
 """
 A module containing an identifier and a stack of scopes.
@@ -166,37 +166,36 @@ whether a declaration meets certain requirements, and we wish to be able to
 treat the first item (ie. the declaration) different from others - as we
 then want to check whether certain operations might be redefining.
 """
-function id_is_declaration(table::SymbolTableStruct, node::SyntaxNode)::Bool
-    var_declared = node.data.val
-    for elem in [x.item_node for x in current_scope(table)]
-        if kind(elem) != K"Identifier"
-            continue
-        end
-        var_applied = elem.data.val
-        if var_applied == var_declared
-            if node === elem
-                return true
-            else
-                break
-            end
-        end
-    end
-    return false
+function node_is_declaration_of_variable(table::SymbolTableStruct, node::SyntaxNode)::Bool
+    var_node = string(node.data.val)
+    scp = current_scope(table)
+    return haskey(scp, var_node) && first(scp[var_node].all_nodes) === node
 end
 
 is_declared_in_current_scope(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, current_scope(table))
 
 is_global(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, global_scope(table))
 
-_node_is_in_scope(node::SyntaxNode, scp::Scope)::Bool = node ∈ [x.item_node for x in scp]
+function _node_is_in_scope(node::SyntaxNode, scp::Scope)::Bool
+    symbol_id = _get_symbol_id(node)
+    if haskey(scp, symbol_id)
+        return node ∈ scp[symbol_id].all_nodes
+    end
+    return false
+end
 
 """
 Register an identifier.
 """
 declare!(table::SymbolTableStruct, symbol::SyntaxNode) = declare!(table, current_scope(table), symbol)
 
-function declare!(table::SymbolTableStruct, sc::Scope, symbol::SyntaxNode)
-    push!(sc, SymbolTableItem(symbol))
+function declare!(table::SymbolTableStruct, scp::Scope, node::SyntaxNode)
+    symbol_id = _get_symbol_id(node)
+    if haskey(scp, symbol_id)
+        push!(scp[symbol_id].all_nodes, node)
+    else
+        scp[symbol_id] = SymbolTableItem([node])
+    end
 end
 
 """
@@ -207,6 +206,8 @@ and potentially global identifiers / variables might also be changed in a way th
 the scope they are changed in.
 """
 declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = declare!(table, global_scope(table), symbol)
+
+_get_symbol_id(node::SyntaxNode)::String = string(node)
 
 """
 Handles symbol table updates when a new node is entered.
