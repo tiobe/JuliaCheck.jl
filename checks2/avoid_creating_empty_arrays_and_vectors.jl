@@ -16,17 +16,16 @@ function init(this::Check, ctxt::AnalysisContext)
 end
 
 function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
-    assignment_variable_node = first(children(assignment_node))
+    if ! node_is_declaration_of_variable(ctxt.symboltable, first(children(assignment_node)))
+        return
+    end
     assignment_value_node = last(children(assignment_node))
-    if ! node_is_declaration_of_variable(ctxt.symboltable, assignment_variable_node)
-        return
-    end
-    if _has_sizehint(assignment_node)
-        return
-    end
     if _is_naive_empty_initialization(assignment_value_node) ||
        _is_empty_keyword(assignment_value_node) ||
        _is_empty_array_initialization(assignment_value_node)
+        if _has_sizehint(assignment_node)
+            return
+        end
         report_violation(ctxt, this, assignment_node, "Avoid resizing arrays after initialization.")
     end
 end
