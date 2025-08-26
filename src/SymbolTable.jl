@@ -53,13 +53,21 @@ Visual representation of the SymbolTableStruct for convenience:
 
 SymbolTableStruct
  |--Module (name)
- | |----NestedScopes
-       |  Scope
-          |-Scope
-
-
+ | >--NestedScopes
+ |    >--Scope
+ |       >--variable a: (all_nodes)
+ |          node (declaration of variable a)
+ |          node (mutation of variable a)
+ |       >--variable b: (all_nodes)
+ |          node (declaration of variable b)
+ |    >--Scope
+ |       >--variable c: (all_nodes)
+ |          node (declaration of variable c)
+ |       >--variable a: (all_nodes)
+ |          node (local declaration of variable a)
+ |          node (local mutation of variable a)
  |--Module (name2)
-
+ ...
 
 """
 struct SymbolTableStruct

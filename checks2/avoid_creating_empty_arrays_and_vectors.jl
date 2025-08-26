@@ -24,17 +24,19 @@ function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
     if _has_sizehint(assignment_node)
         return
     end
-    _check_for_naive_empty_initialization(this, ctxt, assignment_node, assignment_value_node)
-    _check_for_usage_of_empty_keyword(this, ctxt, assignment_node, assignment_value_node)
-    _check_for_empty_array_initialization(this, ctxt, assignment_node, assignment_value_node)
+    if _is_naive_empty_initialization(assignment_value_node) ||
+       _is_empty_keyword(assignment_value_node) ||
+       _is_empty_array_initialization(assignment_value_node)
+        report_violation(ctxt, this, assignment_node, "Avoid resizing arrays after initialization.")
+    end
 end
 
 function _has_sizehint(assignment_node::SyntaxNode)::Bool
     assigned_variable = first(children(assignment_node)).data.val
-    sibling_nodes = assignment_node.parent.children
+    sibling_nodes = children(assignment_node.parent)
     for sibling_node in sibling_nodes
         if is_call(sibling_node) && _get_function_name_from_call_node(sibling_node) == "sizehint!"
-            var_node = sibling_node.children[2]
+            var_node = children(sibling_node)[2]
             if var_node.data.val == assigned_variable
                 return true
             end
@@ -49,29 +51,19 @@ function _get_function_name_from_call_node(call_node::SyntaxNode)::String
     return function_name
 end
 
-function _check_for_naive_empty_initialization(this::Check, ctxt::AnalysisContext, basenode::SyntaxNode, rhs::SyntaxNode)
-    if is_vect(rhs)
-        if isnothing(rhs.data.val) && first(rhs.children.size) == 0
-            report_violation(ctxt, this, basenode, "Avoid resizing arrays after initialization.")
-        end
-    end
+function _is_naive_empty_initialization(node::SyntaxNode)::Bool
+    # A empty 'vect' kind SyntaxNode has two children; a 'ref' and a 'size'.
+    # Unlike what we might expect from a 'size' field in a child, this has nothing to do
+    # with the number of children; instead it seems to be a property.
+    return is_vect(node) && isnothing(node.data.val) && first(node.children.size) == 0
 end
 
-function _check_for_usage_of_empty_keyword(this::Check, ctxt::AnalysisContext, basenode::SyntaxNode, rhs::SyntaxNode)
-    if is_call(rhs)
-        keyword = first(children(rhs))
-        if string(keyword) == "empty"
-            report_violation(ctxt, this, basenode, "Avoid resizing arrays after initialization.")
-        end
-    end
+function _is_empty_keyword(node::SyntaxNode)::Bool
+    return is_call(node) && string(first(children(node))) == "empty"
 end
 
-function _check_for_empty_array_initialization(this::Check, ctxt::AnalysisContext, basenode::SyntaxNode, rhs::SyntaxNode)
-    if is_array_indx(rhs)
-        if isnothing(rhs.data.val)
-            report_violation(ctxt, this, basenode, "Avoid resizing arrays after initialization.")
-        end
-    end
+function _is_empty_array_initialization(node::SyntaxNode)::Bool
+    return is_array_indx(node) && isnothing(node.data.val)
 end
 
 end # end AvoidCreatingEmptyArraysAndVectors
