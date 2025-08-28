@@ -9,20 +9,20 @@ using JuliaCheck
     include("../src/Properties.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: is_declared_in_current_scope,
         clear_symbol_table!, declare!, enter_module!, enter_main_module!, enter_scope!,
-        exit_module!, exit_main_module!, exit_scope!, is_declared, is_global
+        exit_module!, exit_main_module!, exit_scope!, is_declared, is_global, SymbolTableStruct
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
 
     # Ensure we always start from a clean symbol table.
     # If run multiple times, contents of the symbol table are not as expected.
-    clear_symbol_table!()
+    table = SymbolTableStruct()
 
     # Add some identifiers to Main module, global scope
-    enter_main_module!()
+    enter_main_module!(table)
     x = make_node("x")
     y = make_node("y")
-    declare!(x)
-    declare!(y)
+    declare!(table, x)
+    declare!(table, y)
 
     # Push a new scope in Main module
     # State expectations:
@@ -32,18 +32,18 @@ using JuliaCheck
     #            Scope stack (2 scopes):
     #                [1] Scope: {z, x} <- current
     #                [2] Scope (global): {y, x}
-    enter_scope!()
+    enter_scope!(table)
     z = make_node("z")
-    declare!(z)
-    declare!(x)
+    declare!(table, z)
+    declare!(table, x)
 
-    @test is_declared(x)
-    @test is_declared(y)
-    @test is_declared(z)
-    @test ! is_declared(make_node("w"))
-    @test is_global(x)  # This might not be valid in the future, since 'x' is shadowed
-    @test is_global(y)
-    @test ! is_global(z)
+    @test is_declared(table, x)
+    @test is_declared(table, y)
+    @test is_declared(table, z)
+    @test ! is_declared(table, make_node("w"))
+    @test is_global(table, x)  # This might not be valid in the future, since 'x' is shadowed
+    @test is_global(table, y)
+    @test ! is_global(table, z)
 
     # Push a new module, declare two more identifiers. These should be global to this module.
     # State expectations:
@@ -57,24 +57,24 @@ using JuliaCheck
     #                [1] Scope: {z, x} <- current
     #                [2] Scope (global): {y, x}
 
-    enter_module!("MyModule")
+    enter_module!(table, "MyModule")
     a = make_node("a")
     b = make_node("b")
-    declare!(a)
-    declare!(b)
+    declare!(table, a)
+    declare!(table, b)
 
-    @test is_declared(a)
-    @test is_declared(b)
+    @test is_declared(table, a)
+    @test is_declared(table, b)
 
-    @test is_declared_in_current_scope(a)
-    @test is_declared_in_current_scope(b)
+    @test is_declared_in_current_scope(table, a)
+    @test is_declared_in_current_scope(table, b)
 
-    @test !is_declared_in_current_scope(x)
-    @test !is_declared_in_current_scope(y)
-    @test !is_declared_in_current_scope(z)
+    @test !is_declared_in_current_scope(table, x)
+    @test !is_declared_in_current_scope(table, y)
+    @test !is_declared_in_current_scope(table, z)
 
-    @test is_global(a)
-    @test is_global(b)
+    @test is_global(table, a)
+    @test is_global(table, b)
 
     # Pop module
     # State expectations:
@@ -85,13 +85,13 @@ using JuliaCheck
     #                [1] Scope: {z, x} <- current
     #                [2] Scope (global): {y, x}
 
-    exit_module!()
-    @test !is_declared(a)
-    @test !is_declared(b)
-    @test is_declared_in_current_scope(x)
-    @test is_declared(y)
-    @test !is_declared_in_current_scope(y)
-    @test is_declared_in_current_scope(z)
+    exit_module!(table)
+    @test !is_declared(table, a)
+    @test !is_declared(table, b)
+    @test is_declared_in_current_scope(table, x)
+    @test is_declared(table, y)
+    @test !is_declared_in_current_scope(table, y)
+    @test is_declared_in_current_scope(table, z)
 
     # Pop scope in Main module, then exit the module itself.
     # State expectations:
@@ -101,15 +101,15 @@ using JuliaCheck
     #            Scope stack (1 scopes):
     #                [1] Scope (global): {y, x} <- current
 
-    exit_scope!()
-    @test is_declared(x)
-    @test is_declared(y)
-    @test !is_declared(z)
+    exit_scope!(table)
+    @test is_declared(table, x)
+    @test is_declared(table, y)
+    @test !is_declared(table, z)
 
     # Finally, exit the main module, and nothing should be declared here anymore.
-    exit_main_module!()
-    @test !is_declared(x)
-    @test !is_declared(y)
+    exit_main_module!(table)
+    @test !is_declared(table, x)
+    @test !is_declared(table, y)
 end
 
 

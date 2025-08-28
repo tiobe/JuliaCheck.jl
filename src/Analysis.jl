@@ -10,6 +10,12 @@ using JuliaSyntax
 import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext, source_location
 import InteractiveUtils: subtypes
 
+# Here to keep Properties importable as ..Properties by SymbolTable.
+# Mainly to ensure that it's imported in the same way by both
+# production code and tests.
+using ..Properties
+using ..SymbolTable
+
 "The abstract base type for all checks."
 abstract type Check end
 id(this::Check)::String = error("id() not implemented for this check")
@@ -45,8 +51,9 @@ struct AnalysisContext
     greenleaves::Vector{GreenLeaf}
     registrations::Vector{CheckRegistration} # Holds registrations of syntax node actions.
     violations::Vector{Violation}
+    symboltable::SymbolTableStruct
 
-    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[])
+    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
 end
 
 "Finds GreenLeaf containing given position."
@@ -136,10 +143,10 @@ end
 
 """
     Reports a violation for a check in the analysis context.
-    
+
     Use `offsetspan` to specify the range of the violation relative to the node's position.
  """
-function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String; 
+function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String;
     offsetspan::Union{Nothing, Tuple{Int,Int}} = nothing
     )::Nothing
     linepos = JuliaSyntax.source_location(node)
@@ -153,9 +160,9 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
     return nothing
 end
 
-function report_violation(ctxt::AnalysisContext, check::Check, 
-    linepos::Tuple{<:Integer,<:Integer}, 
-    bufferrange::UnitRange{<:Integer},
+function report_violation(ctxt::AnalysisContext, check::Check,
+    linepos::Tuple{Int,Int},
+    bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
@@ -169,27 +176,34 @@ function _stop_traversal(node::SyntaxNode)::Bool
             numchildren(node) >= 1 &&
             string(children(node)[1]) == "@eval"
         return true
-    else 
+    else
         return false
     end
 end
 
-function dfs_traversal(node::SyntaxNode, visitor_func::Function)::Nothing
-    # 1. Process the current node (Pre-order: process before children)
+function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Function)::Nothing
+    # 1. Update the symbol table before running on the node.
+    update_symbol_table_on_node_enter!(ctxt.symboltable, node)
+
+    # 2. Process the current node (Pre-order: process before children)
     visitor_func(node)
 
     if _stop_traversal(node)
         return nothing
     end
 
-    # 2. Recursively visit children
+    # 3. Recursively visit children
     local children = JuliaSyntax.children(node)
     if children === nothing
         return
     end
     for child_node in children
-        dfs_traversal(child_node, visitor_func)
+        dfs_traversal(ctxt, child_node, visitor_func)
     end
+    # 4. Update the symbol table when leaving a node.
+    #    Needs to be done here, in the DFS - because
+    #    a node needs to be processed inside its scope.
+    update_symbol_table_on_node_leave!(ctxt.symboltable, node)
     return nothing
 end
 
@@ -206,7 +220,7 @@ function discover_checks()::Nothing
 end
 
 function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    visitor = function(n)
+    visitor = function(n::SyntaxNode)
         for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
@@ -216,7 +230,11 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
             end
         end
     end
-    dfs_traversal(node, visitor)
+
+    # TODO: Is the enter and exit on the main level really necessary?
+    enter_main_module!(ctxt.symboltable)
+    dfs_traversal(ctxt, node, visitor)
+    exit_main_module!(ctxt.symboltable)
     return nothing
 end
 
@@ -224,14 +242,14 @@ end
 function simple_violation_printer(sourcefile::SourceFile, violations)::Nothing
     if length(violations) == 0
         println("No violations found.")
-    else 
+    else
         println("Found $(length(violations)) violations:")
         idx = 1
         for v in violations
             println("$(idx). Check: $(id(v.check)), Line/col: $(v.linepos), Severity: $(severity(v.check)), Message: $(v.msg)")
             idx += 1
         end
-    end    
+    end
     return nothing
 end
 

@@ -5,6 +5,7 @@ using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
 include("Properties.jl"); import .Properties
+include("SymbolTable.jl")
 include("Analysis.jl")
 include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
@@ -12,7 +13,7 @@ include("SyntaxNodeHelpers.jl")
 using .Analysis
 using .ViolationPrinters
 
-Analysis.discover_checks() 
+Analysis.discover_checks()
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(

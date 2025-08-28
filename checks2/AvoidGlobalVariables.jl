@@ -2,6 +2,7 @@ module AvoidGlobalVariables
 
 using ...Properties: is_global_decl, is_constant, find_lhs_of_kind
 using ...SyntaxNodeHelpers
+using ...SymbolTable
 
 include("_common.jl")
 
@@ -21,6 +22,9 @@ function init(this::Check, ctxt::AnalysisContext)
         end
         if any(n -> kind(n) == K"const", ancestors(id))
             # Const global is OK
+            return
+        end
+        if !is_global(ctxt.symboltable, id)
             return
         end
         if id ∈ this.already_reported

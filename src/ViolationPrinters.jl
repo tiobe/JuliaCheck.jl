@@ -20,7 +20,7 @@ function report_violation(sourcefile::SourceFile; index::Int, len::Int, line::In
     printstyled(" $severity\n")
 end
 
-function highlighting_violation_printer(sourcefile::SourceFile, violations)::Nothing
+function highlighting_violation_printer(sourcefile::SourceFile, violations::Vector{Violation})::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
     for v in violations
         report_violation(
