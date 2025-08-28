@@ -1,0 +1,20 @@
+
+>> Processing file 'GlobalVariablesUpperSnakeCase.jl'...
+
+GlobalVariablesUpperSnakeCase.jl(1, 1):
+some_number::Float64 = 1
+└─────────┘ ── Variable some_number should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: global-variables-upper-snake-case. Severity: 3
+
+GlobalVariablesUpperSnakeCase.jl(2, 14):
+const global some_other_number = 42
+#            └───────────────┘ ── Variable some_other_number should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: global-variables-upper-snake-case. Severity: 3
+
+GlobalVariablesUpperSnakeCase.jl(5, 12):
+    global yet_another_number = 7.0
+#          └────────────────┘ ── Variable yet_another_number should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: global-variables-upper-snake-case. Severity: 3

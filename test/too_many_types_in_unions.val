@@ -1,8 +1,0 @@
-
->> Processing file 'too_many_types_in_unions.jl'...
-
-too_many_types_in_unions.jl(4, 21):
-const ReturnTypes = Union{Nothing, String, Int32, Int64, Float64}
-#                   └───────────────────────────────────────────┘ ── Union has too many types.
-Too many types in Unions.
-Rule: too-many-types-in-unions. Severity: 6

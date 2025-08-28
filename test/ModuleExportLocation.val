@@ -1,0 +1,13 @@
+>> Processing file 'ModuleExportLocation.jl'...
+
+ModuleExportLocation.jl(15, 5):
+    export bar # Bad: exports should be placed below the includes list
+#   └────────┘ ── Exports should be implemented after the include instructions.
+Exports should be implemented after the include instructions.
+Rule: module-export-location. Severity: 9
+
+ModuleExportLocation.jl(16, 5):
+    export foo
+#   └────────┘ ── Exports should be implemented after the include instructions.
+Exports should be implemented after the include instructions.
+Rule: module-export-location. Severity: 9

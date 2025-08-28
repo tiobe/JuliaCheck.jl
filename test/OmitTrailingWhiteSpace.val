@@ -1,0 +1,13 @@
+>> Processing file 'OmitTrailingWhiteSpace.jl'...
+
+OmitTrailingWhiteSpace.jl(3, 37):
+const MAG_THRESHOLD::Float64 = 3e-6  
+#                                  └┘ ── Omit spaces at the end of a line.
+Omit spaces at the end of a line.
+Rule: omit-trailing-white-space. Severity: 7
+
+OmitTrailingWhiteSpace.jl(6, 60):
+The Answer to the Ultimate Question of Life, the Universe, 
+#                                                         ╙ ── Omit spaces at the end of a line.
+Omit spaces at the end of a line.
+Rule: omit-trailing-white-space. Severity: 7

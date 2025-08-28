@@ -1,8 +1,0 @@
-
->> Processing file 'module_single_import_line.jl'...
-
-module_single_import_line.jl(6, 5):
-    using LinearAlgebra, Random, Statistics, Test
-#   └───────────────────────────────────────────┘ ── Import only one package per line.
-Lists of imported/used packages.
-Rule: module-single-import-line. Severity: 9

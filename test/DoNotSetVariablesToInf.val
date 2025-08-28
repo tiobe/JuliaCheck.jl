@@ -1,0 +1,25 @@
+>> Processing file 'DoNotSetVariablesToInf.jl'...
+
+DoNotSetVariablesToInf.jl(2, 18):
+value::Float64 = Inf
+#                └─┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+DoNotSetVariablesToInf.jl(3, 15):
+strct.value = -Inf64
+#             └────┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+DoNotSetVariablesToInf.jl(4, 17):
+arrvalue[end] = Inf16
+#               └───┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+DoNotSetVariablesToInf.jl(7, 18):
+const my_value = Inf32
+#                └───┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3

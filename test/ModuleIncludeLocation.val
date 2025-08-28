@@ -1,0 +1,7 @@
+>> Processing file 'ModuleIncludeLocation.jl'...
+
+ModuleIncludeLocation.jl(7, 5):
+    using Statistics
+#   └──────────────┘ ── The list of included files should be after the list of imported packages.
+The list of included files should be after the list of imported packages.
+Rule: module-include-location. Severity: 9

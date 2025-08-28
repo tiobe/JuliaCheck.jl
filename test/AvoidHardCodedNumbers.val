@@ -1,0 +1,20 @@
+
+>> Processing file 'AvoidHardCodedNumbers.jl'...
+
+AvoidHardCodedNumbers.jl(28, 17):
+energy(m) = m * 4.493775893684088e16
+#               └──────────────────┘ ── Implement hard-coded numbers via a const variable.
+Avoid hard-coded numbers.
+Rule: avoid-hard-coded-numbers. Severity: 3
+
+AvoidHardCodedNumbers.jl(29, 11):
+Area(r) = 3.14 * r ^ 2
+#         └──┘ ── Implement hard-coded numbers via a const variable.
+Avoid hard-coded numbers.
+Rule: avoid-hard-coded-numbers. Severity: 3
+
+AvoidHardCodedNumbers.jl(36, 20):
+universal_answer = 42
+#                  └┘ ── Implement hard-coded numbers via a const variable.
+Avoid hard-coded numbers.
+Rule: avoid-hard-coded-numbers. Severity: 3

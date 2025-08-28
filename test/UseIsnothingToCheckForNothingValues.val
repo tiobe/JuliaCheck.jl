@@ -1,0 +1,25 @@
+>> Processing file 'UseIsnothingToCheckForNothingValues.jl'...
+
+UseIsnothingToCheckForNothingValues.jl(2, 22):
+    return value === nothing || typeof(value) == Nothing
+#                    └─────┘ ── Use isnothing to check variables for nothing.
+Use isnothing to check variables for nothing.
+Rule: use-isnothing-to-check-for-nothing-values. Severity: 3
+
+UseIsnothingToCheckForNothingValues.jl(2, 50):
+    return value === nothing || typeof(value) == Nothing
+#                                                └─────┘ ── Use isnothing to check variables for nothing.
+Use isnothing to check variables for nothing.
+Rule: use-isnothing-to-check-for-nothing-values. Severity: 3
+
+UseIsnothingToCheckForNothingValues.jl(4, 27):
+is_not_nothing(x) = x !== nothing || typeof(x) != Nothing
+#                         └─────┘ ── Use isnothing to check variables for nothing.
+Use isnothing to check variables for nothing.
+Rule: use-isnothing-to-check-for-nothing-values. Severity: 3
+
+UseIsnothingToCheckForNothingValues.jl(4, 51):
+is_not_nothing(x) = x !== nothing || typeof(x) != Nothing
+#                                                 └─────┘ ── Use isnothing to check variables for nothing.
+Use isnothing to check variables for nothing.
+Rule: use-isnothing-to-check-for-nothing-values. Severity: 3

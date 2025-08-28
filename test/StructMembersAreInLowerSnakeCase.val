@@ -1,0 +1,19 @@
+>> Processing file 'StructMembersAreInLowerSnakeCase.jl'...
+
+StructMembersAreInLowerSnakeCase.jl(10, 5):
+    Dir
+#   └─┘ ── Field 'Dir' not in "lower_snake_case".
+Struct members should be in "lower_snake_case".
+Rule: struct-members-are-in-lower-snake-case. Severity: 8
+
+StructMembersAreInLowerSnakeCase.jl(11, 5):
+    NominalPosition::Point
+#   └─────────────┘ ── Field 'NominalPosition' not in "lower_snake_case".
+Struct members should be in "lower_snake_case".
+Rule: struct-members-are-in-lower-snake-case. Severity: 8
+
+StructMembersAreInLowerSnakeCase.jl(12, 5):
+    IntrafieldPosition::Point
+#   └────────────────┘ ── Field 'IntrafieldPosition' not in "lower_snake_case".
+Struct members should be in "lower_snake_case".
+Rule: struct-members-are-in-lower-snake-case. Severity: 8

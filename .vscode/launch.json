@@ -11,7 +11,23 @@
             "program": "${workspaceFolder}/.vscode/DebugCheck.jl",
             "args": [ "${file}" ],
             "stopOnEntry": false,
-            "cwd": "${workspaceFolder}/.vscode",
+            "cwd": "${workspaceFolder}",
+            "env": {},
+            "juliaEnv": "${command:activeJuliaEnvironment}",
+            "presentation": {
+                "hidden": false,
+                "group": "checks",
+                "order": 1
+            }
+        }   
+        ,   
+        {  
+            "type": "julia",
+            "request": "launch",
+            "name": "Debug selected Julia file",
+            "program": "${file}",
+            "stopOnEntry": false,
+            "cwd": "${workspaceFolder}",
             "env": {},
             "juliaEnv": "${command:activeJuliaEnvironment}",
             "presentation": {

@@ -18,7 +18,7 @@ optional arguments:
                         List of rules to check on the given files.
   -v, --verbose         Print debugging information.
   --ast                 Print syntax tree for each input file.
-  --llt                 Print lossless tree for each input file.
+  --llt                 Print green tree for each input file.
   --version             show version information and exit
   -h, --help            show this help message and exit
 ```
