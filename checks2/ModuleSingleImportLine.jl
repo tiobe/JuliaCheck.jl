@@ -13,7 +13,7 @@ function init(this::Check, ctxt::AnalysisContext)
 end
 
 
-function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
+function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
     @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"
@@ -49,6 +49,7 @@ function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
             previous = pkg_name
         end
     end
+    return nothing
 end
 
 end # module ModuleSingleImportLine

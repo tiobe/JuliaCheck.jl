@@ -1,7 +1,8 @@
 module GlobalNonConstVariablesShouldHaveTypeAnnotations
 
-include("_common.jl")
 using ...Properties: first_child, is_constant, is_global_decl, haschildren
+
+include("_common.jl")
 
 struct Check<:Analysis.Check end
 id(::Check) = "global-non-const-variables-should-have-type-annotations"

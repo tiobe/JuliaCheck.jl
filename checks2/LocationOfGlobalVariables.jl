@@ -13,8 +13,7 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_global_decl, n -> check(this, ctxt, n))
 end
 
-function check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)
-
+function check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)::Nothing
     @assert is_global_decl(glob_decl) "Expected a global declaration node, got $(kind(glob_decl))"
     toplevel = glob_decl.parent
     if !is_mod_toplevel(toplevel)
@@ -34,7 +33,7 @@ function check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)
             return
         end
     end
-    return
+    return nothing
 end
 
 end

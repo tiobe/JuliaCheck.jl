@@ -15,7 +15,7 @@ end
 
 no_ex_imports(node::SyntaxNode) = ! (is_import(node) || is_export(node))
 
-function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
+function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
     @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"
@@ -33,6 +33,7 @@ function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
     for node in filter(is_export, mod_body[code_begin:end])
         report_violation(ctxt, this, node, synopsis(this))
     end
+    return nothing
 end
 
 end # module ModuleExportLocation

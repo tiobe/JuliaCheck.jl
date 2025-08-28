@@ -10,7 +10,7 @@ id(::Check) = "indentation-levels-are-four-spaces"
 severity(::Check) = 7
 synopsis(::Check) = "Indentation should be a multiple of four spaces"
 
-function init(this::Check, ctxt::AnalysisContext)
+function init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, n -> begin
         for gl in ctxt.greenleaves
             # We will inspect nodes of kind [NewlineWs] containing indentation spaces
@@ -32,6 +32,8 @@ function init(this::Check, ctxt::AnalysisContext)
             end
         end
     end)
+
+    return nothing
 end
 
 end # module IndentationLevelsAreFourSpaces

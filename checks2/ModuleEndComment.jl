@@ -14,7 +14,7 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> checkModule2(this, ctxt, n))
 end
 
-function checkModule2(this::Check, ctxt::AnalysisContext, mod::SyntaxNode)
+function checkModule2(this::Check, ctxt::AnalysisContext, mod::SyntaxNode)::Nothing
     code = mod.source.code
     mod_end = last_byte(mod)
     eol = something(findnext('\n', code, mod_end), length(code))
@@ -31,6 +31,7 @@ function checkModule2(this::Check, ctxt::AnalysisContext, mod::SyntaxNode)
             report_violation(ctxt, this, filepos, comment_range, synopsis(this))
         end
     end
+    return nothing
 end
 
 function matches_module_name(mod_name::AbstractString, comment::AbstractString)

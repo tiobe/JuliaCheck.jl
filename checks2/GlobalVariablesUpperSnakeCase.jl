@@ -1,9 +1,9 @@
 module GlobalVariablesUpperSnakeCase
 
-include("_common.jl")
-
 using ...Properties: is_fat_snake_case, is_global_decl, find_lhs_of_kind, is_assignment, NullableNode
 using ...SymbolTable
+
+include("_common.jl")
 
 struct Check<:Analysis.Check
     already_reported::Set{SyntaxNode}

@@ -15,7 +15,7 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))
 end
 
-function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
+function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(node))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
     @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"
@@ -31,6 +31,7 @@ function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
             end
         end
     end
+    return nothing
 end
 
 end # module ModuleImportLocation

@@ -13,13 +13,14 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"Float", n -> checkFloatNode(this, ctxt, n))
 end
 
-function checkFloatNode(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function checkFloatNode(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     text = sourcetext(node)
     index = findfirst('.', text)
 
     if ! isnothing(index) && (index == 1 || index == length(text))
         report_violation(ctxt, this, node, "Bad floating-point style: $text")
     end
+    return nothing
 end
 
 end # module LeadingAndTrailingDigits

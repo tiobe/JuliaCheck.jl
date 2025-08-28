@@ -18,7 +18,7 @@ function init(this::Check, ctxt::AnalysisContext)
     end)
 end
 
-function checkFuncBody(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode)
+function checkFuncBody(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode)::Nothing
     @assert kind(func_body.parent) == K"function" "Expected the body of a [function], got $(kind(func_body))"
     fname = get_func_name(func_body.parent)
     if isnothing(fname) fname = "<invalid>" end
@@ -30,6 +30,7 @@ function checkFuncBody(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode
         node = haschildren(func_body) ? children(func_body)[end] : func_body
         report_violation(ctxt, this, node, synopsis(this))
     end
+    return nothing
 end
 
 function _ends_with_return(node::SyntaxNode)::Bool

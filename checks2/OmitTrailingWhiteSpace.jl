@@ -1,8 +1,8 @@
 module OmitTrailingWhiteSpace
 
-using ...Properties: is_toplevel
-
 include("_common.jl")
+
+using ...Properties: is_toplevel
 
 struct Check<:Analysis.Check end
 id(::Check) = "omit-trailing-white-space"

@@ -1,8 +1,8 @@
 module DoNotSetVariablesToNan
 
-include("_common.jl")
-
 using ...SyntaxNodeHelpers
+
+include("_common.jl")
 
 struct Check<:Analysis.Check end
 id(::Check) = "do-not-set-variables-to-nan"

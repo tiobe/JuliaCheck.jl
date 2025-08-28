@@ -1,8 +1,8 @@
 module FunctionIdentifiersInLowerSnakeCase
 
-include("_common.jl")
-
 using ...Properties: inside, is_lower_snake, is_struct, get_func_name
+
+include("_common.jl")
 
 struct Check<:Analysis.Check end
 id(::Check) = "function-identifiers-in-lower-snake-case"

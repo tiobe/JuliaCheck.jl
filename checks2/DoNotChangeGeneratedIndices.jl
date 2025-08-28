@@ -1,9 +1,10 @@
 module DoNotChangeGeneratedIndices
 
-include("_common.jl")
-
 using ...Properties: first_child, get_assignee, get_iteration_parts,
                      is_assignment, is_flow_cntrl, is_range
+
+include("_common.jl")
+                     
 struct Check<:Analysis.Check end
 id(::Check) = "do-not-change-generated-indices"
 severity(::Check) = 5
