@@ -3,10 +3,11 @@ module Analysis
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
 export GreenLeaf, find_greenleaf, kind, sourcetext
+export find_syntaxnode_at_position
 
 using JuliaSyntax
 
-import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext
+import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext, source_location
 import InteractiveUtils: subtypes
 
 "The abstract base type for all checks."
@@ -32,6 +33,7 @@ end
 sourcetext(gl::GreenLeaf)::String = gl.sourcefile.code[gl.range]
 "Returns the kind of the GreenNode inside the GreenLeaf."
 kind(gl::GreenLeaf) = kind(gl.node)
+source_location(gl::GreenLeaf) = source_location(gl.sourcefile, gl.range.start)
 
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
@@ -93,6 +95,37 @@ function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
     return list
 end
 
+"""
+    find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode, Nothing}
+
+Finds the most specific SyntaxNode that spans the given character position `pos`.
+"""
+function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode, Nothing}
+    # Check if the current node's range contains the position.
+    if ! (pos in JuliaSyntax.byte_range(node))
+        return nothing
+    end
+
+    # Iterate through children to find a more specific node.
+    for child in children(node)
+        found_child = find_syntaxnode_at_position(child, pos)
+        if found_child !== nothing
+            return found_child
+        end
+    end
+
+    # If no child contains the position, this node is the most specific node
+    return node
+end
+
+"""
+    find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::Union{SyntaxNode, Nothing}
+
+Finds the most specific SyntaxNode that spans the given character position `pos`.
+"""
+function find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::Union{SyntaxNode, Nothing}
+    return find_syntaxnode_at_position(ctxt.rootNode, pos)
+end
 
 
 "Should be called by checks in their init function to register actions."
@@ -161,7 +194,7 @@ function dfs_traversal(node::SyntaxNode, visitor_func::Function)::Nothing
 end
 
 "Load all check modules in checks2 directory."
-function load_all_checks2()
+function load_all_checks2()::Nothing
     for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks2"), join=true))
         try
             include(file)
@@ -169,6 +202,7 @@ function load_all_checks2()
             @warn "Failed to load check '$(basename(file))':" exception
         end
     end
+    return nothing
 end
 
 function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
@@ -206,7 +240,7 @@ function run_analysis(text::String, checks::Vector{Check};
     print_ast::Bool = false, 
     print_llt::Bool = false, 
     violationprinter::Function = simple_violation_printer
-    )
+    )::Nothing
 
     #println("($(length(checks))) checks to run: $(string(checks))")
     syntaxNode = JuliaSyntax.parseall(SyntaxNode, text; filename=filename)
@@ -227,7 +261,7 @@ function run_analysis(text::String, checks::Vector{Check};
     invoke_checks(ctxt, syntaxNode)
 
     violationprinter(ctxt.violations)
-
+    return nothing
 end
 
 end # module Analysis

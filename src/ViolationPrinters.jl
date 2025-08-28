@@ -5,7 +5,7 @@ export highlighting_violation_printer
 using ...Analysis
 using ...Properties
 
-function highlighting_violation_printer(violations)
+function highlighting_violation_printer(violations)::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
     for v in violations
         Properties.report_violation(
@@ -19,6 +19,7 @@ function highlighting_violation_printer(violations)
             rule_id = id(v.check)
             )
     end
+    return nothing
 end
 
 end # module ViolationPrinters
