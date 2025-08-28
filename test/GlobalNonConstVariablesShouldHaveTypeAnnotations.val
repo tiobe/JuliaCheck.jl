@@ -1,0 +1,19 @@
+>> Processing file 'GlobalNonConstVariablesShouldHaveTypeAnnotations.jl'...
+
+GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(2, 8):
+global some_other_number = 42
+#      └───────────────┘ ── Global non-const variable some_other_number does not have a type annotation.
+Global non-const variables should have type annotations.
+Rule: global-non-const-variables-should-have-type-annotations. Severity: 6
+
+GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(5, 12):
+    global yet_another_number = 7.0
+#          └────────────────┘ ── Global non-const variable yet_another_number does not have a type annotation.
+Global non-const variables should have type annotations.
+Rule: global-non-const-variables-should-have-type-annotations. Severity: 6
+
+GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(14, 12):
+    global YET_ANOTHER_NUMBER = 7.0
+#          └────────────────┘ ── Global non-const variable YET_ANOTHER_NUMBER does not have a type annotation.
+Global non-const variables should have type annotations.
+Rule: global-non-const-variables-should-have-type-annotations. Severity: 6

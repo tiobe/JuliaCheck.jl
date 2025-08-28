@@ -7,7 +7,7 @@
         {
             "type": "julia",
             "request": "launch",
-            "name": "Debug active Julia check/checks2 file",
+            "name": "Debug active Julia check file",
             "program": "${workspaceFolder}/.vscode/DebugCheck.jl",
             "args": [ "${file}" ],
             "stopOnEntry": false,

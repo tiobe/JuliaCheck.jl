@@ -4,10 +4,7 @@ using JuliaSyntax: first_byte, last_byte, SourceFile
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
-include("LosslessTrees.jl")
 include("Properties.jl"); import .Properties
-include("Checks.jl"); import .Checks: filter_rules
-include("Process.jl"); import .Process
 include("Analysis.jl")
 include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
@@ -15,7 +12,7 @@ include("SyntaxNodeHelpers.jl")
 using .Analysis
 using .ViolationPrinters
 
-Analysis.load_all_checks2()
+Analysis.discover_checks() 
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
@@ -40,9 +37,6 @@ function parse_commandline(args::Vector{String})
         "--llt"
             help = "Print lossless tree for each input file."
             action = :store_true
-        "--checks2"
-            help = "Use checks from checks2 directory."
-            action = :store_true
         "infiles"
             help = "One or more Julia files to check with available rules."
             nargs = '+'
@@ -64,18 +58,12 @@ function main(args::Vector{String})
     end
 
     rules_arg = Set(arguments["rules"])
-    checks_to_run = map(c -> c(), subtypes(Analysis.Check))
-
-    if arguments["checks2"]
-        checks_to_run = filter(c -> id(c) in rules_arg, checks_to_run)
-        if length(checks_to_run) >= 1
-            @debug "Enabled rules:\n" * join(map(id, checks_to_run), "\n")
-        else 
-            @warn "No rules enabled"
-        end
-    else
-        filter_rules(rules_arg)
+    available_checks = map(c -> c(), subtypes(Analysis.Check))
+    intersect = setdiff(rules_arg, map(id, available_checks))
+    if !isempty(intersect)
+        throw("Unknown rules: $intersect")
     end
+    checks_to_run = filter(c -> isempty(rules_arg) || id(c) in rules_arg, available_checks)
 
     for in_file::String in arguments["infiles"]
         if !(isfile(in_file))
@@ -85,18 +73,16 @@ function main(args::Vector{String})
             printstyled(in_file; color=:green)
             print("'...\n")
 
-            Properties.SF = SourceFile(; filename=in_file)
-            if arguments["checks2"]
-                text::String = read(in_file, String)
-                Analysis.run_analysis(text, checks_to_run; 
-                    filename=in_file,
-                    violationprinter = highlighting_violation_printer,
-                    print_ast = arguments["ast"], 
-                    print_llt = arguments["llt"])
-            else
-                Process.check(in_file; print_ast = arguments["ast"],
-                              print_llt = arguments["llt"])
-            end
+            sourcefile::SourceFile = SourceFile(; filename=in_file)
+            text::String = read(in_file, String)
+            
+            # Reinstantiate Checks to clear any variables they might have
+            fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run) 
+
+            Analysis.run_analysis(sourcefile, fresh_checks; 
+                violationprinter = highlighting_violation_printer,
+                print_ast = arguments["ast"], 
+                print_llt = arguments["llt"])
         end
     end
     println()
@@ -106,4 +92,5 @@ if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE
     main(ARGS)
 end
 
-end
+end # module JuliaCheck
+

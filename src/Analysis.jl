@@ -194,7 +194,7 @@ function dfs_traversal(node::SyntaxNode, visitor_func::Function)::Nothing
 end
 
 "Load all check modules in checks2 directory."
-function load_all_checks2()::Nothing
+function discover_checks()::Nothing
     for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks2"), join=true))
         try
             include(file)
@@ -221,7 +221,7 @@ function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
 end
 
 
-function simple_violation_printer(violations)::Nothing
+function simple_violation_printer(sourcefile::SourceFile, violations)::Nothing
     if length(violations) == 0
         println("No violations found.")
     else 
@@ -235,17 +235,22 @@ function simple_violation_printer(violations)::Nothing
     return nothing
 end
 
-function run_analysis(text::String, checks::Vector{Check};
-    filename::String = nothing,
+function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     print_ast::Bool = false, 
     print_llt::Bool = false, 
     violationprinter::Function = simple_violation_printer
     )::Nothing
 
-    #println("($(length(checks))) checks to run: $(string(checks))")
-    syntaxNode = JuliaSyntax.parseall(SyntaxNode, text; filename=filename)
+    if length(checks) >= 1
+        @debug "Enabled rules:\n" * join(map(id, checks), "\n")
+    else 
+        throw("No rules to check")
+    end
+
+    syntaxNode = JuliaSyntax.parseall(SyntaxNode, sourcefile.code; filename=sourcefile.filename)
     ctxt = AnalysisContext(syntaxNode, _get_green_leaves(syntaxNode))
     for check in checks
+        typeof(check)
         init(check, ctxt)
     end
 
@@ -255,12 +260,11 @@ function run_analysis(text::String, checks::Vector{Check};
     end
     if print_llt
         println("Showing green tree:")
-        show(stdout, MIME"text/plain"(), syntaxNode.raw, text)
+        show(stdout, MIME"text/plain"(), syntaxNode.raw, sourcefile.code)
     end
 
     invoke_checks(ctxt, syntaxNode)
-
-    violationprinter(ctxt.violations)
+    violationprinter(sourcefile, ctxt.violations)
     return nothing
 end
 
