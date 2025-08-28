@@ -1,12 +1,36 @@
 >> Processing file 'AvoidCreatingEmptyArraysAndVectors.jl'...
 
-AvoidCreatingEmptyArraysAndVectors.jl(86, 1):
+AvoidCreatingEmptyArraysAndVectors.jl(3, 1):
+a_wrong = empty([1.0, 2.0, 3.0])
+└──────────────────────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(4, 1):
+b_wrong = empty([1.0, 2.0, 3.0], String)
+└──────────────────────────────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(5, 1):
+c_wrong = Array{Float64}[]
+└────────────────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(8, 5):
+    d_wrong = []
+#   └──────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(12, 1):
 v = []
 └────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
 
-AvoidCreatingEmptyArraysAndVectors.jl(91, 1):
+AvoidCreatingEmptyArraysAndVectors.jl(17, 1):
 w = []
 └────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.

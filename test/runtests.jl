@@ -137,6 +137,9 @@ end
         testfile = replace(checkfile, r"/checks2?/" => s"test")
         valfile = splitext(testfile)[1] * ".val"
 
+        if !isfile(valfile)
+            throw("Missing .val file: $valfile")
+        end
         checkname = camel_to_kebab(splitext(basename(checkfile))[1])
         expected::String = normalize(read(valfile, String))
         args = ["--enable", checkname, "--", testfile]
@@ -163,7 +166,6 @@ end
     srcfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "src"), join=true))
     files = union(checkfiles, srcfiles)
 
-    println("Hallo")
     args = ["--"]
     for file in files[1:20]
         push!(args, file)
