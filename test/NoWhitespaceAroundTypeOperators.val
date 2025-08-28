@@ -1,0 +1,61 @@
+>> Processing file 'NoWhitespaceAroundTypeOperators.jl'...
+
+NoWhitespaceAroundTypeOperators.jl(4, 33):
+    function foo(arg :: Float64) :: Nothing
+#                               └──┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(4, 21):
+    function foo(arg :: Float64) :: Nothing
+#                   └──┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(9, 32):
+    function bar(arg:: Float64):: Nothing return round(arg) end
+#                              └─┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(9, 21):
+    function bar(arg:: Float64):: Nothing return round(arg) end
+#                   └─┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(10, 32):
+    function kar(arg ::Float64) ::Nothing return round(arg) end
+#                              └─┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(10, 21):
+    function kar(arg ::Float64) ::Nothing return round(arg) end
+#                   └─┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(11, 21):
+    function roo(arg ::Vector{<: Number})::Nothing return length(arg) end
+#                   └─┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(11, 31):
+    function roo(arg ::Vector{<: Number})::Nothing return length(arg) end
+#                             └──┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(12, 30):
+    function doo(arg::Vector{ <: Number})::Nothing return length(arg) end
+#                            └───┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7
+
+NoWhitespaceAroundTypeOperators.jl(13, 17):
+    Base.string(:: Type{NotOKStatus}) = "NOK"
+#               └─┘ ── Omit whitespace around this operator.
+Do not add whitespace around type operators.
+Rule: no-whitespace-around-type-operators. Severity: 7

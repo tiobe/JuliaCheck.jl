@@ -3,9 +3,7 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
-import ..LosslessTrees: LosslessNode, get_start_coordinates, start_index
-
-export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
+export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
 
     children, closes_module, closes_scope, expr_depth, expr_size,
 
@@ -22,77 +20,22 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH, SF,
     is_module, is_operator, is_range, is_separator, is_stop_point, is_struct,
     is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
 
-    lines_count, opens_scope, report_violation, reset_counters,
-    source_column, source_index, source_text, to_pascal_case
+    lines_count, opens_scope,
+    source_column, source_index, source_text
 
 
 ## Types
-const AnyTree = Union{SyntaxNode, GreenNode, LosslessNode}
+const AnyTree = Union{SyntaxNode, GreenNode}
 const NullableString = Union{String, Nothing}
 const NullableNode = Union{AnyTree, Nothing}
 const NodeAndString = Tuple{AnyTree, NullableString}
 
 
 ## Global definitions
-global SF::SourceFile
-SOURCE_INDEX = 0
-SOURCE_LINE = 0
-SOURCE_COL = 0
 const MAX_LINE_LENGTH = 92
 const EOL = (Sys.iswindows() ? "\n\r" : "\n")
 
-
 ## Functions
-
-function report_violation(node::SyntaxNode;
-                          severity::Int, user_msg::String,
-                          summary::String, rule_id::String)::Nothing
-    line, column = JS.source_location(node)
-    printstyled("\n$(JS.filename(node))($line, $(column)):\n";
-                underline=true)
-    JS.highlight(stdout, node; note=user_msg, notecolor=:yellow,
-                               context_lines_after=0, context_lines_before=0)
-    _report_common(severity, rule_id, summary)
-end
-function report_violation(node::LosslessNode; delta::Int=0,
-                          severity::Int, user_msg::String,
-                          summary::String, rule_id::String)::Nothing
-    line, column = get_start_coordinates(node)
-    if startswith(node.text, '\n')
-        leol = length(EOL)
-        line += leol
-        delta += leol
-        column = 0  # invalid index, but will be compensated by `delta`
-    end
-    report_violation(index = start_index(node) + delta,
-                     len = length(node) - delta,
-                     line = line, col = column + delta,
-                     severity = severity, rule_id = rule_id,
-                     user_msg = user_msg, summary = summary)
-end
-function report_violation(; index::Int, len::Int, line::Int, col::Int,
-                            severity::Int, user_msg::String,
-                            summary::String, rule_id::String)::Nothing
-    printstyled("\n$(JS.filename(SF))($line, $col):\n";
-                underline=true)
-    JS.highlight(stdout, SF, index:index+len-1;
-                 note=user_msg, notecolor=:yellow,
-                 context_lines_after=0, context_lines_before=0)
-    _report_common(severity, rule_id, summary)
-end
-function _report_common(severity::Int, rule_id::String, summary::String)::Nothing
-    printstyled("\n$summary"; color=:cyan)
-    printstyled("\nRule:"; underline=true)
-    printstyled(" $rule_id. ")
-    printstyled("Severity:"; underline=true)
-    printstyled(" $severity\n")
-end
-
-
-function fake_green_node(kind::Kind; length::Int=0)
-    return GreenNode{Kind}(kind, length, nothing)
-end
-
 
 function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
@@ -447,65 +390,4 @@ function get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, Nullable
     end
 end
 
-function reset_counters()
-    global SOURCE_COL = 1
-    global SOURCE_INDEX = 1
-    global SOURCE_LINE = 1
-end
-function increase_counters(node::GreenNode)::Int
-    global SOURCE_COL
-    global SOURCE_INDEX
-    global SOURCE_LINE
-    if kind(node) == K"NewlineWs"
-        SOURCE_LINE += 1
-        SOURCE_COL = span(node) - (Sys.iswindows() ? 1 : 0)
-    elseif kind(node) == K"String"
-        txt = source_text(node)
-        n = count('\n', txt)
-        if n == 0
-            SOURCE_COL += span(node)
-        else
-            # Occasionally, a string may contain multiple line breaks.
-            SOURCE_LINE += n
-            SOURCE_COL = length(txt) - last(findfirst(EOL, txt))
-        end
-    else
-        SOURCE_COL += span(node)
-    end
-    SOURCE_INDEX += span(node)
-end
-source_text() = JS.sourcetext(SF)
-function source_text(node::GreenNode, offset::Integer=0)
-    start = SOURCE_INDEX + offset
-    length = span(node)
-    return source_text(start, length)
-end
-function source_text(from::Integer, howmuch::Integer)
-    s = JS.sourcetext(SF)
-    until = from + howmuch - 1
-    if !isvalid(s, until)
-        until = prevind(s, until)
-    end
-    return s[from:until]
-end
-line_breaks(node::GreenNode) = count('\n', source_text(node))
-source_index() = SOURCE_INDEX
-lines_count() = SOURCE_LINE
-source_column() = SOURCE_COL
-
-
-function to_pascal_case(s::String)::String
-    result::String = ""
-    got_dash::Bool = true
-    for c in s
-        if c ∈ ['-', '_']
-            got_dash = true
-        else
-            result *= got_dash ? uppercase(c) : c
-            got_dash = false
-        end
-    end
-    return result
-end
-
-end
+end # module Properties

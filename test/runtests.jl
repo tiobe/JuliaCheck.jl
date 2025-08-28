@@ -3,11 +3,9 @@ using TestItems: @testitem
 using TestItemRunner
 using JuliaCheck
 
-
 @testitem "Symbols Table tests" begin
     using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt,
         JuliaSyntax as JS
-    include("../src/LosslessTrees.jl")
     include("../src/Properties.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: is_declared_in_current_scope,
         clear_symbol_table!, declare!, enter_module!, enter_main_module!, enter_scope!,
@@ -117,7 +115,6 @@ end
 
 @testitem "Numbers" begin
     using JuliaSyntax: SyntaxNode, parsestmt
-    include("../src/LosslessTrees.jl")
     include("../src/Properties.jl"); using .Properties: get_number
     include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
         enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
@@ -132,35 +129,59 @@ end
 @testitem "Golden File Tests" begin
     import IOCapture
     normalize(text) = strip(replace(replace(text, "\r\n" => "\n"))) * "\n"
-    checks2_that_exist = map(basename, readdir(joinpath(dirname(@__DIR__), "checks2")))
+    camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
+   
+    all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks2"))))
 
-    @testset for valfile in filter(f -> endswith(f, ".val"), readdir(@__DIR__))
-        fname = valfile[1:end-4]
-        in_file = fname * ".jl"
-        checkname = replace(basename(fname), '_'=>'-')
-        has_checks2 = basename(in_file) ∈ checks2_that_exist
+    @testset for checkfile in all_checks
+        testfile = replace(checkfile, r"/checks2?/" => s"test")
+        valfile = splitext(testfile)[1] * ".val"
+
+        checkname = camel_to_kebab(splitext(basename(checkfile))[1])
         expected::String = normalize(read(valfile, String))
-        args = ["--checks2", "--enable", checkname, "--", in_file]
-        #println("Executing check $checkname, args: " * join(args, " "))
+        args = ["--enable", checkname, "--", testfile]
         result = IOCapture.capture() do
             JuliaCheck.main(args)
         end
         actual = normalize(result.output)
-        if has_checks2
-            actualfile::String = valfile * ".actual"
-            if actual == expected
-                if isfile(actualfile)
-                    rm(actualfile)
-                end
-            else
-                write(actualfile, actual)
+        actualfile::String = valfile * ".actual"
+        if actual == expected
+            if isfile(actualfile)
+                rm(actualfile)
             end
-            @test actual == expected
         else
-            println("Skipping $checkname because it does not exist yet")
-            @test_skip actual == expected
-        end 
+            write(actualfile, actual)
+        end
+        @test actual == expected
     end
 end
+
+@testitem "JuliaCheck self" begin
+    import IOCapture
+    isjuliafile = f -> endswith(f, ".jl")
+    checkfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "checks2"), join=true))
+    srcfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "src"), join=true))
+    files = union(checkfiles, srcfiles)
+
+    println("Hallo")
+    args = ["--"]
+    for file in files[1:20]
+        push!(args, file)
+    end
+
+    try 
+        @test length(files) >= 1
+        result = IOCapture.capture() do
+            JuliaCheck.main(args)
+        end
+        out_file = joinpath(@__DIR__, "JuliaCheck-self.out")
+        write(out_file, result.output)
+        println("Finished analyzing $(length(files)) files. Wrote result to $out_file.")
+    catch ex
+        println(ex)
+        @test false 
+    end
+end
+
 
 @run_package_tests

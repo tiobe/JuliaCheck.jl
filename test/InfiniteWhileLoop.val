@@ -1,0 +1,7 @@
+>> Processing file 'InfiniteWhileLoop.jl'...
+
+InfiniteWhileLoop.jl(3, 7):
+while true
+#     └──┘ ── Implement a proper stop criterion for this while loop.
+Do not use while true.
+Rule: infinite-while-loop. Severity: 5

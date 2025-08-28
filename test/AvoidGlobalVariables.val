@@ -1,0 +1,25 @@
+>> Processing file 'AvoidGlobalVariables.jl'...
+
+AvoidGlobalVariables.jl(1, 1):
+some_number::Float64 = 1
+└─────────┘ ── Avoid global variables when possible.
+Avoid global variables when possible.
+Rule: avoid-global-variables. Severity: 3
+
+AvoidGlobalVariables.jl(5, 12):
+    global yet_another_number = 7.0
+#          └────────────────┘ ── Avoid global variables when possible.
+Avoid global variables when possible.
+Rule: avoid-global-variables. Severity: 3
+
+AvoidGlobalVariables.jl(9, 1):
+SOME_NUMBER::Float64
+└─────────┘ ── Avoid global variables when possible.
+Avoid global variables when possible.
+Rule: avoid-global-variables. Severity: 3
+
+AvoidGlobalVariables.jl(14, 12):
+    global YET_ANOTHER_NUMBER = 7.0
+#          └────────────────┘ ── Avoid global variables when possible.
+Avoid global variables when possible.
+Rule: avoid-global-variables. Severity: 3

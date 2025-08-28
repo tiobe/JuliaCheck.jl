@@ -1,0 +1,26 @@
+
+>> Processing file 'UseSpacesInsteadOfTabs.jl'...
+
+UseSpacesInsteadOfTabs.jl(2, 1):
+	vec = rand(Int64, 5)
+└──┘ ── Use spaces instead of tabs for indentation.
+Use spaces instead of tabs for indentation.
+Rule: use-spaces-instead-of-tabs. Severity: 7
+
+UseSpacesInsteadOfTabs.jl(6, 1):
+	# Of each element, take the absolute value, modulo 5, and sort
+└──┘ ── Use spaces instead of tabs for indentation.
+Use spaces instead of tabs for indentation.
+Rule: use-spaces-instead-of-tabs. Severity: 7
+
+UseSpacesInsteadOfTabs.jl(9, 5):
+    	println("Bad vector.	String are off-limits.")
+#   └──┘ ── Use spaces instead of tabs for indentation.
+Use spaces instead of tabs for indentation.
+Rule: use-spaces-instead-of-tabs. Severity: 7
+
+UseSpacesInsteadOfTabs.jl(11, 1):
+	
+└──┘ ── Use spaces instead of tabs for indentation.
+Use spaces instead of tabs for indentation.
+Rule: use-spaces-instead-of-tabs. Severity: 7

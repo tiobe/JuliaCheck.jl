@@ -1,0 +1,13 @@
+>> Processing file 'AvoidCreatingEmptyArraysAndVectors.jl'...
+
+AvoidCreatingEmptyArraysAndVectors.jl(86, 1):
+v = []
+└────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(91, 1):
+w = []
+└────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8

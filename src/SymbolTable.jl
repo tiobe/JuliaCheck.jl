@@ -6,7 +6,8 @@ using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_argu
     get_module_name, haschildren, is_assignment, is_function, is_global_decl, is_module,
     opens_scope
 
-export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!, update_symbol_table_on_node_leave!
+export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
+export update_symbol_table_on_node_leave!, is_global
 
 ## Types
 

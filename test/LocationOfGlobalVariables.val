@@ -1,0 +1,14 @@
+
+>> Processing file 'LocationOfGlobalVariables.jl'...
+
+LocationOfGlobalVariables.jl(16, 5):
+    const MY_GLOB = 42
+#   └────────────────┘ ── Global variables should be placed at the top of a module or file.
+Global variables should be placed at the top of a module or file.
+Rule: location-of-global-variables. Severity: 7
+
+LocationOfGlobalVariables.jl(20, 1):
+const SOME_GLOBAL = 0.7
+└─────────────────────┘ ── Global variables should be placed at the top of a module or file.
+Global variables should be placed at the top of a module or file.
+Rule: location-of-global-variables. Severity: 7
