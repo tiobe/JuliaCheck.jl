@@ -3,7 +3,7 @@ module ViolationPrinters
 export highlighting_violation_printer
 
 using JuliaSyntax
-using ...Analysis
+using ..Analysis
 
 function report_violation(sourcefile::SourceFile; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
