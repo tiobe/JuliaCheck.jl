@@ -80,6 +80,11 @@ end
 
 function _function_name_has_exclamation(call_node::SyntaxNode)::Bool
     call_type_node = first(children(call_node))
+
+    # anonymous functions never have an exclamation point in front of them
+    if isnothing(call_type_node.data.val)
+        return false
+    end
     function_name = String(call_type_node.data.val)
     return endswith(function_name, "!")
 end
