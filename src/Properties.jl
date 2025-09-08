@@ -53,6 +53,7 @@ end
 is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
 is_module(    node::AnyTree)::Bool = kind(node) == K"module"
 is_assignment(node::AnyTree)::Bool = kind(node) == K"="
+is_field(     node::AnyTree)::Bool = kind(node) == K"."
 is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
