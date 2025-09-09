@@ -75,26 +75,22 @@ definition itself rather than its invocation.
         and not function definitions. Currently this feels iffy.
 """
 function is_mutating_call(node::SyntaxNode)::Bool
-    return is_call(node) && _function_name_has_exclamation(node) && kind(children(node)[2]) == K"Identifier"
+    return is_call(node) && _call_name_has_exclamation(node) && kind(children(node)[2]) == K"Identifier"
 end
 
-function _function_name_has_exclamation(call_node::SyntaxNode)::Bool
+function _call_name_has_exclamation(call_node::SyntaxNode)::Bool
     call_type_node = first(children(call_node))
 
     # anonymous functions never have an exclamation point in front of them
-    if isnothing(call_type_node.data.val)
+    if isnothing(string(call_type_node))
         return false
     end
-    function_name = String(call_type_node.data.val)
-    return endswith(function_name, "!")
+    call_name = string(call_type_node)
+    return endswith(call_name, "!")
 end
 
 function _get_mutated_variable(node::SyntaxNode)::String
     return string(node)
-end
-
-function get_all_function_nodes_containing_args(var::String)::Vector{SyntaxNode}
-    return []
 end
 
 end # end ExclamationMarkInFunctionIdentifierIfMutating
