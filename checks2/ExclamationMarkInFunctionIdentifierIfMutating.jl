@@ -2,7 +2,7 @@ module ExclamationMarkInFunctionIdentifierIfMutating
 
 using JuliaSyntax: SyntaxNode, @K_str, children, is_dotted, kind
 using ..SymbolTable: node_is_declaration_of_variable
-using ...Properties: get_func_arguments, get_func_name, is_array_indx, is_assignment, is_call, is_field, is_function, is_vect
+using ...Properties: get_func_arguments, get_func_name, is_array_indx, is_assignment, is_call, is_field, is_first_child, is_function, is_vect
 using ...SyntaxNodeHelpers: ancestors
 
 include("_common.jl")
@@ -14,7 +14,7 @@ synopsis(::Check) = "Only functions postfixed with an exclamation mark can mutat
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_assignment, n -> check_assignment(this, ctxt, n))
-    register_syntaxnode_action(ctxt, is_array_indx, n -> check_array_assignment(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_array_assignment, n -> check_array_assignment(this, ctxt, n))
     register_syntaxnode_action(ctxt, is_mutating_call, n -> check_mutating_call(this, ctxt, n))
 end
 
@@ -76,6 +76,10 @@ definition itself rather than its invocation.
 """
 function is_mutating_call(node::SyntaxNode)::Bool
     return is_call(node) && _call_name_has_exclamation(node) && kind(children(node)[2]) == K"Identifier"
+end
+
+function is_array_assignment(node::SyntaxNode)::Bool
+    return is_array_indx(node) && is_assignment(node.parent) && is_first_child(node)
 end
 
 function _call_name_has_exclamation(call_node::SyntaxNode)::Bool

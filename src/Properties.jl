@@ -321,7 +321,7 @@ children(node::AnyTree)::Vector{AnyTree} = isnothing(node.children) ?
                                                 AnyTree[] : node.children
 first_child(node::AnyTree)::NullableNode = haschildren(node) ?
                                                 children(node)[1] : nothing
-
+is_first_child(node::AnyTree)::Bool = node === first(children(node.parent))
 
 """
 Return the first left-hand side node of the given kind, going down the left-most
