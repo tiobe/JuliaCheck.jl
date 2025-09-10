@@ -46,7 +46,7 @@ end
 
 function _get_function_name_from_call_node(call_node::SyntaxNode)::String
     call_type_node = first(children(call_node))
-    function_name = String(call_type_node.data.val)
+    function_name = string(call_type_node)
     return function_name
 end
 
@@ -61,8 +61,9 @@ function _is_empty_keyword(node::SyntaxNode)::Bool
     return is_call(node) && string(first(children(node))) == "empty"
 end
 
+# Single child means that there is nothing inside the array.
 function _is_empty_array_initialization(node::SyntaxNode)::Bool
-    return is_array_indx(node) && isnothing(node.data.val)
+    return is_array_indx(node) && numchildren(node) == 1
 end
 
 end # end AvoidCreatingEmptyArraysAndVectors
