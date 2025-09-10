@@ -3,6 +3,7 @@ module Analysis
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
 export GreenLeaf, find_greenleaf, kind, sourcetext
+export dfs_traversal
 export find_syntaxnode_at_position
 
 using JuliaSyntax

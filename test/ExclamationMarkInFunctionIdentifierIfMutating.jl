@@ -21,6 +21,29 @@ function array_changer_three(some_array::Vector{Int64}, another::Int64)
     push!(some_array, another)
 end
 
+function _process_function(table::SymbolTableStruct, node::SyntaxNode)
+    fname = get_func_name(node)
+    if !isnothing(fname)
+        if kind(fname) == K"Identifier"
+            declare!(table, fname)
+        end
+    end
+    enter_scope!(table)
+    for arg in get_func_arguments(node)
+        if kind(arg) == K"parameters"
+            if ! haschildren(arg)
+                return nothing
+            end
+            # The last argument in the list is itself a list, of named arguments.
+            for arg in children(arg)
+                _process_argument!(table, arg)
+            end
+        else
+            _process_argument!(table, arg)
+        end
+    end
+end
+
 # Good
 function set_from_array(a::Vector{Int64})::Int64
     b = a[1]
@@ -57,4 +80,27 @@ function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, 
         end
     end
     return nothing
+end
+
+function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
+    fname = get_func_name(node)
+    if !isnothing(fname)
+        if kind(fname) == K"Identifier"
+            declare!(table, fname)
+        end
+    end
+    enter_scope!(table)
+    for arg in get_func_arguments(node)
+        if kind(arg) == K"parameters"
+            if ! haschildren(arg)
+                return nothing
+            end
+            # The last argument in the list is itself a list, of named arguments.
+            for arg in children(arg)
+                _process_argument!(table, arg)
+            end
+        else
+            _process_argument!(table, arg)
+        end
+    end
 end

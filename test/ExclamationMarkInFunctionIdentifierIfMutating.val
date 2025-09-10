@@ -7,7 +7,7 @@ function reset_vector(vec::Vector{T})::Nothing where T <: Real  # bang omitted
     vec .= zero(T) # or zero(eltype(vec))
     return nothing
 end
-#─┘ ── Function mutates variable vec without having an exclamation mark.
+#─┘ ── Function mutates argument vec without having an exclamation mark.
 Only functions postfixed with an exclamation mark can mutate an argument.
 Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
 
@@ -16,7 +16,7 @@ ExclamationMarkInFunctionIdentifierIfMutating.jl(8, 1):
 function field_changer(some_object::Thingie)
     some_object.field = 1
 end
-#─┘ ── Function mutates variable some_object without having an exclamation mark.
+#─┘ ── Function mutates argument some_object without having an exclamation mark.
 Only functions postfixed with an exclamation mark can mutate an argument.
 Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
 
@@ -25,7 +25,7 @@ ExclamationMarkInFunctionIdentifierIfMutating.jl(12, 1):
 function array_changer(some_array::Vector{Int64})
     some_array[2] = 12
 end
-#─┘ ── Function mutates variable some_array without having an exclamation mark.
+#─┘ ── Function mutates argument some_array without having an exclamation mark.
 Only functions postfixed with an exclamation mark can mutate an argument.
 Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
 
@@ -34,7 +34,7 @@ ExclamationMarkInFunctionIdentifierIfMutating.jl(16, 1):
 function array_changer_two(some_array::Vector{Int64})
     push!(some_array, 123)
 end
-#─┘ ── Function mutates variable some_array without having an exclamation mark.
+#─┘ ── Function mutates argument some_array without having an exclamation mark.
 Only functions postfixed with an exclamation mark can mutate an argument.
 Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
 
@@ -43,6 +43,17 @@ ExclamationMarkInFunctionIdentifierIfMutating.jl(20, 1):
 function array_changer_three(some_array::Vector{Int64}, another::Int64)
     push!(some_array, another)
 end
-#─┘ ── Function mutates variable some_array without having an exclamation mark.
+#─┘ ── Function mutates argument some_array without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(24, 1):
+┌─────────────────────────────────────────────────────────────────────
+function _process_function(table::SymbolTableStruct, node::SyntaxNode)
+    fname = get_func_name(node)
+⋮
+    end
+end
+#─┘ ── Function mutates argument table without having an exclamation mark.
 Only functions postfixed with an exclamation mark can mutate an argument.
 Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
