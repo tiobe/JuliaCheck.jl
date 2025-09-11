@@ -13,7 +13,9 @@ include("SyntaxNodeHelpers.jl")
 using .Analysis
 using .ViolationPrinters
 
-Analysis.discover_checks()
+function __init__()
+    Analysis.discover_checks()
+end
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
