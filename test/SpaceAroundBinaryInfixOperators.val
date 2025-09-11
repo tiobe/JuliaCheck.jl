@@ -30,6 +30,18 @@ x=42*z*exp(ln(2)*3)
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
+SpaceAroundBinaryInfixOperators.jl(3, 18):
+x = [1 2 3] .+4.0.+7
+#                └┘ ── Expected single whitespace around '.+'.
+Selected binary infix operators and the = character are followed and preceded by a single space.
+Rule: space-around-binary-infix-operators. Severity: 7
+
+SpaceAroundBinaryInfixOperators.jl(3, 12):
+x = [1 2 3] .+4.0.+7
+#          └─┘ ── Expected single whitespace around '.+'.
+Selected binary infix operators and the = character are followed and preceded by a single space.
+Rule: space-around-binary-infix-operators. Severity: 7
+
 SpaceAroundBinaryInfixOperators.jl(4, 6):
 x[(15 + 10):(70+10)]
 #    └─┘ ── Expected no whitespace around '+'.

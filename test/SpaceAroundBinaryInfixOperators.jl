@@ -1,11 +1,11 @@
 # Bad style:
 x=42*z*exp(ln(2)*3)
-
+x = [1 2 3] .+4.0.+7
 x[(15 + 10):(70+10)]
 
 # Good style:
 x = 42 * z * exp(ln(2) * 3)
-
+x = [1 2 3] .+ 4.0 .+ 7
 x[15+10:70+10]
 
 struct MyStruct
