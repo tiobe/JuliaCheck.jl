@@ -2,7 +2,6 @@ module SpaceAroundBinaryInfixOperators
 
 include("_common.jl")
 
-using ...Analysis: get_syntaxnode_text
 using ...Properties: is_infix_operator
 using ...SyntaxNodeHelpers
 using JuliaSyntax: @KSet_str, GreenNode, is_infix_op_call, is_prefix_op_call, JuliaSyntax as JS

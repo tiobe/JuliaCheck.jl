@@ -36,85 +36,103 @@ x[(15 + 10):(70+10)]
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(12, 6):
+SpaceAroundBinaryInfixOperators.jl(18, 19):
+    s = MyStruct(1+2, 3.0*4.0, "hello"*", world")
+#                 ╙ ── Expected single whitespace around '+'.
+Selected binary infix operators and the = character are followed and preceded by a single space.
+Rule: space-around-binary-infix-operators. Severity: 7
+
+SpaceAroundBinaryInfixOperators.jl(18, 26):
+    s = MyStruct(1+2, 3.0*4.0, "hello"*", world")
+#                        ╙ ── Expected single whitespace around '*'.
+Selected binary infix operators and the = character are followed and preceded by a single space.
+Rule: space-around-binary-infix-operators. Severity: 7
+
+SpaceAroundBinaryInfixOperators.jl(18, 39):
+    s = MyStruct(1+2, 3.0*4.0, "hello"*", world")
+#                                     ╙ ── Expected single whitespace around '*'.
+Selected binary infix operators and the = character are followed and preceded by a single space.
+Rule: space-around-binary-infix-operators. Severity: 7
+
+SpaceAroundBinaryInfixOperators.jl(20, 16):
+    x = s.a + 8 +y^2
+#              └┘ ── Expected single whitespace around '+'.
+Selected binary infix operators and the = character are followed and preceded by a single space.
+Rule: space-around-binary-infix-operators. Severity: 7
+
+SpaceAroundBinaryInfixOperators.jl(21, 6):
     y= 9
 #    └┘ ── Expected single whitespace around '='.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(13, 14):
-    x = 7 + 8 +y^2
-#            └┘ ── Expected single whitespace around '+'.
-Selected binary infix operators and the = character are followed and preceded by a single space.
-Rule: space-around-binary-infix-operators. Severity: 7
-
-SpaceAroundBinaryInfixOperators.jl(14, 10):
+SpaceAroundBinaryInfixOperators.jl(22, 10):
     z = 1+ -y
 #        └┘ ── Expected single whitespace around '+'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(15, 10):
+SpaceAroundBinaryInfixOperators.jl(23, 10):
     w = 1+-y ^ 2
 #        ╙ ── Expected single whitespace around '+'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(15, 13):
+SpaceAroundBinaryInfixOperators.jl(23, 13):
     w = 1+-y ^ 2
 #           └─┘ ── Expected no whitespace around '^'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(16, 10):
+SpaceAroundBinaryInfixOperators.jl(24, 10):
     a = 1 *  2 *3
 #        └──┘ ── Expected single whitespace around '*'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(16, 15):
+SpaceAroundBinaryInfixOperators.jl(24, 15):
     a = 1 *  2 *3
 #             └┘ ── Expected single whitespace around '*'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(19, 8):
+SpaceAroundBinaryInfixOperators.jl(27, 8):
     x[a ⪻z] = 2 # bad
 #      └┘ ── Expected no whitespace around '⪻'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(20, 8):
+SpaceAroundBinaryInfixOperators.jl(28, 8):
     x[w ⪻ z] = 3 # bad
 #      └─┘ ── Expected no whitespace around '⪻'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(23, 27):
+SpaceAroundBinaryInfixOperators.jl(31, 27):
 function calc_the_answer() ::Bool
 #                         └─┘ ── Expected no whitespace around '::'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(24, 10):
+SpaceAroundBinaryInfixOperators.jl(32, 10):
     a = 1 +2
 #        └┘ ── Expected single whitespace around '+'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(25, 10):
+SpaceAroundBinaryInfixOperators.jl(33, 10):
     b = 3  +  4
 #        └───┘ ── Expected single whitespace around '+'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(26, 10):
+SpaceAroundBinaryInfixOperators.jl(34, 10):
     c = 5 +  6
 #        └──┘ ── Expected single whitespace around '+'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
 Rule: space-around-binary-infix-operators. Severity: 7
 
-SpaceAroundBinaryInfixOperators.jl(27, 21):
+SpaceAroundBinaryInfixOperators.jl(35, 21):
     res = a ⪶ b || a⪻ b
 #                   └┘ ── Expected single whitespace around '⪻'.
 Selected binary infix operators and the = character are followed and preceded by a single space.
