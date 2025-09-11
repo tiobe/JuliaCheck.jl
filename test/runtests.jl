@@ -167,7 +167,7 @@ end
     files = union(checkfiles, srcfiles)
 
     args = ["--"]
-    for file in files[1:20]
+    for file in files
         push!(args, file)
     end
 

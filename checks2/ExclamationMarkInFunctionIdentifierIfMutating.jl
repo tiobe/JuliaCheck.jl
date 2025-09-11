@@ -1,6 +1,6 @@
 module ExclamationMarkInFunctionIdentifierIfMutating
 
-using JuliaSyntax: SyntaxNode, @K_str, children, is_dotted, kind
+using JuliaSyntax: SyntaxNode, @K_str, children, haschildren, is_dotted, kind
 using ...Properties: get_func_arguments, get_func_name, is_array_indx, is_assignment, is_call, is_field, is_first_child, is_function
 
 include("_common.jl")
@@ -76,9 +76,17 @@ function _get_string_fn_args(function_node::SyntaxNode)::Vector{String}
     func_arguments = get_func_arguments(function_node)
     func_arg_str = []
     for arg in func_arguments
-        push!(func_arg_str, string(first(children(arg))))
+        push!(func_arg_str, _get_string_arg(arg))
     end
     return func_arg_str
+end
+
+function _get_string_arg(arg_node::SyntaxNode)::String
+    if haschildren(arg_node)
+        return string(first(children(arg_node)))
+    else
+        return string(arg_node)
+    end
 end
 
 end # end ExclamationMarkInFunctionIdentifierIfMutating
