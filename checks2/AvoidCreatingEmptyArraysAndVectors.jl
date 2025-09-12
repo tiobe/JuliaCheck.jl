@@ -50,7 +50,7 @@ function _get_function_name_from_call_node(call_node::SyntaxNode)::String
     if isnothing(call_type_node.data.val)
         return ""
     else
-        return  String(call_type_node.data.val)
+        return String(call_type_node.data.val)
     end
 end
 
