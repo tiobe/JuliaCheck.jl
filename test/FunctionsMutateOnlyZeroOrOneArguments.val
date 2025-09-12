@@ -1,7 +1,7 @@
 
 >> Processing file 'FunctionsMutateOnlyZeroOrOneArguments.jl'...
 
-ExclamationMarkInFunctionIdentifierIfMutating.jl(3, 1):
+FunctionsMutateOnlyZeroOrOneArguments.jl(3, 1):
 ┌─────────────────────────────────────────────────────────────────────────────────────────────────
 function reset_vectors!(vec1::Vector{T}, vec2::Vector{T})::Nothing where T <: Real  # bang omitted
     vec1 .= zero(T)
@@ -9,5 +9,27 @@ function reset_vectors!(vec1::Vector{T}, vec2::Vector{T})::Nothing where T <: Re
     return nothing
 end
 #─┘ ── Function mutates variable vec2 while it is not the first argument.
+Functions should change only one or zero argument(s).
+Rule: functions-mutate-only-zero-or-one-arguments. Severity: 3
+
+FunctionsMutateOnlyZeroOrOneArguments.jl(9, 1):
+┌─────────────────────────────────
+function all_the_changes!(a, b, c)
+    a[1] = 1
+⋮
+    c[3] = 3
+end
+#─┘ ── Function mutates variable b while it is not the first argument.
+Functions should change only one or zero argument(s).
+Rule: functions-mutate-only-zero-or-one-arguments. Severity: 3
+
+FunctionsMutateOnlyZeroOrOneArguments.jl(9, 1):
+┌─────────────────────────────────
+function all_the_changes!(a, b, c)
+    a[1] = 1
+⋮
+    c[3] = 3
+end
+#─┘ ── Function mutates variable c while it is not the first argument.
 Functions should change only one or zero argument(s).
 Rule: functions-mutate-only-zero-or-one-arguments. Severity: 3

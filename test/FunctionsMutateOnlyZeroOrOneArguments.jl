@@ -6,6 +6,12 @@ function reset_vectors!(vec1::Vector{T}, vec2::Vector{T})::Nothing where T <: Re
     return nothing
 end
 
+function all_the_changes!(a, b, c)
+    a[1] = 1
+    b[2] = 2
+    c[3] = 3
+end
+
 # Good
 function reset_vector!(vec1::Vector{T}, vec2::Vector{T})::Nothing where T <: Real  # bang omitted
     vec1 .= zero(T)
