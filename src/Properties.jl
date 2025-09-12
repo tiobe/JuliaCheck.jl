@@ -13,7 +13,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
     get_imported_pkg, get_iteration_parts, get_module_name, get_number,
     get_string_fn_args, get_struct_members, get_struct_name,
 
-    haschildren, increase_counters, is_abstract, is_array_indx, is_assignment,
+    haschildren, increase_counters, is_abstract, is_array_assignment, is_array_indx, is_assignment,
     is_broadcasting_assignment, is_constant, is_eq_neq_comparison, is_eval_call, is_export,
     is_fat_snake_case, is_field_assignment, is_flow_cntrl, is_function, is_global_decl,
     is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
@@ -68,6 +68,7 @@ is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 
 is_broadcasting_assignment(n::SyntaxNode)::Bool = is_assignment(n) && is_dotted(n)
 is_field_assignment(       n::SyntaxNode)::Bool = is_assignment(n) && is_field(first(children(n)))
+is_array_assignment(       n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n) && is_first_child(n)
 
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =

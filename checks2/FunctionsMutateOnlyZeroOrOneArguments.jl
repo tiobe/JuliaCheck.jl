@@ -1,9 +1,7 @@
 module FunctionsMutateOnlyZeroOrOneArguments
 
 using JuliaSyntax: SyntaxNode, children, is_dotted
-using ...Properties: get_string_fn_args, is_array_indx, is_assignment, 
-is_broadcasting_assignment, is_field_assignment, is_field, is_first_child, is_function,
-is_mutating_call
+using ...Properties: get_string_fn_args, is_array_assignment, is_broadcasting_assignment, is_field_assignment, is_function,is_mutating_call
 
 include("_common.jl")
 struct Check <: Analysis.Check end
@@ -16,15 +14,11 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_function, n -> check_function(this, ctxt, n))
 end
 
-function _is_array_assignment(node::SyntaxNode)::Bool
-    return is_array_indx(node) && is_assignment(node.parent) && is_first_child(node)
-end
-
 function check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
     func_arg_strings = get_string_fn_args(function_node)
     all_mutated_variables = []
     visitor_func = function(n::SyntaxNode)
-        if _is_array_assignment(n)
+        if is_array_assignment(n)
             mutated_var = string(first(children(n)))
             push!(all_mutated_variables, mutated_var)
         elseif is_mutating_call(n)
