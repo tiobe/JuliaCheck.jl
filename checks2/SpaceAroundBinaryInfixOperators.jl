@@ -2,7 +2,7 @@ module SpaceAroundBinaryInfixOperators
 
 include("_common.jl")
 
-using ...Properties: is_infix_operator
+using ...Properties: is_infix_operator, is_type_op
 using ...SyntaxNodeHelpers
 using JuliaSyntax: @KSet_str, GreenNode, is_infix_op_call, is_prefix_op_call, JuliaSyntax as JS
 
@@ -12,12 +12,12 @@ severity(::Check) = 7
 synopsis(::Check) = "Selected binary infix operators and the = character are followed and preceded by a single space."
 
 function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_infix_operator, node -> check_ws(this, ctxt, node))
+    register_syntaxnode_action(ctxt, node_applicable, node -> check_ws(this, ctxt, node))
 end
 
 function check_ws(this, ctxt, node::SyntaxNode)
     code = node.source.code
-    exception_kinds = KSet":: ^ . :"
+    exception_kinds = KSet"^ . :"
     no_space = any(a -> kind(a) == K"ref", ancestors(node)) || kind(get_op_node(node)) in exception_kinds || get_operator_string(get_op_node(node)) == "^"
     op_ranges = find_operator_ranges(node)
     for op_range in op_ranges
@@ -38,6 +38,13 @@ function check_ws(this, ctxt, node::SyntaxNode)
             end
         end
     end
+end
+
+function node_applicable(node::SyntaxNode)::Bool
+    if !is_infix_operator(node) || is_type_op(node) || kind(node.parent) == K"parameters"
+        return false
+    end
+    return true
 end
 
 """

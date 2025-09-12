@@ -14,7 +14,7 @@ struct MyStruct
     c::String
 end
 
-function manipulation_station() 
+function manipulation_station(; y=3)
     s = MyStruct(1+2, 3.0*4.0, "hello"*", world")
 
     x = s.a + 8 +y^2
