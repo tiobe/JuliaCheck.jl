@@ -8,6 +8,8 @@ x = [
 y = [  1, 3,  5 ]
 f(; x = 10)
 y_dict = Dict{ String, Int}( "apple" =>  1, "banana"  => 2)
+tuple = ( a , b, c )
+block = ( a ; b; c )
 
 # Good style:
 spam(ham[1], [eggs])
@@ -20,3 +22,5 @@ y = [1, 3, 5]
 f(; x=10)
 x = 10 # This should not require space, because not a function parameter
 y_dict = Dict{String, Int}("apple" => 1, "banana" => 2)
+tuple = (a, b, c)
+block = (a; b; c)

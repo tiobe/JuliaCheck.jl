@@ -10,39 +10,78 @@ id(::Check) = "avoid-extraneous-whitespace-between-open-and-close-characters"
 severity(::Check) = 7
 synopsis(::Check) = "Avoid extraneous whitespace inside parentheses, square brackets or braces."
 
+
+"""
+Syntax node types for which whitespace should be checked.
+See https://docs.julialang.org/en/v1/devdocs/ast/#Bracketed-forms for an overview.
+"""
+const NODE_TYPES_TO_CHECK = KSet"
+    ref
+    typed_vcat
+    typed_hcat
+    typed_ncat
+    curly
+    vect
+    hcat
+    vcat
+    ncat
+    comprehension
+    typed_comprehension
+    tuple
+    block
+    call
+    parameters
+    "
+
+function _get_relevant_node(n)
+    if kind(n) == K"=" && kind(n.parent) == K"parameters"
+        # Find spaces around '=' used for keyword arguments
+        return n.parent
+    elseif kind(n) == K"row"
+        return n.parent
+    else
+        return n
+    end
+end
+
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_toplevel, root -> begin
-        prev::Union{GreenLeaf, Nothing} = nothing
+        for i in eachindex(ctxt.greenleaves)
+            cur = ctxt.greenleaves[i]
+            if i == firstindex(ctxt.greenleaves) || i == lastindex(ctxt.greenleaves)
+                # Skip first and last tokens to prevent out of bounds
+                continue
+            end
+            ctext = sourcetext(cur)
 
-        for gl in ctxt.greenleaves
-            text = sourcetext(gl)
-            if (!isnothing(prev)
-                && kind(gl) == K"Whitespace"
-                && all(c -> c == ' ', text) # Only report if node consists fully out of spaces
-                )
-
-                pos = gl.range.start
-                prevtext = sourcetext(prev)
-
-                expected_spaces = nothing
-                if prevtext ∈ ("[", "]", "(", ")", "{", "}")
-                    expected_spaces = 0
-                elseif prevtext == "="
-                    node = find_syntaxnode_at_position(ctxt, pos)
-                    if kind(node.parent) ∈ KSet"parameters"
-                        expected_spaces = 0
-                    end
-                else
-                    expected_spaces = 1
-                end
-
-                if !isnothing(expected_spaces) && length(gl.range) != expected_spaces
-                    msg = "Expected $expected_spaces " * (expected_spaces == 1 ? "space" : "spaces")
-                    report_violation(ctxt, this, source_location(root.source, pos), gl.range, msg)
-                end
+            if kind(cur) != K"Whitespace"
+                # Only produce violations for whitespace nodes (ignore whitespace with newlines)
+                continue
             end
 
-            prev = gl
+            pos = cur.range.start
+            node = find_syntaxnode_at_position(ctxt, pos)
+            if isnothing(node)
+                continue
+            end
+
+            if kind(_get_relevant_node(node)) ∉ NODE_TYPES_TO_CHECK
+                continue
+            end
+
+            expected_spaces = nothing
+            if sourcetext(ctxt.greenleaves[i-1]) ∈ ("[", "(", "{", "=")
+                expected_spaces = 0 # No space after open delimiter
+            elseif sourcetext(ctxt.greenleaves[i+1]) ∈ ("]", ")", "}", "=", ";", ",")
+                expected_spaces = 0 # No space before close delimiter
+            else
+                expected_spaces = 1 # Exactly one space between elements
+            end
+
+            if !isnothing(expected_spaces) && length(cur.range) != expected_spaces
+                msg = "Expected $expected_spaces " * (expected_spaces == 1 ? "space" : "spaces")
+                report_violation(ctxt, this, source_location(root.source, pos), cur.range, msg)
+            end
         end
 
     end)

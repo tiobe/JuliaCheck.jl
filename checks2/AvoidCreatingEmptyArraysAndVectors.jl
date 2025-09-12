@@ -1,33 +1,34 @@
 module AvoidCreatingEmptyArraysAndVectors
 
-using JuliaSyntax: SyntaxNode, @K_str, children, kind
-using ..SymbolTable: node_is_declaration_of_variable
 using ...Properties: is_array_indx, is_assignment, is_call, is_vect
+using ...SymbolTable: node_is_declaration_of_variable
 
 include("_common.jl")
-struct Check <: Analysis.Check end
 
+struct Check<:Analysis.Check end
 id(::Check) = "avoid-creating-empty-arrays-and-vectors"
 severity(::Check) = 8
 synopsis(::Check) = "Avoid resizing arrays after initialization."
 
-function init(this::Check, ctxt::AnalysisContext)
+function init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_assignment, n -> check(this, ctxt, n))
+    return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
+function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)::Nothing
     if ! node_is_declaration_of_variable(ctxt.symboltable, first(children(assignment_node)))
         return
     end
     assignment_value_node = last(children(assignment_node))
     if _is_naive_empty_initialization(assignment_value_node) ||
-       _is_empty_keyword(assignment_value_node) ||
-       _is_empty_array_initialization(assignment_value_node)
+        _is_empty_keyword(assignment_value_node) ||
+        _is_empty_array_initialization(assignment_value_node)
         if _has_sizehint(assignment_node)
             return
         end
         report_violation(ctxt, this, assignment_node, "Avoid resizing arrays after initialization.")
     end
+    return nothing
 end
 
 function _has_sizehint(assignment_node::SyntaxNode)::Bool
@@ -46,8 +47,11 @@ end
 
 function _get_function_name_from_call_node(call_node::SyntaxNode)::String
     call_type_node = first(children(call_node))
-    function_name = String(call_type_node.data.val)
-    return function_name
+    if isnothing(call_type_node.data.val)
+        return ""
+    else
+        return  String(call_type_node.data.val)
+    end
 end
 
 function _is_naive_empty_initialization(node::SyntaxNode)::Bool

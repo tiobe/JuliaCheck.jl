@@ -12,9 +12,21 @@ spam( ham[ 1 ], [ eggs ] )
 Avoid extraneous whitespace inside parentheses, square brackets or braces.
 Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
 
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(2, 13):
+spam( ham[ 1 ], [ eggs ] )
+#           ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
 AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(2, 18):
 spam( ham[ 1 ], [ eggs ] )
 #                ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(2, 23):
+spam( ham[ 1 ], [ eggs ] )
+#                     ╙ ── Expected 0 spaces.
 Avoid extraneous whitespace inside parentheses, square brackets or braces.
 Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
 
@@ -39,6 +51,18 @@ Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
 AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(8, 13):
 y = [  1, 3,  5 ]
 #           └┘ ── Expected 1 space.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(8, 16):
+y = [  1, 3,  5 ]
+#              ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(9, 6):
+f(; x = 10)
+#    ╙ ── Expected 0 spaces.
 Avoid extraneous whitespace inside parentheses, square brackets or braces.
 Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
 
@@ -69,5 +93,41 @@ Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
 AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(10, 53):
 y_dict = Dict{ String, Int}( "apple" =>  1, "banana"  => 2)
 #                                                   └┘ ── Expected 1 space.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(11, 10):
+tuple = ( a , b, c )
+#        ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(11, 12):
+tuple = ( a , b, c )
+#          ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(11, 19):
+tuple = ( a , b, c )
+#                 ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(12, 10):
+block = ( a ; b; c )
+#        ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(12, 12):
+block = ( a ; b; c )
+#          ╙ ── Expected 0 spaces.
+Avoid extraneous whitespace inside parentheses, square brackets or braces.
+Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
+
+AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters.jl(12, 19):
+block = ( a ; b; c )
+#                 ╙ ── Expected 0 spaces.
 Avoid extraneous whitespace inside parentheses, square brackets or braces.
 Rule: avoid-extraneous-whitespace-between-open-and-close-characters. Severity: 7
