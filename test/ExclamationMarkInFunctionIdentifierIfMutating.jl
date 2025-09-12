@@ -44,7 +44,27 @@ function _process_function(table::SymbolTableStruct, node::SyntaxNode)
     end
 end
 
+function args_1(a::Vector{Int64}, b::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+end
+
+function args_2(; a::Vector{Int64}, b::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+end
+
+function args_3(a::Vector{Int64}; b::Vector{Int64}, c::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+    c[3] = 3
+end
+
 # Good
+function args_0()
+    println("something")
+end
+
 function set_from_array(a::Vector{Int64})::Int64
     b = a[1]
     return b

@@ -57,3 +57,76 @@ end
 #─┘ ── Function mutates argument table without having an exclamation mark.
 Only functions postfixed with an exclamation mark can mutate an argument.
 Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(47, 1):
+┌──────────────────────────────────────────────────
+function args_1(a::Vector{Int64}, b::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+end
+#─┘ ── Function mutates argument a without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(47, 1):
+┌──────────────────────────────────────────────────
+function args_1(a::Vector{Int64}, b::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+end
+#─┘ ── Function mutates argument b without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(52, 1):
+┌────────────────────────────────────────────────────
+function args_2(; a::Vector{Int64}, b::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+end
+#─┘ ── Function mutates argument a without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(52, 1):
+┌────────────────────────────────────────────────────
+function args_2(; a::Vector{Int64}, b::Vector{Int64})
+    a[1] = 1
+    b[2] = 2
+end
+#─┘ ── Function mutates argument b without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(57, 1):
+┌────────────────────────────────────────────────────────────────────
+function args_3(a::Vector{Int64}; b::Vector{Int64}, c::Vector{Int64})
+    a[1] = 1
+⋮
+    c[3] = 3
+end
+#─┘ ── Function mutates argument a without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(57, 1):
+┌────────────────────────────────────────────────────────────────────
+function args_3(a::Vector{Int64}; b::Vector{Int64}, c::Vector{Int64})
+    a[1] = 1
+⋮
+    c[3] = 3
+end
+#─┘ ── Function mutates argument b without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
+
+ExclamationMarkInFunctionIdentifierIfMutating.jl(57, 1):
+┌────────────────────────────────────────────────────────────────────
+function args_3(a::Vector{Int64}; b::Vector{Int64}, c::Vector{Int64})
+    a[1] = 1
+⋮
+    c[3] = 3
+end
+#─┘ ── Function mutates argument c without having an exclamation mark.
+Only functions postfixed with an exclamation mark can mutate an argument.
+Rule: exclamation-mark-in-function-identifier-if-mutating. Severity: 4
