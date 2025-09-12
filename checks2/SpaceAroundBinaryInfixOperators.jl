@@ -28,7 +28,7 @@ function check_ws(this, ctxt, node::SyntaxNode)
 
             full_range = char_range(node.source, combine_ranges([start_whitespace, op_range, end_whitespace]))
 
-            if length(start_whitespace) != expected_ws_length || length(end_whitespace) != expected_ws_length # skip check if range contains a newline
+            if length(start_whitespace) != expected_ws_length || length(end_whitespace) != expected_ws_length
                 msg = "Expected $(no_space ? "no" : "single") whitespace around '$(code[char_range(node.source, op_range)])'."
                 report_violation(ctxt, this,
                     source_location(node.source, full_range.start),
