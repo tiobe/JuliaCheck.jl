@@ -130,7 +130,7 @@ end
     import IOCapture
     normalize(text) = strip(replace(replace(text, "\r\n" => "\n"))) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
-   
+
     all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks2"))))
 
     @testset for checkfile in all_checks
@@ -171,18 +171,13 @@ end
         push!(args, file)
     end
 
-    try 
-        @test length(files) >= 1
-        result = IOCapture.capture() do
-            JuliaCheck.main(args)
-        end
-        out_file = joinpath(@__DIR__, "JuliaCheck-self.out")
-        write(out_file, result.output)
-        println("Finished analyzing $(length(files)) files. Wrote result to $out_file.")
-    catch ex
-        println(ex)
-        @test false 
+    @test length(files) >= 1
+    result = IOCapture.capture() do
+        JuliaCheck.main(args)
     end
+    out_file = joinpath(@__DIR__, "JuliaCheck-self.out")
+    write(out_file, result.output)
+    println("Finished analyzing $(length(files)) files. Wrote result to $out_file.")
 end
 
 

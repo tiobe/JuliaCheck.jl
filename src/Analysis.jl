@@ -85,8 +85,8 @@ end
 function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)
     cs = children(node)
     if cs === nothing
-        range = pos:pos+node.span-1
-        push!(list, GreenLeaf(sf, node, range))
+        rng = range(pos, prevind(sf.code, pos + node.span))
+        push!(list, GreenLeaf(sf, node, rng))
         return
     end
 
@@ -115,7 +115,7 @@ function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{Synt
     end
 
     # Iterate through children to find a more specific node.
-    for child in children(node)
+    for child in something(children(node), [])
         found_child = find_syntaxnode_at_position(child, pos)
         if found_child !== nothing
             return found_child
@@ -255,14 +255,14 @@ function simple_violation_printer(sourcefile::SourceFile, violations)::Nothing
 end
 
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
-    print_ast::Bool = false, 
-    print_llt::Bool = false, 
+    print_ast::Bool = false,
+    print_llt::Bool = false,
     violationprinter::Function = simple_violation_printer
     )::Nothing
 
     if length(checks) >= 1
         @debug "Enabled rules:\n" * join(map(id, checks), "\n")
-    else 
+    else
         throw("No rules to check")
     end
 

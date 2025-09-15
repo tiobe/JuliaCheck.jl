@@ -17,6 +17,7 @@ function __init__()
     Analysis.discover_checks()
 end
 
+
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
             description = "Code checker for Julia programming language.",
@@ -78,13 +79,13 @@ function main(args::Vector{String})
 
             sourcefile::SourceFile = SourceFile(; filename=in_file)
             text::String = read(in_file, String)
-            
-            # Reinstantiate Checks to clear any variables they might have
-            fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run) 
 
-            Analysis.run_analysis(sourcefile, fresh_checks; 
+            # Reinstantiate Checks to clear any variables they might have
+            fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
+
+            Analysis.run_analysis(sourcefile, fresh_checks;
                 violationprinter = highlighting_violation_printer,
-                print_ast = arguments["ast"], 
+                print_ast = arguments["ast"],
                 print_llt = arguments["llt"])
         end
     end
