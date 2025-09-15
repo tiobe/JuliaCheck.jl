@@ -18,7 +18,21 @@ _is_nonmutating_fn(n::SyntaxNode)::Bool = is_function(n) && !endswith(string(get
 
 function check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
     func_arg_strings = get_string_fn_args(function_node)
-    all_mutated_variables = []
+    all_mutated_variables = get_mutated_variables_in_fn(ctxt, function_node)
+    for func_arg in func_arg_strings
+        if func_arg ∈ all_mutated_variables
+            report_violation(ctxt, this, function_node,
+                "Function mutates argument $(string(func_arg)) without having an exclamation mark.")
+        end
+    end
+end
+
+# TODO: Exactly the same as function within FunctionsMutateOnlyZeroOrOneArguments.
+#       Requires a restructuring of how to call this; specifically how functions in
+#       Analysis and Properties should work together (and whether that's even the 
+#       correct idea to do).
+function get_mutated_variables_in_fn(ctxt::AnalysisContext, function_node::SyntaxNode)::Set{String}
+    all_mutated_variables = Set{String}()
     visitor_func = function(n::SyntaxNode)
         if is_array_assignment(n)
             mutated_var = string(first(children(n)))
@@ -36,12 +50,7 @@ function check_function(this::Check, ctxt::AnalysisContext, function_node::Synta
         end
     end
     Analysis.dfs_traversal(ctxt, function_node, visitor_func)
-    for func_arg in func_arg_strings
-        if func_arg ∈ all_mutated_variables
-            report_violation(ctxt, this, function_node,
-                "Function mutates argument $(string(func_arg)) without having an exclamation mark.")
-        end
-    end
+    return all_mutated_variables
 end
 
 end # end ExclamationMarkInFunctionIdentifierIfMutating
