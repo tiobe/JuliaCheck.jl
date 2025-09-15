@@ -8,10 +8,13 @@ using JuliaSyntax: SyntaxNode, kind, numchildren, children, source_location, is_
 import JuliaSyntax: @K_str, @KSet_str
 
 "Returns list of ancestors for given node, excluding self, ordered by increasing distance."
-function ancestors(node::SyntaxNode)::Vector{SyntaxNode}
-    list=Vector{SyntaxNode}()
+function ancestors(node::SyntaxNode; include_self::Bool = false)::Vector{SyntaxNode}
+    list = Vector{SyntaxNode}()
+    if include_self
+        push!(list, node)
+    end
     n = node.parent
-    while n !== nothing
+    while !isnothing(n)
         push!(list, n)
         n = n.parent
     end

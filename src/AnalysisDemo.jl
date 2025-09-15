@@ -16,16 +16,16 @@ using .ViolationPrinters
 using .Properties
 
 global checks = map(c -> c(), subtypes(Check))
-global checks1 = filter(c -> id(c) === "indentation-levels-are-four-spaces", checks)
- 
+global checks1 = filter(c -> id(c) === "avoid-extraneous-whitespace-between-open-and-close-characters", checks)
+
 filename = "dummy.jl"
 text = """
+    println( "test")
     ham[ 1  2  [3  4] ]
-    \"\"\"
-       f( ; x = 10 )
-    \"\"\"
+    a = [ 1, 2,  4]
+    f(; x = 10)
 """
 sourcefile = SourceFile(text, filename=filename)
-run_analysis(sourcefile, checks1; print_ast=true, print_llt=true, 
+run_analysis(sourcefile, checks1; print_ast=true, print_llt=true,
     violationprinter=highlighting_violation_printer)
 
