@@ -1,8 +1,8 @@
 module FunctionsMutateOnlyZeroOrOneArguments
 
 using JuliaSyntax: SyntaxNode, children, is_dotted
-using ...MutatingFunctionsHelpers: get_mutated_variables_in_fn
-using ...Properties: get_string_fn_args, is_function
+using ...MutatingFunctionsHelpers: get_mutated_variables_in_scope
+using ...Properties: get_flattened_fn_arg_nodes, get_string_arg, is_function
 
 include("_common.jl")
 struct Check <: Analysis.Check end
@@ -16,12 +16,13 @@ function init(this::Check, ctxt::AnalysisContext)
 end
 
 function check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
-    func_arg_strings = get_string_fn_args(function_node)
-    all_mutated_variables = get_mutated_variables_in_fn(ctxt, function_node)
-    for func_arg in func_arg_strings[2:end]
-        if func_arg ∈ all_mutated_variables
-            report_violation(ctxt, this, function_node,
-                "Function mutates variable $(string(func_arg)) while it is not the first argument.")
+    func_arg_nodes = get_flattened_fn_arg_nodes(function_node)
+    all_mutated_variables = get_mutated_variables_in_scope(ctxt, function_node)
+    for func_arg in func_arg_nodes[2:end]
+        func_arg_string = get_string_arg(func_arg)
+        if func_arg_string ∈ all_mutated_variables
+            report_violation(ctxt, this, func_arg,
+                "Function mutates variable $(string(func_arg_string)) while it is not the first argument.")
         end
     end
 end

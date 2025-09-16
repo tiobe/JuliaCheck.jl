@@ -1,12 +1,12 @@
 module MutatingFunctionsHelpers
 
-export get_mutated_variables_in_fn
+export get_mutated_variables_in_scope
 
 using JuliaSyntax: SyntaxNode, children
 using ..Analysis
 using ..Properties: is_array_assignment, is_mutating_call, is_broadcasting_assignment, is_field_assignment
 
-"""Returns a set of all variables that are mutated within a given function.
+"""Returns a set of all variables that are mutated within a given scope.
 
 Finds this out by doing a depth-first search through the function, and picking out all
 assignments and call that mutate a variable. Currently, this list is:
@@ -15,7 +15,7 @@ assignments and call that mutate a variable. Currently, this list is:
 * broadcasting assignments to an array (eg. x .= 1)
 * field assignments on a type          (eg. x.field = 1)
 """
-function get_mutated_variables_in_fn(ctxt::AnalysisContext, function_node::SyntaxNode)::Set{String}
+function get_mutated_variables_in_scope(ctxt::AnalysisContext, scope_node::SyntaxNode)::Set{String}
     all_mutated_variables = Set{String}()
     visitor_func = function(n::SyntaxNode)
         if is_array_assignment(n)
@@ -33,7 +33,7 @@ function get_mutated_variables_in_fn(ctxt::AnalysisContext, function_node::Synta
             push!(all_mutated_variables, mutated_var)
         end
     end
-    Analysis.dfs_traversal(ctxt, function_node, visitor_func)
+    Analysis.dfs_traversal(ctxt, scope_node, visitor_func)
     return all_mutated_variables
 end
 
