@@ -9,6 +9,7 @@ include("SymbolTable.jl")
 include("Analysis.jl")
 include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
+include("MutatingFunctionsHelpers.jl")
 
 using .Analysis
 using .ViolationPrinters
