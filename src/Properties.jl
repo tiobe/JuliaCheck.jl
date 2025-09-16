@@ -380,7 +380,7 @@ Gets string representations of all the arguments passed to a function node.
 Returns these strings in the order it finds them.
 """
 function get_string_fn_args(function_node::SyntaxNode)::Vector{String}
-    return [get_string_arg(node) for node in get_func_arguments(function_node)]
+    return [get_string_arg(node) for node in get_flattened_fn_arg_nodes(function_node)]
 end
 
 """
