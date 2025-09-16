@@ -4,5 +4,6 @@ Manifest.toml
 !/.vscode/DebugCheck.jl
 /test/test.jl
 *.jl-
+*.swp
 /test/*.actual
 /test/*.out

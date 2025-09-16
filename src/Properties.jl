@@ -1,7 +1,7 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    head, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
+    head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
 export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
 
@@ -9,16 +9,17 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
 
     fake_green_node, find_lhs_of_kind, first_child,
 
-    get_assignee, get_func_arguments, get_func_body, get_func_name,
+    get_assignee, get_call_name_from_call_node, get_flattened_fn_arg_nodes, 
+    get_func_arguments, get_func_body, get_func_name,
     get_imported_pkg, get_iteration_parts, get_module_name, get_number,
-    get_struct_members, get_struct_name,
+    get_string_arg, get_string_fn_args, get_struct_members, get_struct_name,
 
-    haschildren, increase_counters, is_abstract, is_array_indx, is_assignment,
-    is_constant, is_eq_neq_comparison, is_eval_call, is_export,
-    is_fat_snake_case, is_flow_cntrl,is_function, is_global_decl, is_import,
-    is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
-    is_module, is_operator, is_range, is_separator, is_stop_point, is_struct,
-    is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
+    haschildren, increase_counters, is_abstract, is_array_assignment, is_array_indx, is_assignment,
+    is_broadcasting_assignment, is_constant, is_dot, is_eq_neq_comparison, is_eval_call, is_export,
+    is_fat_snake_case, is_field_assignment, is_flow_cntrl, is_function, is_global_decl,
+    is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
+    is_module, is_mutating_call, is_operator, is_range, is_separator, is_stop_point,
+    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
 
     lines_count, opens_scope,
     source_column, source_index, source_text
@@ -53,6 +54,7 @@ end
 is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
 is_module(    node::AnyTree)::Bool = kind(node) == K"module"
 is_assignment(node::AnyTree)::Bool = kind(node) == K"="
+is_dot(       node::AnyTree)::Bool = kind(node) == K"."
 is_function(  node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
@@ -64,6 +66,10 @@ is_loop(          node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_separator(     node::AnyTree)::Bool = kind(node) in KSet", ;"
 is_flow_cntrl(    node::AnyTree)::Bool = kind(node) in KSet"if for while try"
 is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
+
+is_broadcasting_assignment(n::SyntaxNode)::Bool = is_assignment(n) && is_dotted(n)
+is_field_assignment(       n::SyntaxNode)::Bool = is_assignment(n) && is_dot(first(children(n)))
+is_array_assignment(       n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n.parent) && is_first_child(n)
 
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =
@@ -204,6 +210,11 @@ function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
         # Probably a function "stub", which declares a function name but no methods.
         return []
     end
+    # This returns all the arguments without any further processing.
+    # As such, this may contain:
+    # - only positional arguments (direct children)
+    # - only keyword arguments    (grandchildren, children of a parameters node)
+    # - both                      (combination of children and parameters->grandchildren)
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 
@@ -320,7 +331,7 @@ children(node::AnyTree)::Vector{AnyTree} = isnothing(node.children) ?
                                                 AnyTree[] : node.children
 first_child(node::AnyTree)::NullableNode = haschildren(node) ?
                                                 children(node)[1] : nothing
-
+is_first_child(node::AnyTree)::Bool = node === first(children(node.parent))
 
 """
 Return the first left-hand side node of the given kind, going down the left-most
@@ -337,6 +348,90 @@ expr_depth(node::SyntaxNode)::Int = (! haschildren(node)) ? 1 :
 expr_size(node::SyntaxNode)::Int = (! haschildren(node)) ? 1 :
                                         (1 + sum(expr_size.(children(node))))
 
+"""
+Gets a flat representation of the function argument nodes.
+
+In particular, this is used to ensure that we get just the nodes without needing to think
+of whether there are still named arguments in there.
+"""
+function get_flattened_fn_arg_nodes(function_node::SyntaxNode)::Vector{SyntaxNode}
+    func_arguments = get_func_arguments(function_node)
+    func_arg_nodes = []
+    for arg in func_arguments
+        # Parameters signifies keyword (also known as named) arguments.
+        # All named arguments are then reported in subnodes. For now, we don't
+        # treat them differently from positional arguments. This is underspecified.
+        if kind(arg) == K"parameters"
+            if ! haschildren(arg)
+                continue
+            end
+            for child_arg in children(arg)
+                push!(func_arg_nodes, child_arg)
+            end
+        else
+            push!(func_arg_nodes, arg)
+        end
+    end
+    return func_arg_nodes
+end
+
+"""
+Gets string representations of all the arguments passed to a function node.
+Returns these strings in the order it finds them.
+"""
+function get_string_fn_args(function_node::SyntaxNode)::Vector{String}
+    return [get_string_arg(node) for node in get_flattened_fn_arg_nodes(function_node)]
+end
+
+"""
+Gets a string representation of a single argument node.
+Can be both:
+* a node with leaves. Then it's likely type-annotated, and looks like (:: a Int64).
+* a leaf node. Then it's an untyped argument and should be stringified to its own value.
+"""
+function get_string_arg(arg_node::SyntaxNode)::String
+    if !is_leaf(arg_node)
+        return string(first(children(arg_node)))
+    else
+        return string(arg_node)
+    end
+end
+
+"""
+Given a node, checks whether it's a mutating call. For instance:
+
+push!(a, b) returns true.
+length(a) returns false.
+
+Naïve implementation. Does not recurse. Assumption is that we can trust
+whether a function has been marked as mutating (so has the !).
+Furthermore, the second child should be an identifier - otherwise we might
+be checking against the actual function definition itself rather than its invocation.
+"""
+function is_mutating_call(node::SyntaxNode)::Bool
+    return is_call(node) && _call_name_has_exclamation(node) && kind(children(node)[2]) == K"Identifier"
+end
+
+function _call_name_has_exclamation(call_node::SyntaxNode)::Bool
+    call_name = get_call_name_from_call_node(call_node)
+    # anonymous functions never have an exclamation point in front of them
+    if isnothing(call_name)
+        return false
+    end
+    return endswith(call_name, "!")
+end
+
+"""
+Extracts the name of a call from the call node.
+
+For instance, take the following node: push!(a, 1)
+This is parsed as call (push! a 1). So to find the call, 
+"""
+function get_call_name_from_call_node(call_node::SyntaxNode)::String
+    call_type_node = first(children(call_node))
+    call_name = string(call_type_node)
+    return call_name
+end
 
 """
     get_number(node::SyntaxNode)::Union{Number, Nothing}

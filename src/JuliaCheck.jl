@@ -9,11 +9,14 @@ include("SymbolTable.jl")
 include("Analysis.jl")
 include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
+include("MutatingFunctionsHelpers.jl")
 
 using .Analysis
 using .ViolationPrinters
 
-Analysis.discover_checks()
+function __init__()
+    Analysis.discover_checks()
+end
 
 
 function parse_commandline(args::Vector{String})

@@ -1,6 +1,6 @@
 module AvoidCreatingEmptyArraysAndVectors
 
-using ...Properties: is_array_indx, is_assignment, is_call, is_vect
+using ...Properties: get_call_name_from_call_node, is_array_indx, is_assignment, is_call, is_vect
 using ...SymbolTable: node_is_declaration_of_variable
 
 include("_common.jl")
@@ -35,7 +35,7 @@ function _has_sizehint(assignment_node::SyntaxNode)::Bool
     assigned_variable = first(children(assignment_node)).data.val
     sibling_nodes = children(assignment_node.parent)
     for sibling_node in sibling_nodes
-        if is_call(sibling_node) && _get_function_name_from_call_node(sibling_node) == "sizehint!"
+        if is_call(sibling_node) && get_call_name_from_call_node(sibling_node) == "sizehint!"
             var_node = children(sibling_node)[2]
             if var_node.data.val == assigned_variable
                 return true
@@ -43,15 +43,6 @@ function _has_sizehint(assignment_node::SyntaxNode)::Bool
         end
     end
     return false
-end
-
-function _get_function_name_from_call_node(call_node::SyntaxNode)::String
-    call_type_node = first(children(call_node))
-    if isnothing(call_type_node.data.val)
-        return ""
-    else
-        return String(call_type_node.data.val)
-    end
 end
 
 function _is_naive_empty_initialization(node::SyntaxNode)::Bool
@@ -65,8 +56,11 @@ function _is_empty_keyword(node::SyntaxNode)::Bool
     return is_call(node) && string(first(children(node))) == "empty"
 end
 
+# Single child means that there is nothing inside the array.
+# The parent node then looks like this: (= v (vect)). The "assignment value" , right-hand side
+# only has a single node. Any further children would define values inside the vector (or other type)
 function _is_empty_array_initialization(node::SyntaxNode)::Bool
-    return is_array_indx(node) && isnothing(node.data.val)
+    return is_array_indx(node) && numchildren(node) == 1
 end
 
 end # end AvoidCreatingEmptyArraysAndVectors
