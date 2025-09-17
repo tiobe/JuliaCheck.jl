@@ -131,10 +131,10 @@ end
     normalize(text) = strip(replace(replace(text, "\r\n" => "\n"))) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
 
-    all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks2"))))
+    all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
 
     @testset for checkfile in all_checks
-        testfile = replace(checkfile, r"/checks2?/" => s"test")
+        testfile = replace(checkfile, "checks" => "test")
         valfile = splitext(testfile)[1] * ".val"
 
         if !isfile(valfile)
@@ -162,7 +162,7 @@ end
 @testitem "JuliaCheck self" begin
     import IOCapture
     isjuliafile = f -> endswith(f, ".jl")
-    checkfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "checks2"), join=true))
+    checkfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "checks"), join=true))
     srcfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "src"), join=true))
     files = union(checkfiles, srcfiles)
 
