@@ -208,9 +208,9 @@ function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Fu
     return nothing
 end
 
-"Load all check modules in checks2 directory."
+"Load all check modules in checks directory."
 function discover_checks()::Nothing
-    for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks2"), join=true))
+    for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks"), join=true))
         try
             include(file)
         catch exception
