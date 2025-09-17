@@ -32,7 +32,7 @@ const ABSTRACT_NUMBER_TYPES = Set([
     "AbstractFloat",
     "Integer",
     "Signed",
-    "Unsiqned",
+    "Unsigned",
     "AbstractIrrational",
 ])
 
