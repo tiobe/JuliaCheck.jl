@@ -111,9 +111,9 @@ Find all byte ranges of the operator in the given SyntaxNode.
 """
 function _find_operator_ranges(node::SyntaxNode)::Vector{UnitRange{Int}}
     if kind(node) == K"dotcall"
-        dotranges = _find_dotcall_ranges(node)
-        if !isempty(dotranges)
-            return dotranges
+        dotrange = _find_dotcall_range(node)
+        if !isnothing(dotrange)
+            return [dotrange]
         end
     end
     return _find_operator_token_ranges(node)
@@ -166,9 +166,9 @@ end
 Find the byte range of the dot and the following operator in a dotcall node.
 E.g. in `a .+ b`, find the range of `.+`.
 """
-function _find_dotcall_ranges(node::SyntaxNode)::Vector{UnitRange{Int}}
+function _find_dotcall_range(node::SyntaxNode)::Union{UnitRange{Int}, Nothing}
     if kind(node) != K"dotcall"
-        return []
+        return nothing
     end
     # Only check direct children, to avoid matching nested dotcalls
     g_cs = node.raw.children
@@ -177,7 +177,7 @@ function _find_dotcall_ranges(node::SyntaxNode)::Vector{UnitRange{Int}}
     _, rel_start_pos, _ = JS.child_position_span(node.raw, dot_idx)
     _, rel_end_pos, end_span = JS.child_position_span(node.raw, op_idx)
     dotcall_range = (rel_start_pos):(rel_end_pos + end_span - 1)
-    return [normalize_range(node, dotcall_range)]
+    return normalize_range(node, dotcall_range)
 end
 
 """
@@ -188,8 +188,8 @@ function _token_is_operator(
     sn_kind_text::AbstractString,
     text::AbstractString
 )::Bool
-    untokenized_t = _get_operator_string(token, text)
-    return untokenized_t == sn_kind_text
+    token_text = _get_operator_string(token, text)
+    return token_text == sn_kind_text
 end
 
 """
@@ -198,14 +198,14 @@ This is needed because operators are parsed with kind Identifier, and we need to
 """
 function _get_operator_string(node::SyntaxNode)::String
     if node.val isa Symbol
-        return String(node.val)
+        return String(node.val) # For operators with kind Identifier, get the operator type from the 'val' field.
     else
         return kind(node) |> string
     end
 end
 
 """
-Get the string representation
+Get the string representation of the given token, as it appears in the source code.
 """
 function _get_operator_string(token::JS.Token, text::AbstractString)::String
     return JS.untokenize(token, text)
