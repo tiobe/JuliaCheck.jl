@@ -1,16 +1,12 @@
 module SpaceAroundBinaryInfixOperators
 
-using ...Analysis: find_greenleaf
 using JuliaSyntax:
     @KSet_str,
-    GreenNode,
     is_infix_op_call,
-    is_prefix_op_call,
     SourceFile,
-    JuliaSyntax as JS,
-    is_type_operator
+    JuliaSyntax as JS
 using ...Properties: is_infix_operator, is_type_op
-using ...SyntaxNodeHelpers
+using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers:
     char_range,
     followed_by_comment,
@@ -57,7 +53,6 @@ function _node_applicable(node::SyntaxNode)::Bool
 end
 
 function _check_whitespace(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    code = node.source.code
     op_node = _get_op_node(node)
     no_space =
         any(a -> kind(a) == K"ref", ancestors(node)) ||
@@ -66,8 +61,8 @@ function _check_whitespace(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     for op_range in op_ranges
         if !isnothing(op_range)
             expected_ws_length = no_space ? 0 : 1
-            start_whitespace = find_whitespace_range(code, op_range.start, false)
-            end_whitespace = find_whitespace_range(code, op_range.stop, true)
+            start_whitespace = find_whitespace_range(node.source.code, op_range.start, forward=false)
+            end_whitespace = find_whitespace_range(node.source.code, op_range.stop, forward=true)
 
             start_ws_ok = _whitespace_ok(start_whitespace, expected_ws_length, node.source)
             end_ws_ok = (
@@ -188,7 +183,7 @@ function _token_is_operator(
     sn_kind_text::AbstractString,
     text::AbstractString
 )::Bool
-    token_text = _get_operator_string(token, text)
+    token_text = JS.untokenize(token, text)
     return token_text == sn_kind_text
 end
 
@@ -202,13 +197,6 @@ function _get_operator_string(node::SyntaxNode)::String
     else
         return kind(node) |> string
     end
-end
-
-"""
-Get the string representation of the given token, as it appears in the source code.
-"""
-function _get_operator_string(token::JS.Token, text::AbstractString)::String
-    return JS.untokenize(token, text)
 end
 
 end # module SpaceAroundBinaryInfixOperators

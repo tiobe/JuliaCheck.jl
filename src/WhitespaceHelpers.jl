@@ -1,6 +1,6 @@
 module WhitespaceHelpers
 
-import JuliaSyntax: SourceFile, char_range, SyntaxNode
+using JuliaSyntax: SourceFile, SyntaxNode
 
 export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range
 
@@ -9,8 +9,8 @@ Find the range of whitespace starting from `start_idx` and going either forward 
 """
 function find_whitespace_range(
     text::AbstractString,
-    start_idx::Int,
-    forward::Bool
+    start_idx::Int;
+    forward::Bool=true
 )::UnitRange{Int}
     find = forward ? nextind : prevind
     first_find = find(text, start_idx)
@@ -54,7 +54,9 @@ function char_range(source::SourceFile, byte_range::UnitRange{Int})::UnitRange{I
 end
 
 """
-Calculate the result of subtracting a set of ranges from `base_range`. Example: difference(1:20, [3:6, 10:15, 20:25]) = [1:2, 7:9, 16:19].
+Calculate the result of subtracting a set of ranges from `base_range`.
+
+Example: difference(1:20, [3:6, 10:15, 20:25]) = [1:2, 7:9, 16:19].
 """
 function difference(
     one::UnitRange{Int},
@@ -72,7 +74,9 @@ function difference(
 end
 
 """
-Calculate the result of subtracting a ranges from `base_range`. Example: difference(1:20, 10:15) = [1:9, 16:20].
+Calculate the result of subtracting a range from `base_range`.
+
+Example: difference(1:20, 10:15) = [1:9, 16:20].
 """
 function _difference(one::UnitRange{Int}, other::UnitRange{Int})::Vector{UnitRange{Int}}
     if isempty(one) || isempty(other) || one.stop < other.start || other.stop < one.start
@@ -98,7 +102,10 @@ function normalize_range(base_node::SyntaxNode, relative_range::UnitRange)::Unit
 end
 
 """
-Combine several ranges into one continuous range spanning all of them.
+Combine several ranges into one continuous range spanning across all of them.
+Gaps and overlap are ignored.
+
+Example: combine_ranges([2:14, 7:19, 25:30]) = 2:30
 """
 function combine_ranges(ranges::Vector{UnitRange{Int}})::UnitRange{Int}
     if isempty(ranges)
