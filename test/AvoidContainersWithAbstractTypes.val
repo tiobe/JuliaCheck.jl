@@ -1,0 +1,19 @@
+>> Processing file 'AvoidContainersWithAbstractTypes.jl'...
+
+AvoidContainersWithAbstractTypes.jl(2, 14):
+num_vector = Real[1.0, 2, 3] # Type will be Vector{Real}. Real is abstract.
+#            └──┘ ── Type 'Real' is an abstract number type and should not be used as a container type.
+Avoid containers with abstract types.
+Rule: avoid-containers-with-abstract-types. Severity: 6
+
+AvoidContainersWithAbstractTypes.jl(3, 24):
+another_vector = Array{Number}[]
+#                      └────┘ ── Type 'Number' is an abstract number type and should not be used as a container type.
+Avoid containers with abstract types.
+Rule: avoid-containers-with-abstract-types. Severity: 6
+
+AvoidContainersWithAbstractTypes.jl(4, 13):
+a_set = Set{AbstractFloat}[1.0, 2, 3]
+#           └───────────┘ ── Type 'AbstractFloat' is an abstract number type and should not be used as a container type.
+Avoid containers with abstract types.
+Rule: avoid-containers-with-abstract-types. Severity: 6
