@@ -9,6 +9,7 @@ include("SymbolTable.jl")
 include("Analysis.jl")
 include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
+include("WhitespaceHelpers.jl")
 
 using .Analysis
 using .ViolationPrinters
@@ -97,4 +98,3 @@ if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE
 end
 
 end # module JuliaCheck
-
