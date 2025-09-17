@@ -1,8 +1,8 @@
 module WhitespaceHelpers
 
-export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range
-
 import JuliaSyntax: SourceFile, char_range, SyntaxNode
+
+export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range
 
 """
 Find the range of whitespace starting from `start_idx` and going either forward or backward.

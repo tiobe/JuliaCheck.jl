@@ -24,11 +24,18 @@ include("_common.jl")
 struct Check<:Analysis.Check end
 id(::Check) = "space-around-binary-infix-operators"
 severity(::Check) = 7
-synopsis(::Check) =
-    "Selected binary infix operators and the = character are followed and preceded by a single space."
+function synopsis(::Check)
+    return "Selected binary infix operators and the = character are followed and preceded by a single space."
+end
 
-const NO_WHITESPACE_KINDS = ["^"]   # assert 0 spaces
-const EXCLUDED_KINDS = [":", "."]   # ignore
+"""
+Kinds for which the rule will assert no whitespace surrounds them
+"""
+const NO_WHITESPACE_KINDS = ["^"]
+"""
+Kinds for which the surrounding whitespace is not checked
+"""
+const EXCLUDED_KINDS = [":", "."]
 
 function init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(
@@ -41,9 +48,9 @@ end
 
 function _node_applicable(node::SyntaxNode)::Bool
     if !is_infix_operator(node) ||
-       is_type_op(node) ||
-       kind(node.parent) in KSet"parameters" ||
-       _get_operator_string(_get_op_node(node)) in EXCLUDED_KINDS
+            is_type_op(node) ||
+            kind(node.parent) in KSet"parameters" ||
+            _get_operator_string(_get_op_node(node)) in EXCLUDED_KINDS
         return false
     end
     return true
@@ -65,7 +72,7 @@ function _check_whitespace(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
             start_ws_ok = _whitespace_ok(start_whitespace, expected_ws_length, node.source)
             end_ws_ok = (
                 _whitespace_ok(end_whitespace, expected_ws_length, node.source) ||
-                followed_by_comment(end_whitespace, node.source)
+                followed_by_comment(end_whitespace, node.source)    # Whitespace before inline comment is allowed
             )
 
             if !(start_ws_ok && end_ws_ok)
@@ -169,7 +176,7 @@ function _find_dotcall_ranges(node::SyntaxNode)::Vector{UnitRange{Int}}
     op_idx = nextind(g_cs, dot_idx)
     _, rel_start_pos, _ = JS.child_position_span(node.raw, dot_idx)
     _, rel_end_pos, end_span = JS.child_position_span(node.raw, op_idx)
-    dotcall_range = (rel_start_pos):(rel_end_pos+end_span-1)
+    dotcall_range = (rel_start_pos):(rel_end_pos + end_span - 1)
     return [normalize_range(node, dotcall_range)]
 end
 
