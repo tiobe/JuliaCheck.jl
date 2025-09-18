@@ -1,5 +1,6 @@
 module AvoidContainersWithAbstractTypes
 
+using JuliaSyntax: is_leaf
 using ...Properties: is_assignment, NullableNode
 
 include("_common.jl")
@@ -59,7 +60,7 @@ function is_container(node::SyntaxNode)::Bool
         return false
     end
     rhs = children(node)[2]
-    if numchildren(rhs) > 0 && kind(rhs) == K"ref"
+    if numchildren(rhs) > 0 && kind(rhs) in KSet"ref call curly"
         return true
     end
     return false
@@ -67,15 +68,14 @@ end
 
 function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     assignment_rhs = children(node)[2]
-    node_to_check_for_type = first(children(assignment_rhs))
-    node_containing_type = _get_node_to_check(node_to_check_for_type)
-    if !isnothing(node_containing_type)
-        type_to_check = string(node_containing_type)
+    id_type_node = _get_identifier_node_to_check(assignment_rhs)
+    if !isnothing(id_type_node)
+        type_to_check = string(id_type_node)
         if type_to_check ∈ ABSTRACT_NUMBER_TYPES
             report_violation(
                 ctxt,
                 this,
-                node_containing_type,
+                id_type_node,
                 "Type '$type_to_check' is an abstract number type and should not be used as a container type.",
             )
         end
@@ -83,13 +83,31 @@ function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-function _get_node_to_check(node::SyntaxNode)::NullableNode
-    if kind(node) == K"Identifier"
+# Curly braces notations get translated like this:
+# - Array{Number}[] => (curly Array Number)
+# - Array{Array}{Number}[] => (curly Array (curly Array Number))
+# As such; return only when the second child is an identifier and not another curly.
+function _get_identifier_node_to_check(node::SyntaxNode)::NullableNode
+    while _search_further(node)
+        node = _get_next_search_node(node)
+    end
+    if !isnothing(node) && kind(node) == K"Identifier"
         return node
     end
-    # Curly braces notations get translated like this, so we want the second child:
-    # Array{Number}[] => (curly Array Number)
-    if kind(node) == K"curly"
+    return nothing
+end
+
+function _search_further(node::NullableNode)::Bool
+    if isnothing(node) || is_leaf(node) || kind(node) == K"Identifier"
+        return false
+    end
+    return true
+end
+
+function _get_next_search_node(node::SyntaxNode)::NullableNode
+    if kind(node) ∈ KSet"ref call"
+        return children(node)[1]
+    elseif kind(node) == K"curly"
         return children(node)[2]
     end
     return nothing

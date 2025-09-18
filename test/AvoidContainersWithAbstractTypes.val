@@ -13,7 +13,19 @@ Avoid containers with abstract types.
 Rule: avoid-containers-with-abstract-types. Severity: 6
 
 AvoidContainersWithAbstractTypes.jl(4, 13):
-a_set = Set{AbstractFloat}[1.0, 2, 3]
+a_set = Set{AbstractFloat}([1.0, 2, 3])
 #           └───────────┘ ── Type 'AbstractFloat' is an abstract number type and should not be used as a container type.
+Avoid containers with abstract types.
+Rule: avoid-containers-with-abstract-types. Severity: 6
+
+AvoidContainersWithAbstractTypes.jl(5, 28):
+double_array = Array{Array{Number}}
+#                          └────┘ ── Type 'Number' is an abstract number type and should not be used as a container type.
+Avoid containers with abstract types.
+Rule: avoid-containers-with-abstract-types. Severity: 6
+
+AvoidContainersWithAbstractTypes.jl(6, 34):
+triple_array = Array{Array{Array{Number}}}
+#                                └────┘ ── Type 'Number' is an abstract number type and should not be used as a container type.
 Avoid containers with abstract types.
 Rule: avoid-containers-with-abstract-types. Severity: 6
