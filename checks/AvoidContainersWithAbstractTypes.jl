@@ -56,7 +56,6 @@ function is_container(node::SyntaxNode)::Bool
         return false
     end
     rhs = children(node)[2]
-    println(node)
     return !is_leaf(rhs) && kind(rhs) in KSet"ref call curly"
 end
 
