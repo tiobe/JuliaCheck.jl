@@ -49,21 +49,15 @@ end
 
 # Structure of a typical node we want to check here:
 # (= num_vector (ref Real 1.0 2 3))
-# We want to check the right-hand side of the assignment:
-# - and whether that has any type specifiers,
-# - and whether any one of those type specifiers is an abstract type.
+# We want to check the type right-hand side of the assignment.
+# For some invocations, this is also wrapped inside a call (eg. list comprehensions)
 function is_container(node::SyntaxNode)::Bool
-    if !is_assignment(node)
-        return false
-    end
-    if numchildren(node) < 2
+    if !is_assignment(node) || numchildren(node) < 2
         return false
     end
     rhs = children(node)[2]
-    if numchildren(rhs) > 0 && kind(rhs) in KSet"ref call curly"
-        return true
-    end
-    return false
+    println(node)
+    return !is_leaf(rhs) && kind(rhs) in KSet"ref call curly"
 end
 
 function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
@@ -86,7 +80,8 @@ end
 # Curly braces notations get translated like this:
 # - Array{Number}[] => (curly Array Number)
 # - Array{Array}{Number}[] => (curly Array (curly Array Number))
-# As such; return only when the second child is an identifier and not another curly.
+# As such, to find the type of multidimensional arrays, it's convenient to be able
+# to walk down the tree until an identifier is found.
 function _get_identifier_node_to_check(node::SyntaxNode)::NullableNode
     while _search_further(node)
         node = _get_next_search_node(node)
