@@ -63,7 +63,7 @@ function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     assignment_rhs = children(node)[2]
     id_type_node = _get_identifier_node_to_check(assignment_rhs)
     if !isnothing(id_type_node)
-        type_to_check = string(id_type_node)
+        type_to_check = String(id_type_node.val)
         if type_to_check ∈ ABSTRACT_NUMBER_TYPES
             report_violation(
                 ctxt,
