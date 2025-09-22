@@ -8,7 +8,7 @@ using JuliaCheck
         JuliaSyntax as JS
     include("../src/Properties.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: is_declared_in_current_scope,
-        clear_symbol_table!, declare!, enter_module!, enter_main_module!, enter_scope!,
+        clear_symbol_table!, _declare!, enter_module!, enter_main_module!, enter_scope!,
         exit_module!, exit_main_module!, exit_scope!, is_declared, is_global, SymbolTableStruct
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
@@ -21,8 +21,8 @@ using JuliaCheck
     enter_main_module!(table)
     x = make_node("x")
     y = make_node("y")
-    declare!(table, x)
-    declare!(table, y)
+    _declare!(table, x)
+    _declare!(table, y)
 
     # Push a new scope in Main module
     # State expectations:
@@ -34,8 +34,8 @@ using JuliaCheck
     #                [2] Scope (global): {y, x}
     enter_scope!(table)
     z = make_node("z")
-    declare!(table, z)
-    declare!(table, x)
+    _declare!(table, z)
+    _declare!(table, x)
 
     @test is_declared(table, x)
     @test is_declared(table, y)
@@ -60,8 +60,8 @@ using JuliaCheck
     enter_module!(table, "MyModule")
     a = make_node("a")
     b = make_node("b")
-    declare!(table, a)
-    declare!(table, b)
+    _declare!(table, a)
+    _declare!(table, b)
 
     @test is_declared(table, a)
     @test is_declared(table, b)

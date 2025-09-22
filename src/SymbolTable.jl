@@ -196,9 +196,9 @@ end
 """
 Register an identifier.
 """
-declare!(table::SymbolTableStruct, symbol::SyntaxNode) = declare!(table, current_scope(table), symbol)
+_declare!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(current_scope(table), symbol)
 
-function declare!(table::SymbolTableStruct, scp::Scope, node::SyntaxNode)
+function _declare_on_scope!(scp::Scope, node::SyntaxNode)
     symbol_id = _get_symbol_id(node)
     if haskey(scp, symbol_id)
         push!(scp[symbol_id].all_nodes, node)
@@ -214,7 +214,7 @@ Global identifiers have their own convenience method. Special checks exist on gl
 and potentially global identifiers / variables might also be changed in a way that crosses through
 the scope they are changed in.
 """
-declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = declare!(table, global_scope(table), symbol)
+_declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(global_scope(table), symbol)
 
 _get_symbol_id(node::SyntaxNode)::String = string(node)
 
@@ -248,7 +248,7 @@ function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
     fname = get_func_name(node)
     if !isnothing(fname)
         if kind(fname) == K"Identifier"
-            declare!(table, fname)
+            _declare!(table, fname)
         end
     end
     enter_scope!(table)
@@ -272,7 +272,7 @@ function _process_global!(table::SymbolTableStruct, node::SyntaxNode)
     if isnothing(arg)
         return nothing
     end
-    declare_global!(table, arg)
+    _declare_global!(table, arg)
 end
 
 function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
@@ -280,15 +280,15 @@ function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
     if isnothing(arg)
         return nothing
     end
-    declare!(table, arg)
+    _declare!(table, arg)
 end
 
 function _process_assignment!(table::SymbolTableStruct, node::SyntaxNode)
-    declare!(table, first(get_assignee(node)))
+    _declare!(table, first(get_assignee(node)))
 end
 
 function _process_struct!(table::SymbolTableStruct, node::SyntaxNode)
-    declare!(table, find_lhs_of_kind(K"Identifier", node))
+    _declare!(table, find_lhs_of_kind(K"Identifier", node))
 end
 
 """
