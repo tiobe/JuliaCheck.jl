@@ -1,19 +1,21 @@
 module SymbolTable
 
 import DataStructures: Stack
+
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
     get_module_name, haschildren, is_assignment, is_function, is_global_decl, is_module,
     opens_scope
+using ..TypeFunctions: TypeSpecifier
 
 export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
 export update_symbol_table_on_node_leave!, is_global
 
-## Types
-
 struct SymbolTableItem
     all_nodes::Vector{SyntaxNode}
+    initial_type::TypeSpecifier
 end
+SymbolTableItem(all_nodes::Vector{SyntaxNode}) = SymbolTableItem(all_nodes, nothing)
 
 #=
 A scope is represented by a vector (because we would like to keep the ordering!)

@@ -7,6 +7,7 @@ using JuliaCheck
     using JuliaSyntax: GreenNode, Kind, @K_str, SyntaxNode, parsestmt,
         JuliaSyntax as JS
     include("../src/Properties.jl")
+    include("../src/TypeFunctions.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: is_declared_in_current_scope,
         clear_symbol_table!, _declare!, enter_module!, enter_main_module!, enter_scope!,
         exit_module!, exit_main_module!, exit_scope!, is_declared, is_global, SymbolTableStruct
@@ -112,11 +113,11 @@ using JuliaCheck
     @test !is_declared(table, y)
 end
 
-
+# TODO: Check if this list of imports can be truncated somehow.
 @testitem "Numbers" begin
     using JuliaSyntax: SyntaxNode, parsestmt
     include("../src/Properties.jl"); using .Properties: get_number
-    include("../src/SymbolTable.jl"); using .SymbolTable: declare!, enter_module!,
+    include("../src/SymbolTable.jl"); using .SymbolTable: _declare!, enter_module!,
         enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
         exit_scope!, is_declared, is_global
 
