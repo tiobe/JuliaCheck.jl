@@ -3,7 +3,7 @@ module TypeFunctions
 export get_type, is_different_type, TypeSpecifier
 
 using JuliaSyntax: children, is_infix_op_call, is_leaf, is_literal, kind, SyntaxNode, @K_str
-using ...Properties: get_call_name_from_call_node, is_call
+using ..Properties: get_call_name_from_call_node, is_call
 
 # TODO: Is it really necessary to define our own type handling here?
 #       Wish there was some other way of doing this.
