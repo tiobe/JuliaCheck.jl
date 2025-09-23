@@ -4,12 +4,12 @@ import DataStructures: Stack
 
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
-    get_module_name, haschildren, is_assignment, is_function, is_global_decl, is_module,
-    opens_scope
-using ..TypeFunctions: TypeSpecifier
+    get_module_name, haschildren, is_assignment, is_function,
+    is_global_decl, is_module, opens_scope
+using ..TypeFunctions: get_type, is_different_type, TypeSpecifier
 
 export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
-export update_symbol_table_on_node_leave!, is_global
+export update_symbol_table_on_node_leave!, is_global, type_has_changed_from_init, get_initial_type_of_node
 
 struct SymbolTableItem
     all_nodes::Vector{SyntaxNode}
@@ -198,15 +198,22 @@ end
 """
 Register an identifier.
 """
-_declare!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(current_scope(table), symbol)
+_declare!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(current_scope(table), symbol, nothing)
 
-function _declare_on_scope!(scp::Scope, node::SyntaxNode)
+function _declare_on_scope!(scp::Scope, node::SyntaxNode, type_spec::TypeSpecifier)
     symbol_id = _get_symbol_id(node)
     if haskey(scp, symbol_id)
         push!(scp[symbol_id].all_nodes, node)
     else
-        scp[symbol_id] = SymbolTableItem([node])
+        scp[symbol_id] = SymbolTableItem([node], type_spec)
     end
+end
+
+"""
+Register a typed identifier.
+"""
+function _declare_with_type!(table::SymbolTableStruct, symbol::SyntaxNode, var_type::TypeSpecifier)
+    _declare_on_scope!(current_scope(table), symbol, var_type)
 end
 
 """
@@ -216,7 +223,7 @@ Global identifiers have their own convenience method. Special checks exist on gl
 and potentially global identifiers / variables might also be changed in a way that crosses through
 the scope they are changed in.
 """
-_declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(global_scope(table), symbol)
+_declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(global_scope(table), symbol, nothing)
 
 _get_symbol_id(node::SyntaxNode)::String = string(node)
 
@@ -286,7 +293,9 @@ function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
 end
 
 function _process_assignment!(table::SymbolTableStruct, node::SyntaxNode)
-    _declare!(table, first(get_assignee(node)))
+    var_node = first(get_assignee(node))
+    type_of_node = get_type(node)
+    _declare_with_type!(table, var_node, type_of_node)
 end
 
 function _process_struct!(table::SymbolTableStruct, node::SyntaxNode)
@@ -308,6 +317,27 @@ function update_symbol_table_on_node_leave!(table::SymbolTableStruct, node::Synt
     end
 end
 
+function get_initial_type_of_node(table::SymbolTableStruct, assignment_node::SyntaxNode)::TypeSpecifier
+    scp = current_scope(table)
+    var_node = get_var_from_assignment(assignment_node)
+    if haskey(scp, var_node)
+        return scp[var_node].initial_type
+    end
+end
+
+function type_has_changed_from_init(table::SymbolTableStruct, assignment_node::SyntaxNode)::Bool
+    scp = current_scope(table)
+    var_node = get_var_from_assignment(assignment_node)
+    if haskey(scp, var_node)
+        current_type = get_type(assignment_node)
+        return is_different_type(scp[var_node].initial_type, current_type)
+    end
+end
+
+function get_var_from_assignment(node::SyntaxNode)::String
+    lhs = first(children(node))
+    return string(lhs.data.val)
+end
 
 """
 Display the current state of the symbols table.

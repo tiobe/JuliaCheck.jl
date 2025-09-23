@@ -1,6 +1,6 @@
 module TypeFunctions
 
-export get_type, TypeSpecifier
+export get_type, is_different_type, TypeSpecifier
 
 using JuliaSyntax: children, kind, SyntaxNode, @K_str
 
@@ -18,7 +18,7 @@ function is_different_type(type_1::TypeSpecifier, type_2::TypeSpecifier)::Bool
     if isnothing(type_1) || isnothing(type_2)
         return false
     end
-    return type_1 == type_2
+    return type_1 != type_2
 end
 
 function get_type(node::SyntaxNode)::TypeSpecifier
@@ -30,7 +30,7 @@ end
 
 function _get_type_from_assignment(assignment_node::SyntaxNode)::String
     rhs = children(assignment_node)[2]
-    type_string = kind(rhs)
+    type_string = string(kind(rhs))
     return type_string
 end
 
