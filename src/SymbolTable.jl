@@ -323,6 +323,7 @@ function get_initial_type_of_node(table::SymbolTableStruct, assignment_node::Syn
     if haskey(scp, var_node)
         return scp[var_node].initial_type
     end
+    return nothing
 end
 
 function type_has_changed_from_init(table::SymbolTableStruct, assignment_node::SyntaxNode)::Bool
@@ -332,6 +333,7 @@ function type_has_changed_from_init(table::SymbolTableStruct, assignment_node::S
         current_type = get_type(assignment_node)
         return is_different_type(scp[var_node].initial_type, current_type)
     end
+    return false
 end
 
 function get_var_from_assignment(node::SyntaxNode)::String

@@ -117,6 +117,7 @@ end
 @testitem "Numbers" begin
     using JuliaSyntax: SyntaxNode, parsestmt
     include("../src/Properties.jl"); using .Properties: get_number
+    include("../src/TypeFunctions.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: _declare!, enter_module!,
         enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
         exit_scope!, is_declared, is_global
