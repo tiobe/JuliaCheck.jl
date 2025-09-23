@@ -17,17 +17,8 @@ The line endings of this file itself should always be LF, see .gitattributes
     using .ConsistentLineEndings: Check
     using IOCapture
 
-    function test(text::AbstractString, exp::AbstractString)::Nothing
-        checks::Vector{Analysis.Check} = [Check()]
-        source = SourceFile(text; filename="test_file.jl")
-        result = IOCapture.capture() do
-            Analysis.run_analysis(source, checks, violationprinter=highlighting_violation_printer)
-        end
-        @test replace(result.output, r"\r\n?" => "\n") == exp   # In the output, we do not need to compare line endings
-        return nothing
-    end
-
-    test_cases = [
+    "Test files and corresponding expected output. Defined here and not in separate files so we can manipulate line endings more easily."
+    const TEST_CASES = [
         """
         module ConsistentLineEndings
 
@@ -46,15 +37,15 @@ The line endings of this file itself should always be LF, see .gitattributes
         test_file.jl(5, 0):
         function init(this::Check, ctxt::AnalysisContext) # This is a CRLF:
         └─────────────────────────────────────────────────────────────────┘ ── Inconsistent line ending CRLF, should match rest of the file (LF).
-        Use consistent line endings.
-        Rule: consistent-line-endings. Severity: 3
+        Make sure that the line endings are consistent within a file.
+        Rule: consistent-line-endings. Severity: 7
 
         test_file.jl(11, 0):
         end # This is a CR:
         end # module ConsistentLineEndings
         └───────────────────────────────────────────────────┘ ── Inconsistent line ending CR, should match rest of the file (LF).
-        Use consistent line endings.
-        Rule: consistent-line-endings. Severity: 3
+        Make sure that the line endings are consistent within a file.
+        Rule: consistent-line-endings. Severity: 7
         """,
         """
         module ConsistentLineEndings\r
@@ -76,18 +67,28 @@ The line endings of this file itself should always be LF, see .gitattributes
                 end # This is a CR:
         end # module ConsistentLineEndings
         └───────────────────────────────────────────────────────────┘ ── Inconsistent line ending CR, should match rest of the file (CRLF).
-        Use consistent line endings.
-        Rule: consistent-line-endings. Severity: 3
+        Make sure that the line endings are consistent within a file.
+        Rule: consistent-line-endings. Severity: 7
 
         test_file.jl(5, 0):
                 function init(this::Check, ctxt::AnalysisContext) # This is an LF:
         └────────────────────────────────────────────────────────────────────────┘ ── Inconsistent line ending LF, should match rest of the file (CRLF).
-        Use consistent line endings.
-        Rule: consistent-line-endings. Severity: 3
+        Make sure that the line endings are consistent within a file.
+        Rule: consistent-line-endings. Severity: 7
         """
     ]
 
-    for (text, exp) in test_cases
+    function test(text::AbstractString, exp::AbstractString)::Nothing
+        checks::Vector{Analysis.Check} = [Check()]
+        source = SourceFile(text; filename="test_file.jl")
+        result = IOCapture.capture() do
+            Analysis.run_analysis(source, checks; violationprinter=highlighting_violation_printer)
+        end
+        @test replace(result.output, r"\r\n?" => "\n") == exp # In the output, we do not need to compare line endings
+        return nothing
+    end
+
+    for (text, exp) in TEST_CASES
         test(text, exp)
     end
 end
