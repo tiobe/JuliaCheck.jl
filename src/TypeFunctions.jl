@@ -2,7 +2,8 @@ module TypeFunctions
 
 export get_type, is_different_type, TypeSpecifier
 
-using JuliaSyntax: children, is_leaf, is_literal, kind, SyntaxNode, @K_str
+using JuliaSyntax: children, is_infix_op_call, is_leaf, is_literal, kind, SyntaxNode, @K_str
+using ...Properties: get_call_name_from_call_node, is_call
 
 # TODO: Is it really necessary to define our own type handling here?
 #       Wish there was some other way of doing this.
@@ -30,9 +31,32 @@ end
 
 function _get_type_from_assignment(assignment_node::SyntaxNode)::TypeSpecifier
     rhs = children(assignment_node)[2]
+
     # TODO: parsing and processing of custom types
     if is_literal(rhs)
         return string(kind(rhs))
+    elseif is_infix_op_call(rhs)
+        return _get_infix_type(rhs)
+    elseif is_call(rhs)
+        return _get_call_type(rhs)
+    end
+    return nothing
+end
+
+function _get_call_type(call_node::SyntaxNode)::TypeSpecifier
+    call_type = get_call_name_from_call_node(call_node)
+    if call_type == "string"
+        return "String"
+    end
+    return nothing
+end
+
+function _get_infix_type(infix_node::SyntaxNode)::TypeSpecifier
+    stringified_infix = string(children(infix_node)[2])
+    if stringified_infix == "/"
+        return "Float"
+    elseif stringified_infix == "^"
+        return "Integer"
     end
     return nothing
 end

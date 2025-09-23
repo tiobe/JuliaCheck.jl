@@ -5,6 +5,20 @@ function change_type_1()::Float64
     return x
 end
 
+function change_type_2()
+    x = 5
+    x = x/2
+    y = x^2
+    return y
+end
+
+function change_type_3()
+    x = 5
+    x = string(x)
+    y = x * "_suffix"
+    return y
+end
+
 # Good
 function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
     for i in eachindex(ctxt.greenleaves)
