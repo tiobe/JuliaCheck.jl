@@ -1,0 +1,8 @@
+
+>> Processing file 'VariablesHaveFixedTypes.jl'...
+
+VariablesHaveFixedTypes.jl(3, 5):
+    x = 2.0
+#   └─────┘ ── Variable 'x' has changed type (from Integer to Float).
+Types of variables should not change.
+Rule: variables-have-fixed-types. Severity: 3
