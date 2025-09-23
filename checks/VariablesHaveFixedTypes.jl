@@ -15,6 +15,12 @@ limited in its typing settings; it doesn't go beyond various basic types. Someth
 eval calls or usage of Cthulhu (the Julia type inference package: see
 https://github.com/JuliaDebug/Cthulhu.jl) would be far too expensive or require us to
 check during runtime.
+
+If we want to check specific calls, the way to do it would be something like
+Base.return_types(getfield(Base, Symbol(function_name)))
+
+This would be a start with being able to handle at least arbitrary functions
+within the base libraries.
 =#
 
 struct Check<:Analysis.Check end
