@@ -2,7 +2,7 @@ module TypeFunctions
 
 export get_type, is_different_type, TypeSpecifier
 
-using JuliaSyntax: children, kind, SyntaxNode, @K_str
+using JuliaSyntax: children, is_leaf, is_literal, kind, SyntaxNode, @K_str
 
 # TODO: Is it really necessary to define our own type handling here?
 #       Wish there was some other way of doing this.
@@ -28,10 +28,13 @@ function get_type(node::SyntaxNode)::TypeSpecifier
     return nothing
 end
 
-function _get_type_from_assignment(assignment_node::SyntaxNode)::String
+function _get_type_from_assignment(assignment_node::SyntaxNode)::TypeSpecifier
     rhs = children(assignment_node)[2]
-    type_string = string(kind(rhs))
-    return type_string
+    # TODO: parsing and processing of custom types
+    if is_literal(rhs)
+        return string(kind(rhs))
+    end
+    return nothing
 end
 
 end # module TypeFunctions
