@@ -137,7 +137,7 @@ end
         end
     end
 
-    normalize(text) = strip(replace(replace(text, "\r\n" => "\n"))) * "\n"
+    normalize(text) = strip(replace(replace(text, "\r\n" => "\n", "\\" => "/"))) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
 
     all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
