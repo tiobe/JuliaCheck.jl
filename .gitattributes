@@ -10,6 +10,9 @@
 # Julia
 *.jl linguist-language=Julia
 
+# Ensure line endings stay consistent for this test
+test/TestConsistentLineEndings.jl text eol=lf
+
 # Documents
 *.md       text diff=markdown
 *.txt      text

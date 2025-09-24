@@ -135,29 +135,33 @@ end
 
     all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
 
-    @testset for checkfile in all_checks
-        testfile = replace(checkfile, "checks" => "test")
-        valfile = splitext(testfile)[1] * ".val"
+    # cd into res so that '>> Processing file 'SingleModuleFile.jl'...' does not change to
+    # '>> Processing file 'res/SingleModuleFile.jl'...'
+    cd("res") do
+        @testset for checkfile in all_checks
+            testfile = replace(checkfile, "checks" => "test")
+            valfile = splitext(testfile)[1] * ".val"
 
-        if !isfile(valfile)
-            throw("Missing .val file: $valfile")
-        end
-        checkname = camel_to_kebab(splitext(basename(checkfile))[1])
-        expected::String = normalize(read(valfile, String))
-        args = ["--enable", checkname, "--", testfile]
-        result = IOCapture.capture() do
-            JuliaCheck.main(args)
-        end
-        actual = normalize(result.output)
-        actualfile::String = valfile * ".actual"
-        if actual == expected
-            if isfile(actualfile)
-                rm(actualfile)
+            if !isfile(valfile)
+                throw("Missing .val file: $valfile")
             end
-        else
-            write(actualfile, actual)
+            checkname = camel_to_kebab(splitext(basename(checkfile))[1])
+            expected::String = normalize(read(valfile, String))
+            args = ["--enable", checkname, "--", testfile]
+            result = IOCapture.capture() do
+                JuliaCheck.main(args)
+            end
+            actual = normalize(result.output)
+            actualfile::String = valfile * ".actual"
+            if actual == expected
+                if isfile(actualfile)
+                    rm(actualfile)
+                end
+            else
+                write(actualfile, actual)
+            end
+            @test actual == expected
         end
-        @test actual == expected
     end
 end
 

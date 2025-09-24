@@ -16,10 +16,7 @@ include("WhitespaceHelpers.jl")
 using .Analysis
 using .ViolationPrinters
 
-function __init__()
-    Analysis.discover_checks()
-end
-
+Analysis.discover_checks()
 
 function parse_commandline(args::Vector{String})
     s = ArgParseSettings(
