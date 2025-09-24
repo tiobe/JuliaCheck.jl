@@ -1,8 +1,8 @@
 module WhitespaceHelpers
 
-using JuliaSyntax: SourceFile, SyntaxNode
+using JuliaSyntax: SourceFile, SyntaxNode, last_byte
 
-export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range
+export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range, get_line_range
 
 """
 Find the range of whitespace starting from `start_idx` and going either forward or backward.
@@ -115,6 +115,18 @@ function combine_ranges(ranges::Vector{UnitRange{Int}})::UnitRange{Int}
     s = minimum((r -> r.start).(nonempty_ranges))
     e = maximum((r -> r.stop).(nonempty_ranges))
     return s:e
+end
+
+"""
+Get the byte range spanning the line at the given line number in the source file.
+"""
+function get_line_range(line_nr::Int, source::SourceFile)::Union{UnitRange{Int}, Nothing}
+    if !checkbounds(Bool, source.line_starts, line_nr)
+        return nothing
+    end
+    start_byte = source.line_starts[line_nr]
+    end_byte = line_nr == lastindex(source.line_starts) ? lastindex(source.code) : source.line_starts[line_nr+1] - 1
+    return start_byte:end_byte
 end
 
 end # module WhitespaceHelpers

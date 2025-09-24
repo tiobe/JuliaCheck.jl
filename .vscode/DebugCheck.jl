@@ -15,10 +15,10 @@ This is used for debugging purposes in VSCode (to enable pressing F5 to debug wh
 function Debug(filename::String)
     dir = basename(dirname(filename))
     if startswith(dir, "checks") || startswith(dir, "test")
-        testfile = realpath(joinpath(dirname(filename), "..", "test", basename(filename)))
+        testfile = realpath(joinpath(dirname(filename), "..", "test", "res", basename(filename)))
         rulename = camel_to_kebab(splitext(basename(filename))[1])
         JuliaCheck.main(["--verbose", "--llt", "--enable", rulename, "--", testfile])
-    else 
+    else
         include(filename)
     end
 end
