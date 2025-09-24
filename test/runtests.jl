@@ -113,17 +113,12 @@ using JuliaCheck
     @test !is_declared(table, y)
 end
 
-# TODO: Check if this list of imports can be truncated somehow.
+
 @testitem "Numbers" begin
     using JuliaSyntax: SyntaxNode, parsestmt
     include("../src/Properties.jl"); using .Properties: get_number
-    include("../src/TypeFunctions.jl")
-    include("../src/SymbolTable.jl"); using .SymbolTable: _declare!, enter_module!,
-        enter_main_module!, enter_scope!, exit_module!, exit_main_module!,
-        exit_scope!, is_declared, is_global
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
-
     @test get_number(make_node("4.493_775_893_684_088e16")) == 4.493775893684088e16
 end
 

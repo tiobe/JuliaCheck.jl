@@ -16,13 +16,9 @@ eval calls or usage of Cthulhu (the Julia type inference package: see
 https://github.com/JuliaDebug/Cthulhu.jl) would be far too expensive or require us to
 check during runtime.
 
-The current state of this rule is very basic. Future work:
-
-If we want to check specific calls, the way to do it would be something like
-Base.return_types(getfield(Base, Symbol(function_name)))
-
-This would be a start with being able to handle at least arbitrary functions
-within the base libraries.
+The current state of this rule is very basic. Further type checks are going to be
+implemented as they are found. The handling of types within Julia is very extensive
+and doing this completely would be a _lot_ of specific cases.
 =#
 
 struct Check<:Analysis.Check end

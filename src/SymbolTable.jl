@@ -4,7 +4,7 @@ import DataStructures: Stack
 
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
-    get_module_name, haschildren, is_assignment, is_function,
+    get_module_name, get_var_from_assignment, haschildren, is_assignment, is_function,
     is_global_decl, is_module, opens_scope
 using ..TypeFunctions: get_type, is_different_type, TypeSpecifier
 
@@ -334,11 +334,6 @@ function type_has_changed_from_init(table::SymbolTableStruct, assignment_node::S
         return is_different_type(scp[var_node].initial_type, current_type)
     end
     return false
-end
-
-function get_var_from_assignment(node::SyntaxNode)::String
-    lhs = first(children(node))
-    return string(lhs.data.val)
 end
 
 """

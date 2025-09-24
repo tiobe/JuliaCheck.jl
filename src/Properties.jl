@@ -13,6 +13,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
     get_func_arguments, get_func_body, get_func_name,
     get_imported_pkg, get_iteration_parts, get_module_name, get_number,
     get_string_arg, get_string_fn_args, get_struct_members, get_struct_name,
+    get_var_from_assignment,
 
     haschildren, increase_counters, is_abstract, is_array_assignment, is_array_indx, is_assignment,
     is_broadcasting_assignment, is_constant, is_dot, is_eq_neq_comparison, is_eval_call, is_export,
@@ -395,6 +396,14 @@ function get_string_arg(arg_node::SyntaxNode)::String
     else
         return string(arg_node)
     end
+end
+
+"""
+Gets a string representation of the variable used within an assignment.
+"""
+function get_var_from_assignment(node::SyntaxNode)::String
+    lhs = first(children(node))
+    return string(lhs.data.val)
 end
 
 """
