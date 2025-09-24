@@ -1,0 +1,7 @@
+>> Processing file 'NewlineAtFileEnd.jl\NewlineAtFileEnd_no_nl.jl'...
+
+NewlineAtFileEnd.jl\NewlineAtFileEnd_no_nl.jl(9, 0):
+end # ModuleInAFileWithNoTrailingNewline
+└──────────────────────────────────────┘ ── No newline found at end of file.
+Single newline at the end of file.
+Rule: newline-at-file-end. Severity: 7
