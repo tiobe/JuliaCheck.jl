@@ -1,7 +1,7 @@
 module ConsistentLineEndings
 
 using JuliaSyntax: SourceFile, JuliaSyntax as JS
-using ..Properties: is_toplevel
+using ...Properties: is_toplevel
 
 include("_common.jl")
 
@@ -32,7 +32,7 @@ const LINE_END_OPTIONS = [
 Return true if the number of matches found for line ending `a` is less than those found for `b`.
 Added this to be able to use `maximum(x::Vector{Tuple{LineEnding, Vector{RegexMatch}}})` below.
 """
-function Base.isless(a::Tuple{LineEnding, Vector{RegexMatch}}, b::Tuple{LineEnding, Vector{RegexMatch}})
+function Base.isless(a::Tuple{LineEnding, Vector{RegexMatch}}, b::Tuple{LineEnding, Vector{RegexMatch}})::Bool
     return isless(length(a[2]), length(b[2]))
 end
 
@@ -41,11 +41,11 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     most_common_le = maximum(matches)
     incorrect_newline_matches = filter(!=(most_common_le), matches)
 
-    for newline_match in incorrect_newline_matches
-        for match in newline_match[2]
+    for incorrect_newline_type in incorrect_newline_matches
+        for match in incorrect_newline_type[2]
             line = JS.source_line(node.source, match.offset)
             source_pos = JS.source_line_range(node.source, match.offset)
-            report_violation(ctxt, this, (line, 0), source_pos[1]:source_pos[2], "Inconsistent line ending $(newline_match[1].name), should match rest of the file ($(most_common_le[1].name))")
+            report_violation(ctxt, this, (line, 0), source_pos[1]:source_pos[2], "Inconsistent line ending $(incorrect_newline_type[1].name), should match rest of the file ($(most_common_le[1].name))")
         end
     end
     return nothing

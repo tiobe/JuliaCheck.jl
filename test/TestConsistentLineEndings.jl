@@ -6,15 +6,11 @@ prevent these from being auto-converted out by e.g. Git or VSCode.
 The line endings of this file itself should always be LF, see .gitattributes
 =#
 @testitem "ConsistentLineEndings.jl" begin
-    include("../src/Properties.jl")
-    include("../src/SymbolTable.jl")
-    include("../src/Analysis.jl")
-    using .Analysis
-    include("../src/ViolationPrinters.jl")
-    using .ViolationPrinters
+    include("../src/JuliaCheck.jl")
+    using .JuliaCheck.Analysis
+    using .JuliaCheck.ViolationPrinters
     using JuliaSyntax: SourceFile
-    include("../checks/ConsistentLineEndings.jl")
-    using .ConsistentLineEndings: Check
+    using .JuliaCheck.Analysis.ConsistentLineEndings: Check
     using IOCapture
 
     "Test files and corresponding expected output. Defined here and not in separate files so we can manipulate line endings more easily."
