@@ -210,7 +210,9 @@ end
 
 "Load all check modules in checks directory."
 function discover_checks()::Nothing
-    for file in filter(f -> endswith(f, ".jl"), readdir(joinpath(@__DIR__, "..", "checks"), join=true))
+    checks_path = joinpath(@__DIR__, "..", "checks")
+    include_dependency(checks_path) # Mark directory contents as precompilation dependency
+    for file in filter(f -> endswith(f, ".jl"), readdir(checks_path, join=true))
         try
             include(file)
         catch exception
