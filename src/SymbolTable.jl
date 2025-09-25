@@ -6,7 +6,7 @@ using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
     get_module_name, get_var_from_assignment, haschildren, is_assignment, is_function,
     is_global_decl, is_module, opens_scope
-using ..TypeHelpers: get_type, is_different_type, TypeSpecifier
+using ..TypeHelpers: get_variable_type_from_node, is_different_type, TypeSpecifier
 
 export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
 export update_symbol_table_on_node_leave!, is_global, type_has_changed_from_init, get_initial_type_of_node
@@ -294,7 +294,7 @@ end
 
 function _process_assignment!(table::SymbolTableStruct, node::SyntaxNode)
     var_node = first(get_assignee(node))
-    type_of_node = get_type(node)
+    type_of_node = get_variable_type_from_node(node)
     _declare_with_type!(table, var_node, type_of_node)
 end
 
@@ -330,7 +330,7 @@ function type_has_changed_from_init(table::SymbolTableStruct, assignment_node::S
     scp = current_scope(table)
     var_node = get_var_from_assignment(assignment_node)
     if !isnothing(var_node) && haskey(scp, var_node)
-        current_type = get_type(assignment_node)
+        current_type = get_variable_type_from_node(assignment_node)
         return is_different_type(scp[var_node].initial_type, current_type)
     end
     return false
