@@ -1,6 +1,6 @@
 module WhitespaceHelpers
 
-using JuliaSyntax: SourceFile, SyntaxNode, last_byte
+using JuliaSyntax: SourceFile, SyntaxNode
 
 export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range, get_line_range
 
