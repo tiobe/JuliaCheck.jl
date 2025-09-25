@@ -11,3 +11,9 @@ function _i_am_exported_with_underscore()::Bool
 #        └────────────────────────────┘ ── Function _i_am_exported_with_underscore is exported while having a name starting with an underscore.
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8
+
+UnderscorePrefixForPrivateFunctions.jl(28, 10):
+function _even_if_underscored()::Bool
+#        └──────────────────┘ ── Function _even_if_underscored is exported while having a name starting with an underscore.
+Private functions are prefixed with one underscore _ character.
+Rule: underscore-prefix-for-private-functions. Severity: 8
