@@ -17,7 +17,6 @@ end
 function _check(this::Check, ctxt::AnalysisContext, toplevel_node::SyntaxNode)
     all_exported_names = _get_exported_function_names(toplevel_node)
     for function_node in _get_function_nodes(toplevel_node)
-        println(function_node)
         function_name_node = get_func_name(function_node)
         if !isnothing(function_name_node)
             function_name = string(function_name_node)
