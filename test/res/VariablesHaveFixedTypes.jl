@@ -7,13 +7,6 @@ end
 
 function change_type_2()
     x = 5
-    x = x/2
-    y = x^2
-    return y
-end
-
-function change_type_3()
-    x = 5
     x = string(x)
     y = x * "_suffix"
     return y

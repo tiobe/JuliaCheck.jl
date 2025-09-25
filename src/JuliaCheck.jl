@@ -5,7 +5,7 @@ using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
 include("Properties.jl"); import .Properties
-include("TypeFunctions.jl"); import .TypeFunctions
+include("TypeHelpers.jl"); import .TypeHelpers
 include("SymbolTable.jl")
 include("Analysis.jl")
 include("ViolationPrinters.jl")

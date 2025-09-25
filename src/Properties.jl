@@ -401,7 +401,10 @@ end
 """
 Gets a string representation of the variable used within an assignment.
 """
-function get_var_from_assignment(node::SyntaxNode)::String
+function get_var_from_assignment(node::SyntaxNode)::NullableString
+    if !is_assignment(node)
+        return nothing
+    end
     lhs = first(children(node))
     return string(lhs.data.val)
 end

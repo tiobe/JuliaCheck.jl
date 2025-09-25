@@ -1,6 +1,6 @@
-module TypeFunctions
+module TypeHelpers
 
-export get_type, is_different_type, TypeSpecifier
+export get_variable_type_from_node, is_different_type, TypeSpecifier
 
 using JuliaSyntax: children, is_infix_op_call, is_leaf, is_literal, kind, numchildren, SyntaxNode, @K_str
 using ..Properties: get_call_name_from_call_node, is_call
@@ -35,7 +35,13 @@ function is_different_type(type_1::TypeSpecifier, type_2::TypeSpecifier)::Bool
     return type_1 != type_2
 end
 
-function get_type(node::SyntaxNode)::TypeSpecifier
+"""
+Tries to find the type of the associated variable from a node.
+
+For now, this only covers assignments of the form 
+a = /something/.
+"""
+function get_variable_type_from_node(node::SyntaxNode)::TypeSpecifier
     if kind(node) == K"="
         return _get_type_from_assignment(node)
     end
@@ -48,8 +54,6 @@ function _get_type_from_assignment(assignment_node::SyntaxNode)::TypeSpecifier
         # No further parsing is necessary on JuliaSyntax literals.
         # Here, the kind can be returned as a string.
         return string(kind(rhs))
-    elseif is_infix_op_call(rhs)
-        return _get_type_of_infix_op(rhs)
     elseif is_call(rhs)
         return _get_type_of_call_return(rhs)
     end
@@ -79,25 +83,4 @@ function _get_type_of_call_return(call_node::SyntaxNode)::TypeSpecifier
     return nothing
 end
 
-"""
-Resolves expected return types of infix operators.
-
-Only binary mathematical operators have been considered so far.
-Most of these don't actually change type (eg. addition, subtraction).
-The exception is division, which returns a float in most cases.
-
-See also: typeof(6 / 3) resolves to Float64.
-"""
-function _get_type_of_infix_op(infix_node::SyntaxNode)::TypeSpecifier
-    if numchildren(infix_node) < 2
-        return nothing
-    end
-    stringified_infix = string(children(infix_node)[2])
-    # Only division or inverse division changes to Float by default
-    if stringified_infix == "/" || stringified_infix == "\\"
-        return "Float"
-    end
-    return nothing
-end
-
-end # module TypeFunctions
+end # module TypeHelpers

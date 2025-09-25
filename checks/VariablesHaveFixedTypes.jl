@@ -1,8 +1,7 @@
 module VariablesHaveFixedTypes
 
-using JuliaSyntax: is_leaf
 using ...SymbolTable: get_initial_type_of_node, get_var_from_assignment, type_has_changed_from_init
-using ...TypeFunctions: get_type, is_different_type
+using ...TypeHelpers: get_variable_type_from_node, is_different_type
 using ...Properties: is_assignment, NullableNode
 
 include("_common.jl")
@@ -34,12 +33,15 @@ end
 function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)::Nothing
     if type_has_changed_from_init(ctxt.symboltable, assignment_node)
         assigned_variable = get_var_from_assignment(assignment_node)
+        if isnothing(assigned_variable)
+            return nothing
+        end
         initial_type = get_initial_type_of_node(ctxt.symboltable, assignment_node)
-        current_type = get_type(assignment_node)
+        current_type = get_variable_type_from_node(assignment_node)
         report_violation(ctxt, this, assignment_node,
           "Variable '$assigned_variable' has changed type (from $initial_type to $current_type).")
     end
     return nothing
 end
 
-end # end AvoidContainersWithAbstractTypes
+end # end VariablesHaveFixedTypes
