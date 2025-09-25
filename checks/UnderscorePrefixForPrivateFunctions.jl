@@ -2,7 +2,7 @@ module UnderscorePrefixForPrivateFunctions
 
 include("_common.jl")
 
-using ...Properties: get_func_name, is_export, is_function, is_module, is_toplevel
+using ...Properties: get_func_name, is_export, is_function, is_module
 
 struct Check<:Analysis.Check end
 id(::Check) = "underscore-prefix-for-private-functions"
@@ -35,13 +35,14 @@ a script or a part of a different module) this rule will not trigger.
 =#
 
 function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
     return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, toplevel_node::SyntaxNode)
-    all_exported_names = _get_exported_function_names(toplevel_node)
-    for function_node in _get_function_nodes(toplevel_node)
+function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)
+    module_content_node = children(module_node)[2] # first child is the identifier, second the content
+    all_exported_names = _get_exported_function_names(module_content_node)
+    for function_node in _get_function_nodes(module_content_node)
         function_name_node = get_func_name(function_node)
         if !isnothing(function_name_node)
             function_name = string(function_name_node)
@@ -63,18 +64,14 @@ function _get_function_nodes(node::SyntaxNode)::Vector{SyntaxNode}
     for child_node in children(node)
         if is_function(child_node)
             push!(function_nodes, child_node)
-        elseif is_module(child_node)
-            # Recurse in the case of a module; search should be done both inside and outside modules
-            # (there might be multiple Julia modules within a source file)
-            append!(function_nodes, _get_function_nodes(child_node))
         end
     end
     return function_nodes
 end
 
-function _get_exported_function_names(toplevel_node::SyntaxNode)::Set{String}
+function _get_exported_function_names(module_node::SyntaxNode)::Set{String}
     exported_names = Set{String}()
-    for child_node in children(toplevel_node)
+    for child_node in children(module_node)
         if is_export(child_node)
             for exported in children(child_node)
                 push!(exported_names, string(exported))

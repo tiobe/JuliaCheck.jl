@@ -1,12 +1,12 @@
 >> Processing file 'UnderscorePrefixForPrivateFunctions.jl'...
 
-UnderscorePrefixForPrivateFunctions.jl(7, 10):
+UnderscorePrefixForPrivateFunctions.jl(9, 10):
 function i_am_not_exported_without_underscore()::Bool
 #        └──────────────────────────────────┘ ── Function i_am_not_exported_without_underscore is not exported while having a name starting without an underscore.
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8
 
-UnderscorePrefixForPrivateFunctions.jl(11, 10):
+UnderscorePrefixForPrivateFunctions.jl(13, 10):
 function _i_am_exported_with_underscore()::Bool
 #        └────────────────────────────┘ ── Function _i_am_exported_with_underscore is exported while having a name starting with an underscore.
 Private functions are prefixed with one underscore _ character.
