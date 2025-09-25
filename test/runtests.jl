@@ -122,10 +122,19 @@ end
     @test get_number(make_node("4.493_775_893_684_088e16")) == 4.493775893684088e16
 end
 
-
 @testitem "Golden File Tests" begin
     import IOCapture
-    normalize(text) = strip(replace(replace(text, "\r\n" => "\n"))) * "\n"
+
+    function get_test_files(checkfile_name::AbstractString)::Vector{String}
+        if isdir(checkfile_name)
+            files = map(relpath -> joinpath(checkfile_name, relpath), filter(endswith(".jl"), [f for (_, _, fs) in walkdir(checkfile_name) for f in fs]))
+            return files
+        else
+            return [checkfile_name]
+        end
+    end
+
+    normalize(text) = strip(replace(replace(text, "\r\n" => "\n", "\\" => "/"))) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
 
     all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
@@ -133,29 +142,31 @@ end
     # cd into res so that '>> Processing file 'SingleModuleFile.jl'...' does not change to
     # '>> Processing file 'res/SingleModuleFile.jl'...'
     cd("res") do
-        @testset for checkfile in all_checks
-            testfile = replace(checkfile, "checks" => "test")
-            valfile = splitext(testfile)[1] * ".val"
+        @testset for check in all_checks
+            testfiles = get_test_files(basename(check))
+            @testset for testfile in testfiles
+                valfile = splitext(testfile)[1] * ".val"
 
-            if !isfile(valfile)
-                throw("Missing .val file: $valfile")
-            end
-            checkname = camel_to_kebab(splitext(basename(checkfile))[1])
-            expected::String = normalize(read(valfile, String))
-            args = ["--enable", checkname, "--", testfile]
-            result = IOCapture.capture() do
-                JuliaCheck.main(args)
-            end
-            actual = normalize(result.output)
-            actualfile::String = valfile * ".actual"
-            if actual == expected
-                if isfile(actualfile)
-                    rm(actualfile)
+                if !isfile(valfile)
+                    throw("Missing .val file: $valfile")
                 end
-            else
-                write(actualfile, actual)
+                checkname = camel_to_kebab(splitext(basename(check))[1])
+                expected::String = normalize(read(valfile, String))
+                args = ["--enable", checkname, "--", testfile]
+                result = IOCapture.capture() do
+                    JuliaCheck.main(args)
+                end
+                actual = normalize(result.output)
+                actualfile::String = valfile * ".actual"
+                if actual == expected
+                    if isfile(actualfile)
+                        rm(actualfile)
+                    end
+                else
+                    write(actualfile, actual)
+                end
+                @test actual == expected
             end
-            @test actual == expected
         end
     end
 end
