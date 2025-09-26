@@ -8,6 +8,10 @@ on:
 
 jobs:
   release:
+    if: |
+      (github.event_name == 'pull_request' &&
+      github.event.pull_request.merged == true &&
+      github.base_ref == 'main')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
