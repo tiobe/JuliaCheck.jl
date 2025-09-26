@@ -9,7 +9,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
 
     fake_green_node, find_lhs_of_kind, first_child,
 
-    get_assignee, get_call_name_from_call_node, get_flattened_fn_arg_nodes, 
+    get_assignee, get_call_name_from_call_node, get_flattened_fn_arg_nodes,
     get_func_arguments, get_func_body, get_func_name,
     get_imported_pkg, get_iteration_parts, get_module_name, get_number,
     get_string_arg, get_string_fn_args, get_struct_members, get_struct_name,
@@ -437,7 +437,7 @@ end
 Extracts the name of a call from the call node.
 
 For instance, take the following node: push!(a, 1)
-This is parsed as call (push! a 1). So to find the call, 
+This is parsed as call (push! a 1). So to find the call,
 """
 function get_call_name_from_call_node(call_node::SyntaxNode)::String
     call_type_node = first(children(call_node))

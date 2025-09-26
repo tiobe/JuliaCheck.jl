@@ -1,0 +1,71 @@
+module DoNotCommentOutCode
+
+using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_text
+using ...WhitespaceHelpers: combine_ranges
+using JuliaSyntax: kind, @K_str, source_location, JuliaSyntax as JS
+
+include("_common.jl")
+
+"""Some keywords and other signifiers that need to be in the string in order for it to be considered code"""
+const KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "export",
+        "for", "function", "global", "if", "import", "let", "local", "macro", "module",
+        "quote", "return", "struct", "try", "using", "while", "catch", "finally", "else",
+        "elseif", "end", "abstract", "as", "doc", "mutable", "outer", "primitive", "public",
+        "type", "var", "(", ")"]
+
+struct Check<:Analysis.Check end
+id(::Check) = "do-not-comment-out-code"
+severity(::Check) = 9
+synopsis(::Check) = "Do not comment out code."
+
+
+function init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, has_comments, n -> _check(this, ctxt, n))
+    return nothing
+end
+
+function has_comments(sn::SyntaxNode)
+    gn = sn.raw
+    return !isnothing(gn.children) && any(n -> kind(n) == K"Comment", gn.children)
+end
+
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
+    comment_blocks::Vector{CommentBlock} = get_comment_blocks(node)
+    for block in comment_blocks
+        if contains_code(block) # Check if entire block is code
+            range = combine_ranges(map(c -> c.range, block))
+            _report(ctxt, this, range)
+        else # Check if individual lines in block are comment
+            for comment in block
+                if contains_code(comment)
+                    _report(ctxt, this, comment.range)
+                end
+            end
+        end
+    end
+    return nothing
+end
+
+function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)
+    report_violation(ctxt, this, range, "Comment contains code")
+end
+
+function contains_code(text::AbstractString)::Bool
+    if !any(occursin(text), KEYWORDS) return false end
+    try
+        JS.parseall(SyntaxNode, text)
+    catch
+        return false
+    end
+    return true
+end
+
+function contains_code(block::CommentBlock)
+    return contains_code(get_text(block))
+end
+
+function contains_code(comment::Comment)
+    return contains_code(strip(comment.text, ['#', '=']))
+end
+
+end # module DoNotCommentOutCode
