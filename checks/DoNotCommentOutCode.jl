@@ -32,12 +32,12 @@ end
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     comment_blocks::Vector{CommentBlock} = get_comment_blocks(node)
     for block in comment_blocks
-        if contains_code(block) # Check if entire block is code
+        if _contains_code(block) # Check if entire block is code
             range = combine_ranges(map(c -> c.range, block))
             _report(ctxt, this, range)
         else # Check if individual lines in block are comment
             for comment in block
-                if contains_code(comment)
+                if _contains_code(comment)
                     _report(ctxt, this, comment.range)
                 end
             end
@@ -50,7 +50,8 @@ function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)
     report_violation(ctxt, this, range, "Comment contains code")
 end
 
-function contains_code(text::AbstractString)::Bool
+# If JS can parse the comment contents, it must be code
+function _contains_code(text::AbstractString)::Bool
     if !any(occursin(text), KEYWORDS) return false end
     try
         JS.parseall(SyntaxNode, text)
@@ -60,12 +61,8 @@ function contains_code(text::AbstractString)::Bool
     return true
 end
 
-function contains_code(block::CommentBlock)
-    return contains_code(get_text(block))
-end
-
-function contains_code(comment::Comment)
-    return contains_code(strip(comment.text, ['#', '=']))
+function _contains_code(comment::Union{Comment, CommentBlock})
+    return _contains_code(get_text(comment))
 end
 
 end # module DoNotCommentOutCode
