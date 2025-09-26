@@ -29,4 +29,17 @@ function _even_if_underscored()::Bool
     return false
 end
 
-end 
+end
+
+
+module SubModule
+
+module AnotherModule
+
+function not_exported_in_submodule()::Bool
+    return true
+end
+
+end
+
+end
