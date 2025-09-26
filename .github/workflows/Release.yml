@@ -5,75 +5,26 @@ on:
     types:
       - closed
   workflow_dispatch:
-    inputs:
-      bump:
-        description: "Select version increment"
-        required: true
-        default: "minor"
-        type: choice
-        options:
-          - major
-          - minor
-          - patch
 
 jobs:
   release:
-    if: |
-      (github.event_name == 'pull_request' &&
-       github.event.pull_request.merged == true &&
-       github.base_ref == 'main') ||
-      (github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Get latest release
-        id: latest
-        run: |
-          latest=$(gh api repos/${{ github.repository }}/releases/latest --jq .tag_name)
-          # strip 'v' prefix if present
-          latest="${latest#v}"
-          echo "latest=$latest" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Determine bump type
-        id: bump-type
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            echo "type=${{ github.event.inputs.bump }}" >> $GITHUB_OUTPUT
-          else
-            echo "type=minor" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Bump version
-        id: bump
-        run: |
-          version="${{ steps.latest.outputs.latest }}"
-          IFS='.' read -r major minor patch <<< "$version"
-
-          case "${{ steps.bump-type.outputs.type }}" in
-            major)
-              new_version="$((major+1)).0.0"
-              ;;
-            minor)
-              new_version="$major.$((minor+1)).0"
-              ;;
-            patch)
-              new_version="$major.$minor.$((patch+1))"
-              ;;
-          esac
-
-          echo "new_version=$new_version" >> $GITHUB_OUTPUT
-
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v4.1.0
+        with:
+          versionSpec: '6.4.x'
+      - name: Determine Version
+        id: gitversion # step id used as a reference for output values
+        uses: gittools/actions/gitversion/execute@v4.1.0
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.bump.outputs.new_version }}
-          name: Release v${{ steps.bump.outputs.new_version }}
+          tag_name: v${{ steps.gitversion.outputs.majorMinorPatch }}
+          name: Release v${{ steps.gitversion.outputs.majorMinorPatch }}
           body: |
-            ${{ github.event_name == 'pull_request' && format('PR #{0} - {1}', github.event.pull_request.number, github.event.pull_request.title) || 'Manual release' }}
+            ${{ github.event_name == 'pull_request' && format('PR #{0} - {1}', github.event.pull_request.number, github.event.pull_request.title) }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
