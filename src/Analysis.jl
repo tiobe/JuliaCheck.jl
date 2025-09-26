@@ -161,11 +161,27 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
     return nothing
 end
 
+"""
+Reports a violation on location `linepos` and range `bufferrange` in the current context.
+"""
 function report_violation(ctxt::AnalysisContext, check::Check,
     linepos::Tuple{Int,Int},
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
+    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    return nothing
+end
+
+"""
+Report on `bufferrange` in the current file.
+Note that this assumes `ctxt.rootNode.source` points to the current file.
+"""
+function report_violation(ctxt::AnalysisContext, check::Check,
+    bufferrange::UnitRange{Int},
+    msg::String
+    )::Nothing
+    linepos = JuliaSyntax.source_location(ctxt.rootNode.source, bufferrange.start, )
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
     return nothing
 end
