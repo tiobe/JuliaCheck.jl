@@ -24,7 +24,7 @@ synopsis(::Check) = "Do not comment out code."
 
 
 function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, has_comments, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, contains_comments, n -> _check(this, ctxt, n))
     return nothing
 end
 
