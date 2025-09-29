@@ -11,7 +11,8 @@ include("Analysis.jl")
 include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
 include("MutatingFunctionsHelpers.jl")
-include("WhitespaceHelpers.jl")
+include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
+include("CommentHelpers.jl"); import .CommentHelpers
 
 using .Analysis
 using .ViolationPrinters
