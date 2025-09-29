@@ -1,25 +1,25 @@
 >> Processing file 'UnderscorePrefixForPrivateFunctions.jl'...
 
 UnderscorePrefixForPrivateFunctions.jl(10, 10):
-function i_am_not_exported_without_underscore()::Bool
-#        └──────────────────────────────────┘ ── Function i_am_not_exported_without_underscore is not exported while having a name starting without an underscore.
+function i_am_exported_without_underscore()::Bool
+#        └──────────────────────────────┘ ── Non-exported function i_am_exported_without_underscore does not start with an underscore.
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8
 
 UnderscorePrefixForPrivateFunctions.jl(14, 10):
-function _i_am_exported_with_underscore()::Bool
-#        └────────────────────────────┘ ── Function _i_am_exported_with_underscore is exported while having a name starting with an underscore.
+function i_am_not_exported_without_underscore()::Bool
+#        └──────────────────────────────────┘ ── Non-exported function i_am_not_exported_without_underscore does not start with an underscore.
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8
 
 UnderscorePrefixForPrivateFunctions.jl(28, 10):
-function _even_if_underscored()::Bool
-#        └──────────────────┘ ── Function _even_if_underscored is exported while having a name starting with an underscore.
+function second_export_is_also_flagged()::Bool
+#        └───────────────────────────┘ ── Non-exported function second_export_is_also_flagged does not start with an underscore.
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8
 
 UnderscorePrefixForPrivateFunctions.jl(39, 10):
 function not_exported_in_submodule()::Bool
-#        └───────────────────────┘ ── Function not_exported_in_submodule is not exported while having a name starting without an underscore.
+#        └───────────────────────┘ ── Non-exported function not_exported_in_submodule does not start with an underscore.
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8

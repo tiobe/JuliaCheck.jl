@@ -9,6 +9,11 @@ id(::Check) = "underscore-prefix-for-private-functions"
 severity(::Check) = 8
 synopsis(::Check) = "Private functions are prefixed with one underscore _ character."
 
+function init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
+end
+
 """
 Checks for whether:
     * public functions are correctly exported
@@ -37,12 +42,6 @@ want to support the second case then it's not coverable as of yet. This rule wil
 triggered on a module statement. If there is no module to be found in a file (implying it's either
 a script or a part of a different module) this rule will not trigger.
 """
-
-function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
-    return nothing
-end
-
 function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
     module_content_node = children(module_node)[2] # first child is the identifier, second the content
     all_exported_names = _get_exported_function_names(module_content_node)
@@ -53,11 +52,11 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
             has_underscore = startswith(function_name, "_")
             if has_underscore && function_name ∈ all_exported_names
                 report_violation(ctxt, this, function_name_node,
-                    "Function $(function_name) is exported while having a name starting with an underscore.")
+                    "Exported function $(function_name) starts with an underscore.")
             end
             if !has_underscore && function_name ∉ all_exported_names
                 report_violation(ctxt, this, function_name_node,
-                    "Function $(function_name) is not exported while having a name starting without an underscore.")
+                    "Non-exported function $(function_name) does not start with an underscore.")
             end
         end
     end
@@ -65,25 +64,11 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
 end
 
 function _get_function_nodes(node::SyntaxNode)::Vector{SyntaxNode}
-    function_nodes = Vector{SyntaxNode}()
-    for child_node in children(node)
-        if is_function(child_node)
-            push!(function_nodes, child_node)
-        end
-    end
-    return function_nodes
+    return filter(is_function, children(node))
 end
 
 function _get_exported_function_names(module_node::SyntaxNode)::Set{String}
-    exported_names = Set{String}()
-    for child_node in children(module_node)
-        if is_export(child_node)
-            for exported in children(child_node)
-                push!(exported_names, string(exported))
-            end
-        end
-    end
-    return exported_names
+    return Set(map(string, filter(is_export, children(module_node))))
 end
 
 end # module UnderscorePrefixForPrivateFunctions
