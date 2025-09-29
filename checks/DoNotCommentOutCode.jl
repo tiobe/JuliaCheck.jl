@@ -1,12 +1,16 @@
 module DoNotCommentOutCode
 
-using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_text
+using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_text, contains_comments
 using ...WhitespaceHelpers: combine_ranges
 using JuliaSyntax: kind, @K_str, source_location, JuliaSyntax as JS
 
 include("_common.jl")
 
-"""Some keywords and other signifiers that need to be in the string in order for it to be considered code"""
+"""
+Some keywords and other signifiers that need to be in the string in order for it to be considered code
+
+Based on [keywords from JuliaSyntax.jl](https://github.com/JuliaLang/JuliaSyntax.jl/blob/99e975a726a82994de3f8e961e6fa8d39aed0d37/src/julia/kinds.jl#L209)
+"""
 const KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "export",
         "for", "function", "global", "if", "import", "let", "local", "macro", "module",
         "quote", "return", "struct", "try", "using", "while", "catch", "finally", "else",
@@ -22,11 +26,6 @@ synopsis(::Check) = "Do not comment out code."
 function init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, has_comments, n -> _check(this, ctxt, n))
     return nothing
-end
-
-function has_comments(sn::SyntaxNode)
-    gn = sn.raw
-    return !isnothing(gn.children) && any(n -> kind(n) == K"Comment", gn.children)
 end
 
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
@@ -61,7 +60,7 @@ function _contains_code(text::AbstractString)::Bool
     return true
 end
 
-function _contains_code(comment::Union{Comment, CommentBlock})
+function _contains_code(comment::Union{Comment, CommentBlock})::Bool
     return _contains_code(get_text(comment))
 end
 

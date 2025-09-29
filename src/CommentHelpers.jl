@@ -3,7 +3,7 @@ module CommentHelpers
 using JuliaSyntax: @K_str, @KSet_str, SyntaxNode, kind, child_position_span, view, JuliaSyntax as JS
 using ..WhitespaceHelpers: normalized_child_position_span
 
-export Comment, CommentBlock, get_comment_blocks, get_text
+export Comment, CommentBlock, get_comment_blocks, get_text, contains_comments
 
 struct Comment
     range::UnitRange
@@ -12,6 +12,15 @@ end
 
 "Block of consecutive line comments, with only whitespace in between"
 const CommentBlock = Vector{Comment}
+
+"""
+Returns true if the node has any direct children that are comments. This does *not* include
+docstrings, only inline comments `# Comment` and multiline comments `#= Comment =#`
+"""
+function contains_comments(sn::SyntaxNode)::Bool
+    gn = sn.raw
+    return !isnothing(gn.children) && any(n -> kind(n) == K"Comment", gn.children)
+end
 
 """
 Get the range and text representation of the direct children that are comment nodes.
