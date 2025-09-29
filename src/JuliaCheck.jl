@@ -16,9 +16,11 @@ include("WhitespaceHelpers.jl")
 using .Analysis
 using .ViolationPrinters
 
+export main
+
 Analysis.discover_checks()
 
-function parse_commandline(args::Vector{String})
+function _parse_commandline(args::Vector{String})
     s = ArgParseSettings(
             description = "Code checker for Julia programming language.",
             epilog = """
@@ -53,10 +55,10 @@ end
 
 function main(args::Vector{String})
     if isempty(args)
-        parse_commandline(["-h"])
+        _parse_commandline(["-h"])
         return nothing
     end
-    arguments = parse_commandline(args)
+    arguments = _parse_commandline(args)
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end

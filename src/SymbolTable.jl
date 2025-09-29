@@ -87,7 +87,7 @@ Module 'Main' is always there, at the bottom of the stack of modules.
 This function makes sure to reflect that situation.
 """
 function enter_main_module!(table::SymbolTableStruct)
-    enter_module!(table, "Main")
+    _enter_module!(table, "Main")
 end
 
 """
@@ -95,10 +95,10 @@ Push a new module (with its identifier) on top of the stack.
 
 This introduces a new global scope (thus, a new stack of scopes).
 """
-enter_module!(table::SymbolTableStruct, modjule::SyntaxNode)::Nothing = enter_module!(table, get_module_name(modjule)[2])
+_enter_module!(table::SymbolTableStruct, modjule::SyntaxNode)::Nothing = _enter_module!(table, get_module_name(modjule)[2])
 # Call the next method with the name (string) of the [module] node.
 
-function enter_module!(table::SymbolTableStruct, name::AbstractString)::Nothing
+function _enter_module!(table::SymbolTableStruct, name::AbstractString)::Nothing
     new_sym_table = NestedScopes()
     push!(new_sym_table, Scope())
     push!(table.stack, Module(name, new_sym_table))
@@ -128,9 +128,9 @@ Return the symbols table for the current module.
 
 The current module is the one at the peak of the stack of modules.
 """
-scopes_within_module(table::SymbolTableStruct)::NestedScopes = current_module(table).nested_scopes
+scopes_within_module(table::SymbolTableStruct)::NestedScopes = _current_module(table).nested_scopes
 
-current_module(table::SymbolTableStruct)::Module = first(table.stack)
+_current_module(table::SymbolTableStruct)::Module = first(table.stack)
 
 # TODO: a file can be `include`d into another, thus into another
 # module and, what is most important from the point of view of the
@@ -138,16 +138,16 @@ current_module(table::SymbolTableStruct)::Module = first(table.stack)
 # the file under analysis, and we will surely get confused about its
 # scope.
 
-function enter_scope!(table::SymbolTableStruct)
+function _enter_scope!(table::SymbolTableStruct)
     push!(scopes_within_module(table), Scope())
 end
 
-function exit_scope!(table::SymbolTableStruct)
+function _exit_scope!(table::SymbolTableStruct)
     pop!(scopes_within_module(table))
 end
 
-global_scope(table::SymbolTableStruct)::Scope = last(scopes_within_module(table))
-current_scope(table::SymbolTableStruct)::Scope = first(scopes_within_module(table))
+_global_scope(table::SymbolTableStruct)::Scope = last(scopes_within_module(table))
+_current_scope(table::SymbolTableStruct)::Scope = first(scopes_within_module(table))
 
 """
 Check if an item (the identifier in the node) is declared in any scope in the
@@ -166,13 +166,13 @@ then want to check whether certain operations might be redefining.
 """
 function node_is_declaration_of_variable(table::SymbolTableStruct, node::SyntaxNode)::Bool
     var_node = string(node.data.val)
-    scp = current_scope(table)
+    scp = _current_scope(table)
     return haskey(scp, var_node) && first(scp[var_node].all_nodes) === node
 end
 
-is_declared_in_current_scope(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, current_scope(table))
+_is_declared_in_current_scope(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, _current_scope(table))
 
-is_global(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, global_scope(table))
+is_global(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, _global_scope(table))
 
 function _node_is_in_scope(node::SyntaxNode, scp::Scope)::Bool
     symbol_id = _get_symbol_id(node)
@@ -185,7 +185,7 @@ end
 """
 Register an identifier.
 """
-_declare!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(current_scope(table), symbol, nothing)
+_declare!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(_current_scope(table), symbol, nothing)
 
 function _declare_on_scope!(scp::Scope, node::SyntaxNode, type_spec::TypeSpecifier)
     symbol_id = _get_symbol_id(node)
@@ -200,7 +200,7 @@ end
 Register a typed identifier.
 """
 function _declare_with_type!(table::SymbolTableStruct, symbol::SyntaxNode, var_type::TypeSpecifier)
-    _declare_on_scope!(current_scope(table), symbol, var_type)
+    _declare_on_scope!(_current_scope(table), symbol, var_type)
 end
 
 """
@@ -210,7 +210,7 @@ Global identifiers have their own convenience method. Special checks exist on gl
 and potentially global identifiers / variables might also be changed in a way that crosses through
 the scope they are changed in.
 """
-_declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(global_scope(table), symbol, nothing)
+_declare_global!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(_global_scope(table), symbol, nothing)
 
 _get_symbol_id(node::SyntaxNode)::String = string(node)
 
@@ -230,7 +230,7 @@ Currently logs new modules, functions, and (global) variables.
 """
 function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::SyntaxNode)
     if is_module(node)
-        enter_module!(table, node)
+        _enter_module!(table, node)
     elseif is_function(node)
         _process_function!(table, node)
     elseif is_global_decl(node)
@@ -247,7 +247,7 @@ function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
             _declare!(table, fname)
         end
     end
-    enter_scope!(table)
+    _enter_scope!(table)
     for arg in get_func_arguments(node)
         if kind(arg) == K"parameters"
             if ! haschildren(arg)
@@ -300,12 +300,12 @@ function update_symbol_table_on_node_leave!(table::SymbolTableStruct, node::Synt
     if is_module(node)
         exit_module!(table)
     elseif opens_scope(node)
-        exit_scope!(table)
+        _exit_scope!(table)
     end
 end
 
 function get_initial_type_of_node(table::SymbolTableStruct, assignment_node::SyntaxNode)::TypeSpecifier
-    scp = current_scope(table)
+    scp = _current_scope(table)
     var_node = get_var_from_assignment(assignment_node)
     if !isnothing(var_node) && haskey(scp, var_node)
         return scp[var_node].initial_type
@@ -314,7 +314,7 @@ function get_initial_type_of_node(table::SymbolTableStruct, assignment_node::Syn
 end
 
 function type_has_changed_from_init(table::SymbolTableStruct, assignment_node::SyntaxNode)::Bool
-    scp = current_scope(table)
+    scp = _current_scope(table)
     var_node = get_var_from_assignment(assignment_node)
     if !isnothing(var_node) && haskey(scp, var_node)
         current_type = get_variable_type_from_node(assignment_node)

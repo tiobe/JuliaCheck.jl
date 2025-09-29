@@ -3,8 +3,7 @@ module Analysis
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
 export GreenLeaf, find_greenleaf, kind, sourcetext
-export dfs_traversal
-export find_syntaxnode_at_position
+export dfs_traversal, find_syntaxnode_at_position, source_location
 
 using JuliaSyntax
 
@@ -222,7 +221,7 @@ function discover_checks()::Nothing
     return nothing
 end
 
-function invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
+function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     visitor = function(n::SyntaxNode)
         for reg in ctxt.registrations
             if reg.predicate(n)
@@ -284,7 +283,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
         show(stdout, MIME"text/plain"(), syntaxNode.raw, sourcefile.code)
     end
 
-    invoke_checks(ctxt, syntaxNode)
+    _invoke_checks(ctxt, syntaxNode)
     violationprinter(sourcefile, ctxt.violations)
     return nothing
 end
