@@ -92,7 +92,6 @@ function _difference(one::UnitRange{Int}, other::UnitRange{Int})::Vector{UnitRan
     return []
 end
 
-
 """
 Get the absolute byte range in the source file for the given relative range to the SyntaxNode.
 """
