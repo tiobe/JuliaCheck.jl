@@ -1,6 +1,6 @@
 module WhitespaceHelpers
 
-using JuliaSyntax: SourceFile, SyntaxNode
+using JuliaSyntax: SourceFile, SyntaxNode, GreenNode, child_position_span
 
 export followed_by_comment, difference, normalize_range, combine_ranges, find_whitespace_range, get_line_range
 
@@ -99,6 +99,17 @@ function normalize_range(base_node::SyntaxNode, relative_range::UnitRange)::Unit
     start = relative_range.start + base_node.position - 1
     stop = relative_range.stop + base_node.position - 1
     return start:stop
+end
+
+"""
+Get the normalized range of the GreenNode at descendant path `path` from the GreenNode corresponding to `SyntaxNode`
+
+See `JuliaSyntax.child_position_span(::GreenNode, ::Int..)`
+"""
+function normalized_child_position_span(sn::SyntaxNode, gn::GreenNode, path::Int...)::UnitRange{Int}
+    _, p, span = child_position_span(gn, path...)
+    range = p:p + span - 1
+    return normalize_range(sn, range)
 end
 
 """
