@@ -9,7 +9,7 @@ using JuliaCheck
     include("../src/Properties.jl")
     include("../src/TypeHelpers.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: is_declared_in_current_scope,
-        clear_symbol_table!, _declare!, enter_module!, enter_main_module!, enter_scope!,
+        _declare!, enter_module!, enter_main_module!, enter_scope!,
         exit_module!, exit_main_module!, exit_scope!, is_declared, is_global, SymbolTableStruct
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)

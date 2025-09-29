@@ -8,7 +8,7 @@ using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_argu
     is_global_decl, is_module, opens_scope
 using ..TypeHelpers: get_variable_type_from_node, is_different_type, TypeSpecifier
 
-export SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
+export Module, SymbolTableItem, SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
 export update_symbol_table_on_node_leave!, is_global, type_has_changed_from_init, get_initial_type_of_node
 
 struct SymbolTableItem
@@ -80,19 +80,6 @@ struct SymbolTableStruct
 end
 
 ## Functions
-
-"""
-The clear function assures that the symbol table is emptied between different
-scopes. Not all scopes should be stacked on top of each other; sometimes it is
-necessary to start with an empty scope.
-
-Note that this is strictly a _temporary_ fix to avoid state issues. The symbol
-table requires a bigger rework to deal with control flow rules.
-"""
-
-function clear_symbol_table!(table::SymbolTableStruct)
-    table.stack = Stack{Module}()
-end
 
 """
 Module 'Main' is always there, at the bottom of the stack of modules.
