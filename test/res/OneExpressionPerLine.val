@@ -1,0 +1,7 @@
+>> Processing file 'OneExpressionPerLine.jl'...
+
+OneExpressionPerLine.jl(2, 1):
+const MAG_THRESHOLD::Float64 = 3e-6  
+#                                  └┘ ── Omit spaces at the end of a line.
+Omit spaces at the end of a line.
+Rule: omit-trailing-white-space. Severity: 7
