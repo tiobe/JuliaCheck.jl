@@ -9,7 +9,11 @@ id(::Check) = "underscore-prefix-for-private-functions"
 severity(::Check) = 8
 synopsis(::Check) = "Private functions are prefixed with one underscore _ character."
 
-#=
+"""
+Checks for whether:
+    * public functions are correctly exported
+    * private functions are correctly not exported
+
 There seem to be two attitudes with regard to writing Julia modules.
 
 One is to have one-module-per-file in the same way as we do here. If it's one-module-per-file,
@@ -32,14 +36,14 @@ In that case this rule won't help as currently it is not the intent to check the
 want to support the second case then it's not coverable as of yet. This rule will only be
 triggered on a module statement. If there is no module to be found in a file (implying it's either
 a script or a part of a different module) this rule will not trigger.
-=#
+"""
 
-function init(this::Check, ctxt::AnalysisContext)
+function init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
     return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
     module_content_node = children(module_node)[2] # first child is the identifier, second the content
     all_exported_names = _get_exported_function_names(module_content_node)
     for function_node in _get_function_nodes(module_content_node)
@@ -57,6 +61,7 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)
             end
         end
     end
+    return nothing
 end
 
 function _get_function_nodes(node::SyntaxNode)::Vector{SyntaxNode}
