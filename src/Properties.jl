@@ -21,7 +21,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
     is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
     is_module, is_mutating_call, is_operator, is_range, is_separator, is_stop_point,
     is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, is_vect,
-    is_call, is_mod_toplevel, inside
+    is_call, is_mod_toplevel, inside,
 
     lines_count, opens_scope,
     source_column, source_index, source_text
