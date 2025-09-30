@@ -1,7 +1,6 @@
 module MultilineCommentsForManyLines
 
 using ...CommentHelpers: CommentBlock, get_comment_blocks, get_range, contains_comments
-using ...WhitespaceHelpers: combine_ranges
 
 include("_common.jl")
 
