@@ -8,9 +8,9 @@ using JuliaCheck
         JuliaSyntax as JS
     include("../src/Properties.jl")
     include("../src/TypeHelpers.jl")
-    include("../src/SymbolTable.jl"); using .SymbolTable: is_declared_in_current_scope,
-        clear_symbol_table!, _declare!, enter_module!, enter_main_module!, enter_scope!,
-        exit_module!, exit_main_module!, exit_scope!, is_declared, is_global, SymbolTableStruct
+    include("../src/SymbolTable.jl"); using .SymbolTable: _is_declared_in_current_scope,
+        _declare!, _enter_module!, enter_main_module!, _enter_scope!,
+        exit_module!, exit_main_module!, _exit_scope!, is_declared, is_global, SymbolTableStruct
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
 
@@ -33,7 +33,7 @@ using JuliaCheck
     #            Scope stack (2 scopes):
     #                [1] Scope: {z, x} <- current
     #                [2] Scope (global): {y, x}
-    enter_scope!(table)
+    _enter_scope!(table)
     z = make_node("z")
     _declare!(table, z)
     _declare!(table, x)
@@ -58,7 +58,7 @@ using JuliaCheck
     #                [1] Scope: {z, x} <- current
     #                [2] Scope (global): {y, x}
 
-    enter_module!(table, "MyModule")
+    _enter_module!(table, "MyModule")
     a = make_node("a")
     b = make_node("b")
     _declare!(table, a)
@@ -67,12 +67,12 @@ using JuliaCheck
     @test is_declared(table, a)
     @test is_declared(table, b)
 
-    @test is_declared_in_current_scope(table, a)
-    @test is_declared_in_current_scope(table, b)
+    @test _is_declared_in_current_scope(table, a)
+    @test _is_declared_in_current_scope(table, b)
 
-    @test !is_declared_in_current_scope(table, x)
-    @test !is_declared_in_current_scope(table, y)
-    @test !is_declared_in_current_scope(table, z)
+    @test !_is_declared_in_current_scope(table, x)
+    @test !_is_declared_in_current_scope(table, y)
+    @test !_is_declared_in_current_scope(table, z)
 
     @test is_global(table, a)
     @test is_global(table, b)
@@ -89,10 +89,10 @@ using JuliaCheck
     exit_module!(table)
     @test !is_declared(table, a)
     @test !is_declared(table, b)
-    @test is_declared_in_current_scope(table, x)
+    @test _is_declared_in_current_scope(table, x)
     @test is_declared(table, y)
-    @test !is_declared_in_current_scope(table, y)
-    @test is_declared_in_current_scope(table, z)
+    @test !_is_declared_in_current_scope(table, y)
+    @test _is_declared_in_current_scope(table, z)
 
     # Pop scope in Main module, then exit the module itself.
     # State expectations:
@@ -102,7 +102,7 @@ using JuliaCheck
     #            Scope stack (1 scopes):
     #                [1] Scope (global): {y, x} <- current
 
-    exit_scope!(table)
+    _exit_scope!(table)
     @test is_declared(table, x)
     @test is_declared(table, y)
     @test !is_declared(table, z)

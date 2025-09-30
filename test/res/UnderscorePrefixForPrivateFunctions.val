@@ -1,0 +1,25 @@
+>> Processing file 'UnderscorePrefixForPrivateFunctions.jl'...
+
+UnderscorePrefixForPrivateFunctions.jl(10, 10):
+function i_am_not_exported_without_underscore()::Bool
+#        └──────────────────────────────────┘ ── Non-exported function i_am_not_exported_without_underscore does not start with an underscore.
+Private functions are prefixed with one underscore _ character.
+Rule: underscore-prefix-for-private-functions. Severity: 8
+
+UnderscorePrefixForPrivateFunctions.jl(14, 10):
+function _i_am_exported_with_underscore()::Bool
+#        └────────────────────────────┘ ── Exported function _i_am_exported_with_underscore starts with an underscore.
+Private functions are prefixed with one underscore _ character.
+Rule: underscore-prefix-for-private-functions. Severity: 8
+
+UnderscorePrefixForPrivateFunctions.jl(28, 10):
+function _even_if_underscored()::Bool
+#        └──────────────────┘ ── Exported function _even_if_underscored starts with an underscore.
+Private functions are prefixed with one underscore _ character.
+Rule: underscore-prefix-for-private-functions. Severity: 8
+
+UnderscorePrefixForPrivateFunctions.jl(39, 10):
+function not_exported_in_submodule()::Bool
+#        └───────────────────────┘ ── Non-exported function not_exported_in_submodule does not start with an underscore.
+Private functions are prefixed with one underscore _ character.
+Rule: underscore-prefix-for-private-functions. Severity: 8
