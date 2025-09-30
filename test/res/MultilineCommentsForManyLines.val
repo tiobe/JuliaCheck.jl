@@ -1,0 +1,34 @@
+>> Processing file 'MultilineCommentsForManyLines.jl'...
+
+MultilineCommentsForManyLines.jl(3, 1):
+┌──────────
+# Bad style
+# start of comment
+⋮
+
+# You can elaborately describe your code here and define its functions.
+#─────────────────────────────────────────────────────────────────────┘ ── Replace many comments with a single block comment.
+Use multiline comments for large blocks.
+Rule: multiline-comments-for-many-lines. Severity: 9
+
+MultilineCommentsForManyLines.jl(11, 1):
+┌───────
+# blabla
+# I have lots more to say
+⋮
+# comment. This part would be ignored by the compiler.
+# You can elaborately describe your code here and define its functions.
+#─────────────────────────────────────────────────────────────────────┘ ── Replace many comments with a single block comment.
+Use multiline comments for large blocks.
+Rule: multiline-comments-for-many-lines. Severity: 9
+
+MultilineCommentsForManyLines.jl(20, 1):
+┌───────────
+# Good style
+#= start of comment
+⋮
+#= another multiline x3 =#
+#= another multiline x4 =#
+#────────────────────────┘ ── Replace many comments with a single block comment.
+Use multiline comments for large blocks.
+Rule: multiline-comments-for-many-lines. Severity: 9

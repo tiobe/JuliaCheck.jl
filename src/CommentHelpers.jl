@@ -1,9 +1,9 @@
 module CommentHelpers
 
 using JuliaSyntax: @K_str, @KSet_str, SyntaxNode, kind, child_position_span, view, JuliaSyntax as JS
-using ..WhitespaceHelpers: normalized_child_position_span
+using ..WhitespaceHelpers: combine_ranges, normalized_child_position_span
 
-export Comment, CommentBlock, get_comment_blocks, get_text, contains_comments
+export Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
 
 struct Comment
     range::UnitRange
@@ -53,5 +53,8 @@ end
 get_text(comment::Comment)::AbstractString = strip(comment.text, ['#', '='])
 get_text(block::CommentBlock)::AbstractString = join(map(get_text, block), "\n")
 
+"Get the byte range spanning the entire comment or block"
+get_range(comment::Comment)::UnitRange = comment.range
+get_range(block::CommentBlock)::UnitRange = combine_ranges(map(get_range, block))
 
 end # module CommentHelpers
