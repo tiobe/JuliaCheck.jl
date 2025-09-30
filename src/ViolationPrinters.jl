@@ -1,6 +1,6 @@
 module ViolationPrinters
 
-export highlighting_violation_printer
+export highlighting_violation_printer, report_violation
 
 using JuliaSyntax
 using ..Analysis
