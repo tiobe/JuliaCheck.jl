@@ -12,7 +12,7 @@ function _i_am_exported_with_underscore()::Bool
 Private functions are prefixed with one underscore _ character.
 Rule: underscore-prefix-for-private-functions. Severity: 8
 
-UnderscorePrefixForPrivateFunctions.jl(24, 10):
+UnderscorePrefixForPrivateFunctions.jl(28, 10):
 function _even_if_underscored()::Bool
 #        └──────────────────┘ ── Exported function _even_if_underscored starts with an underscore.
 Private functions are prefixed with one underscore _ character.

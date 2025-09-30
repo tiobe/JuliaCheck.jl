@@ -230,6 +230,7 @@ function discover_checks()::Nothing
     for file in filter(f -> endswith(f, ".jl"), readdir(checks_path, join=true))
         try
             include(file)
+            include_dependency(file)
         catch exception
             @warn "Failed to load check '$(basename(file))':" exception
         end
