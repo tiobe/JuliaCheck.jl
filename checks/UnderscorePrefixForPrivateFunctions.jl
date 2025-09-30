@@ -68,7 +68,15 @@ function _get_function_nodes(node::SyntaxNode)::Vector{SyntaxNode}
 end
 
 function _get_exported_function_names(module_node::SyntaxNode)::Set{String}
-    return Set(map(string, filter(is_export, children(module_node))))
+    exported_names = Set{String}()
+    for child_node in children(module_node)
+        if is_export(child_node)
+            for exported in children(child_node)
+                push!(exported_names, string(exported))
+            end
+        end
+    end
+    return exported_names
 end
 
 end # module UnderscorePrefixForPrivateFunctions
