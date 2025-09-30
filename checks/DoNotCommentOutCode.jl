@@ -1,6 +1,6 @@
 module DoNotCommentOutCode
 
-using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_text, contains_comments
+using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
 using ...WhitespaceHelpers: combine_ranges
 using JuliaSyntax: kind, @K_str, source_location, JuliaSyntax as JS
 
@@ -32,12 +32,11 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     comment_blocks::Vector{CommentBlock} = get_comment_blocks(node)
     for block in comment_blocks
         if _contains_code(block) # Check if entire block is code
-            range = combine_ranges(map(c -> c.range, block))
-            _report(ctxt, this, range)
+            _report(ctxt, this, get_range(block))
         else # Check if individual lines in block are comment
             for comment in block
                 if _contains_code(comment)
-                    _report(ctxt, this, comment.range)
+                    _report(ctxt, this, get_range(comment))
                 end
             end
         end

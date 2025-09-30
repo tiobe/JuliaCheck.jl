@@ -20,7 +20,8 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
     is_fat_snake_case, is_field_assignment, is_flow_cntrl, is_function, is_global_decl,
     is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
     is_module, is_mutating_call, is_operator, is_range, is_separator, is_stop_point,
-    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case,
+    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, is_vect,
+    is_call, is_mod_toplevel, inside,
 
     lines_count, opens_scope,
     source_column, source_index, source_text
@@ -70,7 +71,7 @@ is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 
 is_broadcasting_assignment(n::SyntaxNode)::Bool = is_assignment(n) && is_dotted(n)
 is_field_assignment(       n::SyntaxNode)::Bool = is_assignment(n) && is_dot(first(children(n)))
-is_array_assignment(       n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n.parent) && is_first_child(n)
+is_array_assignment(       n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n.parent) && _is_first_child(n)
 
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =
@@ -332,7 +333,7 @@ children(node::AnyTree)::Vector{AnyTree} = isnothing(node.children) ?
                                                 AnyTree[] : node.children
 first_child(node::AnyTree)::NullableNode = haschildren(node) ?
                                                 children(node)[1] : nothing
-is_first_child(node::AnyTree)::Bool = node === first(children(node.parent))
+_is_first_child(node::AnyTree)::Bool = node === first(children(node.parent))
 
 """
 Return the first left-hand side node of the given kind, going down the left-most
