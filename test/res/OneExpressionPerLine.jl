@@ -6,6 +6,6 @@ for bar::Int64 in range(1, 3)
     println("bar ", bar)
 
     if bar == 2
-        println("bar equals two")
+        println("bar equals two, but correct now")
     end
 end

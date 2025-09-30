@@ -1,6 +1,6 @@
 module OneExpressionPerLine
 
-using JuliaSyntax: first_byte, last_byte, is_prefix_call, is_prefix_op_call
+using JuliaSyntax: has_flags, JuliaSyntax as JS
 using ...Properties: is_toplevel
 
 include("_common.jl")
@@ -11,15 +11,15 @@ severity(::Check) = 7
 synopsis(::Check) = "The number of expressions per line is limited to one."
 
 function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_type_assertion_or_constraint, n -> check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, _is_toplevel_semicolon, n -> check(this, ctxt, n))
 end
 
-function is_type_assertion_or_constraint(node)::Bool
-    return kind(node) in KSet":: <: >:"
+function _is_toplevel_semicolon(node)::Bool
+    return is_toplevel(node) && has_flags(node, JS.TOPLEVEL_SEMICOLONS_FLAG) 
 end
 
 function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
-
+    report_violation(ctxt, this, node, "Do not concatenate statements with a semicolon.")
 end
 
 end # module OneExpressionPerLine
