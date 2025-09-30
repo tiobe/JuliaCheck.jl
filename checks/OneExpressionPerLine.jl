@@ -2,6 +2,7 @@ module OneExpressionPerLine
 
 using JuliaSyntax: has_flags, is_leaf, sourcetext, JuliaSyntax as JS
 using ...Properties: is_assignment, is_toplevel
+using ...WhitespaceHelpers: difference
 
 include("_common.jl")
 
@@ -11,7 +12,7 @@ severity(::Check) = 7
 synopsis(::Check) = "The number of expressions per line is limited to one."
 
 function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, _is_toplevel_semicolon, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, _has_semicolon, n -> _check(this, ctxt, n))
     return nothing
 end
 
@@ -22,8 +23,19 @@ To distinguish the semicolon-separated statement, it's necessary to check agains
 specific flag, which (unfortunately) is not nicely exposed like other flags and needs
 to have its own explicit check.
 """
-function _is_toplevel_semicolon(node)::Bool
-    return is_toplevel(node) && has_flags(node, JS.TOPLEVEL_SEMICOLONS_FLAG)
+function _has_semicolon(node::SyntaxNode)::Bool
+    if is_toplevel(node) && has_flags(node, JS.TOPLEVEL_SEMICOLONS_FLAG)
+        return true
+    end
+    if kind(node) == K"block"
+        green_children = node.raw.children
+        for green_child in green_children
+            if kind(green_child) == K";"
+                return true
+            end
+        end
+    end
+    return false
 end
 
 """
@@ -47,13 +59,11 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
+const ENDINGS = [";\r", ";\n"]
+
 function _has_single_semicolon_at_end(node::SyntaxNode)::Bool
-    sourcetxt = sourcetext(node)
-    nr_semicolons = count(';', sourcetxt)
-    if nr_semicolons > 1
-        return false
-    end
-    if endswith(sourcetxt, ';')
+    src = string(sourcetext(node))
+    if any(occursin(src), ENDINGS) || endswith(src, ';')
         return true
     end
     return false
