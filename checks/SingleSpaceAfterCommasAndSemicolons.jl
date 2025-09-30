@@ -26,7 +26,7 @@ function init(this::Check, ctxt::AnalysisContext)
         for m in eachmatch(r"[;,]", code) # Find each occurrence in code
             pos = m.offset
             leaf = find_greenleaf(ctxt, pos) # Find the GreenLeaf containing the character
-            if kind(leaf.node) ∉ KSet"Comment String" # Skip strings and comments
+            if kind(leaf.node) ∉ KSet"Char Comment String" # Skip strings and comments
                 report_if_space(pos, find_whitespace_func(false), 0, "Unexpected whitespace")
                 report_if_space(pos, find_whitespace_func(true), 1, "Expected single whitespace")
             end
