@@ -1,7 +1,7 @@
 module CommentHelpers
 
 using JuliaSyntax: @K_str, @KSet_str, SyntaxNode, kind, child_position_span, view, JuliaSyntax as JS
-using ..WhitespaceHelpers: combine_ranges, normalized_child_position_span
+using ..WhitespaceHelpers: combine_ranges, normalized_green_child_range
 
 export Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
 
@@ -34,7 +34,7 @@ function get_comment_blocks(sn::SyntaxNode)::Vector{CommentBlock}
     # if there is only whitespace between them
     for (i, ch) in enumerate(green_children)
         if kind(ch) == K"Comment"
-            range = normalized_child_position_span(sn, sn.raw, i)
+            range = normalized_green_child_range(sn, i)
             push!(curblock, Comment(range, JS.view(sn.source, range)))
         elseif kind(ch) ∈ KSet"Whitespace NewlineWs"
             continue # Whitespace does not interrupt comment block
