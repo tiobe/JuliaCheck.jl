@@ -28,7 +28,10 @@ https://docs.julialang.org/en/v1/base/punctuation/
 > for vertical concatenation
 """
 function _has_semicolon_statements(node::SyntaxNode)::Bool
-    return !is_leaf(node) && _has_semicolon_child(node) && !_is_excluded_context(node)
+    return !is_leaf(node) &&
+      _has_semicolon_child(node) &&
+      !_is_excluded_context(node) &&
+      !_has_parent_with_semicolon_child(node)
 end
 
 function _has_semicolon_child(node::SyntaxNode)::Bool
@@ -37,6 +40,15 @@ end
 
 function _is_excluded_context(node::SyntaxNode)::Bool
     return any(n -> kind(n) ∈ KSet"parameters typed_vcat vcat", ancestors(node; include_self = true))
+end
+
+function _has_parent_with_semicolon_child(node::SyntaxNode)::Bool
+    for ancestor in ancestors(node)
+        if _has_semicolon_child(ancestor)
+            return true
+        end
+    end
+    return false
 end
 
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
@@ -52,13 +64,16 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-function _get_nodes_to_report(node::SyntaxNode)::Vector{SyntaxNode}
+function _get_nodes_to_report(node::SyntaxNode)
     nodes_to_report = []
     green_children = children(node.raw)
     split_arrays = _split_by_newline(green_children)
     for split_array in split_arrays
         for i in eachindex(split_array)
-            gc = green_children[i]
+            gc = split_array[i]
+            if kind(gc) == K";" && i != lastindex(split_array)
+                push!(nodes_to_report, node)
+            end
         end
     end
     return nodes_to_report
