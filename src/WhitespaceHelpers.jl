@@ -102,12 +102,12 @@ function normalize_range(base_node::SyntaxNode, relative_range::UnitRange)::Unit
 end
 
 """
-Get the normalized range of the GreenNode at descendant path `path` from the GreenNode corresponding to `SyntaxNode`
+Get the normalized range of the GreenNode at descendant path `path` from the GreenNode corresponding to SyntaxNode `sn`
 
 See `JuliaSyntax.child_position_span(::GreenNode, ::Int..)`
 """
-function normalized_child_position_span(sn::SyntaxNode, gn::GreenNode, path::Int...)::UnitRange{Int}
-    _, p, span = child_position_span(gn, path...)
+function normalized_green_child_range(sn::SyntaxNode, path::Int...)::UnitRange{Int}
+    _, p, span = child_position_span(sn.raw, path...)
     range = p:p + span - 1
     return normalize_range(sn, range)
 end
