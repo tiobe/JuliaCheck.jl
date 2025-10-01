@@ -3,10 +3,10 @@ module IndentationOfModules
 using Base: indent_width, _ind2sub
 include("_common.jl")
 
+using JuliaSyntax: view
 using ...Properties: is_module, get_module_name
 using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: normalized_green_child_range
-using JuliaSyntax: GreenNode, source_location, is_whitespace, first_byte, last_byte, byte_range, view
 
 struct Check<:Analysis.Check end
 id(::Check) = "indentation-of-modules"
@@ -34,17 +34,13 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
         if !isnothing(prev_sibling) && kind(prev_sibling) == K"NewlineWs" # Previous node is indent
             ws_range = normalized_green_child_range(mod_contents_node, prev_i)
             actual_indent = length(strip(view(module_node.source, ws_range), ['\r', '\n'])) # Only report on indent on current line (not newlines)
+
             if exp_indent != actual_indent
                 nudged_range = range(;stop=ws_range.stop, length=actual_indent)
                 report_violation(ctxt, this, nudged_range, "Contents of module '$module_name' should have an indentation of width $exp_indent, but found $actual_indent")
             end
         end
     end
-end
-
-function _indent_width(ws_node::GreenNode)::Int
-    start_column = source_location(ws_node)[2]
-    return start_column - 1
 end
 
 end # module IndentationOfModules
