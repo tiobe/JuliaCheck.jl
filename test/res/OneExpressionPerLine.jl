@@ -13,6 +13,10 @@ module well_this_is_another_one
     push!(clumsy_setup, 1); push!(clumsy_setup, 2)
 end
 
+module inline_cleverness
+    x = 5; x + 5; x * 5;
+end
+
 
 # Good style:
 for bar::Int64 in range(1, 3)
