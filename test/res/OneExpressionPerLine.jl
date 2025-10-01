@@ -8,6 +8,12 @@ module somewhere
     y = 6; z = 11;
 end
 
+module well_this_is_another_one
+    clumsy_setup = []
+    push!(clumsy_setup, 1); push!(clumsy_setup, 2)
+end
+
+
 # Good style:
 for bar::Int64 in range(1, 3)
     println("bar ", bar)
@@ -49,3 +55,9 @@ push!(array_def, 1);
 
 # Another tricky one
 some_string = "yeah; it's a string with a ; in it";
+
+module innocent_mistake
+    clumsy_setup = []
+    push!(clumsy_setup, 1)
+    push!(clumsy_setup, 2);
+end

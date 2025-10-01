@@ -39,35 +39,46 @@ function _is_excluded_context(node::SyntaxNode)::Bool
     return any(n -> kind(n) ∈ KSet"parameters typed_vcat vcat", ancestors(node; include_self = true))
 end
 
-"""
-Checks whether a given node contains multiple statements.
-
-The one case that this rule is meant to exclude is code that's written like this:
-x = 6;
-x + 2;
-
-While not really nice Julia, it's valid Julia, and might be a common mistake if the
-writer of the code is used to a C-style language and habitually postfixes every
-statement with a semicolon.
-"""
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    if length(children(node)) > 1 || !_has_semicolon_at_end(node)
-        node_info = source_location(node.source, node.position)
-        node_line = first(node_info)
-        range = get_line_range(node_line, node.source)
-        report_violation(ctxt, this, (node_line, 0), range, "Do not concatenate statements with a semicolon.")
+    nodes_to_report = _get_nodes_to_report(node)
+    if length(nodes_to_report) > 0
+        for new_node in nodes_to_report
+            node_info = source_location(new_node.source, new_node.position)
+            node_line = first(node_info)
+            range = get_line_range(node_line, new_node.source)
+            report_violation(ctxt, this, (node_line, 0), range, "Do not concatenate statements with a semicolon.")
+        end
     end
     return nothing
 end
 
-const ENDINGS = [";\r", ";\n"]
-
-function _has_semicolon_at_end(node::SyntaxNode)::Bool
-    src = string(sourcetext(node))
-    if any(occursin(src), ENDINGS) || endswith(src, ';')
-        return true
+function _get_nodes_to_report(node::SyntaxNode)::Vector{SyntaxNode}
+    nodes_to_report = []
+    green_children = children(node.raw)
+    split_arrays = _split_by_newline(green_children)
+    for split_array in split_arrays
+        for i in eachindex(split_array)
+            gc = green_children[i]
+            # Skip over anything
+            println(kind(gc))
+        end
     end
-    return false
+    return nodes_to_report
+end
+
+function _split_by_newline(gc_list)
+    separated_list = []
+    current_list = []
+    for gc in gc_list
+        if kind(gc) == K"NewlineWs"
+            push!(separated_list, current_list)
+            current_list = []
+        else
+            push!(current_list, gc)
+        end
+    end
+    push!(separated_list, current_list)
+    return separated_list
 end
 
 end # module OneExpressionPerLine
