@@ -1,6 +1,5 @@
 module IndentationOfModules
 
-using Base: indent_width, _ind2sub
 include("_common.jl")
 
 using JuliaSyntax: view
@@ -13,8 +12,9 @@ id(::Check) = "indentation-of-modules"
 severity(::Check) = 7
 synopsis(::Check) = "Do not indent top level module body, do indent submodules"
 
-function init(this::Check, ctxt::AnalysisContext)
+function init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
