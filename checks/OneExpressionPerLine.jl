@@ -1,8 +1,7 @@
 module OneExpressionPerLine
 
 using JuliaSyntax: has_flags, is_leaf, sourcetext, JuliaSyntax as JS
-using ...Properties: is_assignment, is_toplevel
-using ...WhitespaceHelpers: difference
+using ...Properties: is_toplevel
 
 include("_common.jl")
 
