@@ -1,8 +1,11 @@
 # Bad style:
 for bar::Int64 in range(1, 3); println("bar ", bar); if bar == 2 println("bar equals two"); end; end;
 
+# Should be written as two specific violations,
+# not just one on the entire block!
 module somewhere
     x = 4; x + 5
+    y = 6; z = 11;
 end
 
 # Good style:
@@ -24,6 +27,7 @@ vcat_struct = [
   1 2;
   3 4
 ]
+another_vcat = [1 3; 2 4]
 
 # Ignore semicolons in function definitions
 function args_2(; a::Vector{Int64}, b::Vector{Int64})
@@ -40,6 +44,8 @@ end
 # Well, not really good, but it shouldn't throw a violation.
 y = 5;
 y + 6
+array_def = [];
+push!(array_def, 1);
 
 # Another tricky one
 some_string = "yeah; it's a string with a ; in it";
