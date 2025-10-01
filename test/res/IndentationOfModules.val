@@ -1,0 +1,55 @@
+>> Processing file 'IndentationOfModules.jl'...
+
+IndentationOfModules.jl(4, 1):
+    bad_function() = false
+└──┘ ── Contents of module 'GoodTopLevelModule' should have an indentation of width 0, but found 4.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(9, 1):
+    module BadStyle
+└──┘ ── Contents of module 'GoodTopLevelModule' should have an indentation of width 0, but found 4.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(10, 1):
+        import Statistics
+└──────┘ ── Contents of module 'BadStyle' should have an indentation of width 4, but found 8.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(12, 1):
+        export bar, foo
+└──────┘ ── Contents of module 'BadStyle' should have an indentation of width 4, but found 8.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(14, 1):
+        foo()::Nothing = nothing
+└──────┘ ── Contents of module 'BadStyle' should have an indentation of width 4, but found 8.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(15, 1):
+        bar()::String = "the bar is open " *
+└──────┘ ── Contents of module 'BadStyle' should have an indentation of width 4, but found 8.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(28, 1):
+module BadNestedModule
+└ ── Contents of module 'GoodStyle' should have an indentation of width 4, but found 0.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(29, 1):
+                    module WayOffModule
+└──────────────────┘ ── Contents of module 'BadNestedModule' should have an indentation of width 8, but found 20.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
+
+IndentationOfModules.jl(36, 1):
+    module BadDoubleNestedModule
+└──┘ ── Contents of module 'GoodNestedModule' should have an indentation of width 8, but found 4.
+Do not indent top level module body, do indent submodules.
+Rule: indentation-of-modules. Severity: 7
