@@ -59,8 +59,6 @@ function _get_nodes_to_report(node::SyntaxNode)::Vector{SyntaxNode}
     for split_array in split_arrays
         for i in eachindex(split_array)
             gc = green_children[i]
-            # Skip over anything
-            println(kind(gc))
         end
     end
     return nodes_to_report
