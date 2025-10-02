@@ -26,6 +26,10 @@ https://docs.julialang.org/en/v1/base/punctuation/
 > semicolons separate statements, begin a list of keyword arguments in
 > function declarations or calls, or are used to separate array literals
 > for vertical concatenation
+
+We also stick intentionally to analyzing the highest level statement that can be found.
+Analyzing deeper within concatenated statements may lead to duplicate reporting
+or storing of global data (both of which is not wanted).
 """
 function _has_semicolon_statements(node::SyntaxNode)::Bool
     return !is_leaf(node) &&
@@ -52,34 +56,33 @@ function _has_parent_with_semicolon_child(node::SyntaxNode)::Bool
 end
 
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    green_children = children(node.raw)
-    already_reported = false
-    offset = 0
-    for green_idx in eachindex(green_children)
-        current_gc = green_children[green_idx]
-        next_i = nextind(green_children, green_idx)
-        next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
-        if kind(current_gc) == K";" && !already_reported
-            if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
-                _report_node(this, ctxt, node, offset)
-                already_reported = true
-            end
-        end
-        if kind(current_gc) == K"NewlineWs"
-            offset = offset + 1
-            already_reported = false
-            continue
-        end
+    lines_to_report = _get_semicolon_concat_from_node(node)
+    for violation_line in sort(collect(lines_to_report))
+        range = get_line_range(violation_line, node.source)
+        report_violation(ctxt, this, (violation_line, 0), range, "Do not concatenate statements with a semicolon.")
     end
     return nothing
 end
 
-function _report_node(this::Check, ctxt::AnalysisContext, node::SyntaxNode, offset::Integer)::Nothing
+function _get_semicolon_concat_from_node(node::SyntaxNode)::Set{Integer}
     node_info = source_location(node.source, node.position)
-    node_line = first(node_info) + offset
-    range = get_line_range(node_line, node.source)
-    report_violation(ctxt, this, (node_line, 0), range, "Do not concatenate statements with a semicolon.")
-    return nothing
+    lines_to_report = Set{Integer}()
+    offset = 0
+    green_children = children(node.raw)
+    for green_idx in eachindex(green_children)
+        current_gc = green_children[green_idx]
+        next_i = nextind(green_children, green_idx)
+        next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
+        if kind(current_gc) == K";"
+            if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
+                push!(lines_to_report, first(node_info) + offset)
+            end
+        end
+        if kind(current_gc) == K"NewlineWs"
+            offset = offset + 1
+        end
+    end
+    return lines_to_report
 end
 
 end # module OneExpressionPerLine
