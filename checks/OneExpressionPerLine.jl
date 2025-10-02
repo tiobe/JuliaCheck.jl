@@ -1,7 +1,6 @@
 module OneExpressionPerLine
 
 using JuliaSyntax: has_flags, is_leaf, source_location, sourcetext, JuliaSyntax as JS
-using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: get_line_range
 
@@ -63,7 +62,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     lines_to_report = Set{Integer}()
     nodes_to_check = _get_subnodes_to_check(node)
     for subnode in nodes_to_check
-        lines_to_report = union!(lines_to_report, _get_semicolon_concat_from_node(subnode))
+        lines_to_report = union!(lines_to_report, _find_semicolon_lines(subnode))
     end
     for violation_line in sort(collect(lines_to_report))
         range = get_line_range(violation_line, node.source)
@@ -87,7 +86,7 @@ function _get_subnodes_to_check(node::SyntaxNode)::Set{SyntaxNode}
     return nodes_to_check
 end
 
-function _get_semicolon_concat_from_node(node::SyntaxNode)::Set{Integer}
+function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
     node_info = source_location(node.source, node.position)
     lines_to_report = Set{Integer}()
     offset = 0
@@ -97,6 +96,7 @@ function _get_semicolon_concat_from_node(node::SyntaxNode)::Set{Integer}
         next_i = nextind(green_children, green_idx)
         next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
         if kind(current_gc) == K";"
+            # If a semicolon is directly followed by a newline, then it should not be reported.
             if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
                 push!(lines_to_report, first(node_info) + offset)
             end
