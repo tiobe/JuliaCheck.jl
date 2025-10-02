@@ -1,7 +1,7 @@
 module UseAmericanEnglish
 
 using ...CommentHelpers: contains_comments, get_comments, get_range, get_text
-using JuliaSyntax: byte_range, GreenNode, SyntaxNode
+using JuliaSyntax: byte_range
 
 include("_common.jl")
 
@@ -27,7 +27,7 @@ end
 function _check_docstring(this::Check, ctxt::AnalysisContext, node::SyntaxNode, forbidden_words::Vector{AbstractString})::Nothing
     string_node = children(node)[1]
     text = sourcetext(string_node)
-    _check_for_british_spellings(this, ctxt, forbidden_words, text, byte_range(node))
+    _check_for_british_spellings(this, ctxt, forbidden_words, text, byte_range(string_node))
     return nothing
 end
 

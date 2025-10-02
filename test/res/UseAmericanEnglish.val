@@ -4,9 +4,7 @@ UseAmericanEnglish.jl(1, 1):
 ┌──
 """
 Initialise the variables to the appropriate colours, i.e. grey in light mode or black in dark mode
-⋮
-    =#
-end
+"""
 #─┘ ── Text contains British spelling: colours, grey, initialise.
 Comments should be in the American-English language.
 Rule: use-american-english. Severity: 9
