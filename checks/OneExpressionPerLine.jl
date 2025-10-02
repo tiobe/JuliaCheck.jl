@@ -56,7 +56,11 @@ function _has_parent_with_semicolon_child(node::SyntaxNode)::Bool
 end
 
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    lines_to_report = _get_semicolon_concat_from_node(node)
+    lines_to_report = Set{Integer}()
+    nodes_to_check = [node]
+    for subnode in nodes_to_check
+        lines_to_report = union!(lines_to_report, _get_semicolon_concat_from_node(subnode))
+    end
     for violation_line in sort(collect(lines_to_report))
         range = get_line_range(violation_line, node.source)
         report_violation(ctxt, this, (violation_line, 0), range, "Do not concatenate statements with a semicolon.")
