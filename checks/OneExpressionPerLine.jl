@@ -60,7 +60,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
         next_i = nextind(green_children, green_idx)
         next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
         if kind(current_gc) == K";" && !already_reported
-            if !isnothing(next_gc) && kind(next_gc) == K"NewlineWs" 
+            if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
                 _report_node(this, ctxt, node, offset)
                 already_reported = true
             end
