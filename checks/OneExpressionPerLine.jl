@@ -34,7 +34,7 @@ or storing of global data (both of which is not wanted).
 function _has_semicolon_statements(node::SyntaxNode)::Bool
     return !is_leaf(node) &&
       _has_semicolon_child(node) &&
-      !_is_excluded_context(node) &&
+      !_has_ancestor_in_allowed_context(node) &&
       !_has_parent_with_semicolon_child(node)
 end
 
@@ -42,11 +42,11 @@ function _has_semicolon_child(node::SyntaxNode)::Bool
     return any(n -> kind(n) == K";", children(node.raw))
 end
 
-function _is_excluded_context(node::SyntaxNode)::Bool
-    return any(n -> _is_kind_with_expected_semicolons(n), ancestors(node; include_self = true))
+function _has_ancestor_in_allowed_context(node::SyntaxNode)::Bool
+    return any(n -> _is_allowed_context(n), ancestors(node; include_self = true))
 end
 
-function _is_kind_with_expected_semicolons(node::SyntaxNode)::Bool
+function _is_allowed_context(node::SyntaxNode)::Bool
     return kind(node) ∈ KSet"parameters typed_vcat vcat"
 end
 
@@ -76,7 +76,7 @@ function _get_subnodes_to_check(node::SyntaxNode)::Set{SyntaxNode}
     nodes_to_check = Set{SyntaxNode}()
     if !is_leaf(node)
         for child_node in children(node)
-            if !_is_kind_with_expected_semicolons(child_node)
+            if !_is_allowed_context(child_node)
                 union!(nodes_to_check, _get_subnodes_to_check(child_node))
             end
         end
