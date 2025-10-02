@@ -57,7 +57,7 @@ end
 
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     lines_to_report = Set{Integer}()
-    nodes_to_check = [node]
+    nodes_to_check = _get_subnodes_to_check(node)
     for subnode in nodes_to_check
         lines_to_report = union!(lines_to_report, _get_semicolon_concat_from_node(subnode))
     end
@@ -66,6 +66,19 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
         report_violation(ctxt, this, (violation_line, 0), range, "Do not concatenate statements with a semicolon.")
     end
     return nothing
+end
+
+function _get_subnodes_to_check(node::SyntaxNode)::Set{SyntaxNode}
+    nodes_to_check = Set{SyntaxNode}()
+    if !is_leaf(node)
+        for child_node in children(node)
+            union!(nodes_to_check, _get_subnodes_to_check(child_node))
+        end
+        if _has_semicolon_child(node)
+            push!(nodes_to_check, node)
+        end
+    end
+    return nodes_to_check
 end
 
 function _get_semicolon_concat_from_node(node::SyntaxNode)::Set{Integer}
