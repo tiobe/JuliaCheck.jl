@@ -1,6 +1,7 @@
 module OneExpressionPerLine
 
-using JuliaSyntax: has_flags, is_leaf, source_location, sourcetext, JuliaSyntax as JS
+using JuliaSyntax: GreenNode, has_flags, is_leaf, source_location, sourcetext, JuliaSyntax as JS
+using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: get_line_range
 
@@ -12,7 +13,7 @@ severity(::Check) = 7
 synopsis(::Check) = "The number of expressions per line is limited to one."
 
 function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, _has_semicolon_statements, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
     return nothing
 end
 
@@ -30,35 +31,11 @@ We also stick intentionally to analyzing the highest level statement that can be
 Analyzing deeper within concatenated statements may lead to duplicate reporting
 or storing of global data (both of which is not wanted).
 """
-function _has_semicolon_statements(node::SyntaxNode)::Bool
-    return !is_leaf(node) &&
-      _has_semicolon_child(node) &&
-      !_has_ancestor_in_allowed_context(node) &&
-      !_has_parent_with_semicolon_child(node)
-end
-
-function _has_semicolon_child(node::SyntaxNode)::Bool
-    return any(n -> kind(n) == K";", children(node.raw))
-end
-
-function _has_ancestor_in_allowed_context(node::SyntaxNode)::Bool
-    return any(n -> _is_allowed_context(n), ancestors(node; include_self = true))
-end
-
-function _is_allowed_context(node::SyntaxNode)::Bool
-    return kind(node) ∈ KSet"parameters typed_vcat vcat"
-end
-
-function _has_parent_with_semicolon_child(node::SyntaxNode)::Bool
-    for ancestor in ancestors(node)
-        if _has_semicolon_child(ancestor)
-            return true
-        end
-    end
-    return false
-end
-
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
+    # Avoids multiple checks on toplevels.
+    if any(n -> is_toplevel(n), ancestors(node; include_self = false))
+        return nothing
+    end
     lines_to_report = Set{Integer}()
     nodes_to_check = _get_subnodes_to_check(node)
     for subnode in nodes_to_check
@@ -74,16 +51,38 @@ end
 function _get_subnodes_to_check(node::SyntaxNode)::Set{SyntaxNode}
     nodes_to_check = Set{SyntaxNode}()
     if !is_leaf(node)
-        for child_node in children(node)
-            if !_is_allowed_context(child_node)
-                union!(nodes_to_check, _get_subnodes_to_check(child_node))
-            end
-        end
         if _has_semicolon_child(node)
             push!(nodes_to_check, node)
+        else
+            for child_node in children(node)
+                if !_is_allowed_context(child_node)
+                    union!(nodes_to_check, _get_subnodes_to_check(child_node))
+                end
+            end
         end
     end
     return nodes_to_check
+end
+
+function _is_allowed_context(node::SyntaxNode)::Bool
+    return kind(node) ∈ KSet"parameters typed_vcat vcat"
+end
+
+function _has_semicolon_child(node::SyntaxNode)::Bool
+    green = children(node.raw)
+    return any(idx -> _has_semicolon_without_newline(green, idx), eachindex(green))
+end
+
+function _has_semicolon_without_newline(green_children, green_idx::Integer)::Bool
+    current_gc = green_children[green_idx]
+    next_i = nextind(green_children, green_idx)
+    next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
+    if kind(current_gc) == K";"
+        if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
+            return true
+        end
+    end
+    return false
 end
 
 function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
@@ -92,16 +91,10 @@ function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
     offset = 0
     green_children = children(node.raw)
     for green_idx in eachindex(green_children)
-        current_gc = green_children[green_idx]
-        next_i = nextind(green_children, green_idx)
-        next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
-        if kind(current_gc) == K";"
-            # If a semicolon is directly followed by a newline, then it should not be reported.
-            if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
-                push!(lines_to_report, first(node_info) + offset)
-            end
+        if (_has_semicolon_without_newline(green_children, green_idx))
+            push!(lines_to_report, first(node_info) + offset)
         end
-        if kind(current_gc) == K"NewlineWs"
+        if kind(green_children[green_idx]) == K"NewlineWs"
             offset = offset + 1
         end
     end
