@@ -1,8 +1,7 @@
 module UseAmericanEnglish
 
-using JuliaSyntax: byte_range, view, GreenNode, SyntaxNode, SourceFile, JuliaSyntax as JS
-using ...Properties: is_toplevel
-using ...CommentHelpers: get_comments, get_text, get_range, contains_comments
+using ...CommentHelpers: contains_comments, get_comments, get_range, get_text
+using JuliaSyntax: byte_range, GreenNode, SyntaxNode
 
 include("_common.jl")
 
@@ -11,18 +10,18 @@ id(::Check) = "use-american-english"
 severity(::Check) = 9
 synopsis(::Check) = "Comments should be in the American-English language"
 
-function _load_words(path::String)::Vector{AbstractString}
-    include_dependency(path)
-    return open(path) do f
-        return readlines(f)
-    end
-end
-
 function init(this::Check, ctxt::AnalysisContext)::Nothing
     forbidden_words = _load_words(joinpath(@__DIR__, "_config", "words_en-GB.txt"))
     register_syntaxnode_action(ctxt, contains_comments, n -> _check_comment(this, ctxt, n, forbidden_words))
     register_syntaxnode_action(ctxt, n -> kind(n) == K"doc", n -> _check_docstring(this, ctxt, n, forbidden_words))
     return nothing
+end
+
+function _load_words(path::String)::Vector{AbstractString}
+    include_dependency(path)
+    return open(path) do f
+        return readlines(f)
+    end
 end
 
 function _check_docstring(this::Check, ctxt::AnalysisContext, node::SyntaxNode, forbidden_words::Vector{AbstractString})::Nothing
@@ -45,9 +44,8 @@ function _check_for_british_spellings(this::Check, ctxt::AnalysisContext, forbid
     if !isempty(forbidden_words_in_text)
         report_violation(ctxt, this, range, "Text contains British spelling: $(join(forbidden_words_in_text, ", ")).")
     end
+    return nothing
 end
-
-_comment_or_docstring(node::GreenNode) = kind(node) in KSet"Comment"
 
 function _contained_words_from(forbidden_words::Vector{AbstractString}, text::AbstractString)::Vector{AbstractString}
     words = map(m -> m.match, eachmatch(r"\w+", lowercase(text)))
