@@ -22,6 +22,17 @@ function contains_comments(sn::SyntaxNode)::Bool
     return !isnothing(gn.children) && any(n -> kind(n) == K"Comment", gn.children)
 end
 
+function get_comments(sn::SyntaxNode)::Vector{Comment}
+    comments = []
+    for (i, ch) in enumerate(sn.raw.children)
+        if kind(ch) == K"Comment"
+            range = normalized_green_child_range(sn, i)
+            push!(comments, Comment(range, JS.view(sn.source, range)))
+        end
+    end
+    return comments
+end
+
 """
 Get the range and text representation of the direct children that are comment nodes.
 Subsequent single-line comments are merged. Only sibling comments can ever belong to the same block.
