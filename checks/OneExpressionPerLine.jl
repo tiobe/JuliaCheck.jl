@@ -1,7 +1,6 @@
 module OneExpressionPerLine
 
 using JuliaSyntax: is_leaf, source_location
-using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: get_line_range
 
