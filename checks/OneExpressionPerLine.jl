@@ -1,6 +1,6 @@
 module OneExpressionPerLine
 
-using JuliaSyntax: GreenNode, has_flags, is_leaf, source_location, sourcetext, JuliaSyntax as JS
+using JuliaSyntax: is_leaf, source_location
 using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: get_line_range
@@ -13,7 +13,7 @@ severity(::Check) = 7
 synopsis(::Check) = "The number of expressions per line is limited to one."
 
 function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, n -> n == ctxt.rootNode, n -> _check(this, ctxt, n))
     return nothing
 end
 
@@ -32,10 +32,6 @@ Analyzing deeper within concatenated statements may lead to duplicate reporting
 or storing of global data (both of which is not wanted).
 """
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    # Avoids multiple checks on toplevels.
-    if any(n -> is_toplevel(n), ancestors(node; include_self = false))
-        return nothing
-    end
     lines_to_report = Set{Integer}()
     nodes_to_check = _get_subnodes_to_check(node)
     for subnode in nodes_to_check
@@ -77,23 +73,21 @@ function _has_semicolon_without_newline(green_children, green_idx::Integer)::Boo
     current_gc = green_children[green_idx]
     next_i = nextind(green_children, green_idx)
     next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
-    if kind(current_gc) == K";"
-        if !isnothing(next_gc) && kind(next_gc) != K"NewlineWs" 
-            return true
-        end
-    end
-    return false
+    return kind(current_gc) == K";" && !isnothing(next_gc) && kind(next_gc) != K"NewlineWs"
 end
 
 function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
-    node_info = source_location(node.source, node.position)
     lines_to_report = Set{Integer}()
     offset = 0
     green_children = children(node.raw)
     for green_idx in eachindex(green_children)
         if (_has_semicolon_without_newline(green_children, green_idx))
-            push!(lines_to_report, first(node_info) + offset)
+            node_line, _ = source_location(node.source, node.position)
+            push!(lines_to_report, first(node_line) + offset)
         end
+        # Sometimes, blocks of semicolons span multiple lines.
+        # If a newline is encountered and another semicolon is encountered after that,
+        # a new violation should be reported on the second line.
         if kind(green_children[green_idx]) == K"NewlineWs"
             offset = offset + 1
         end

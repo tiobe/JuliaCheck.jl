@@ -51,6 +51,9 @@ function args_3(a::Vector{Int64}; b::Vector{Int64}, c::Vector{Int64})
     c[3] = 3
 end
 
+# Ignore semicolons in function calls
+args_3([1]; b=[2, 2], c=[3, 3, 3])
+
 # Well, not really good, but it shouldn't throw a violation.
 y = 5;
 y + 6
