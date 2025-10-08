@@ -12,9 +12,7 @@ synopsis(::Check) = "Short-hand notation with concise functions"
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", func -> begin
         body = get_func_body(func)
-        if kind(body) == K"block"
-            # It's a full-form function, so no check to do.
-        else
+        if !isnothing(body) && kind(body) != K"block"
             checkFunction(this, ctxt, func, body)
         end
     end)
