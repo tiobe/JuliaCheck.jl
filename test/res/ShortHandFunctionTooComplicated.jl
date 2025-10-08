@@ -13,3 +13,5 @@ end
 
 expr_depth(node) = haschildren(node) ?
     (1 + max(expr_depth.(children(node)))) : 0
+
+function empty_function end
