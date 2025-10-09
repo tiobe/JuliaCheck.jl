@@ -257,8 +257,7 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-
-function simple_violation_printer(sourcefile::SourceFile, violations)::Nothing
+function simple_violation_printer(outputfile::String, sourcefile::SourceFile, violations)::Nothing
     if length(violations) == 0
         println("No violations found.")
     else
@@ -275,7 +274,8 @@ end
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     print_ast::Bool = false,
     print_llt::Bool = false,
-    violationprinter::Function = simple_violation_printer
+    violationprinter::Function = simple_violation_printer,
+    outputfile::String = ""
     )::Nothing
 
     if length(checks) >= 1
@@ -301,7 +301,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     end
 
     _invoke_checks(ctxt, syntaxNode)
-    violationprinter(sourcefile, ctxt.violations)
+    violationprinter(outputfile, sourcefile, ctxt.violations)
     return nothing
 end
 

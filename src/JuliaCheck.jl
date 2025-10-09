@@ -15,7 +15,7 @@ include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
 include("CommentHelpers.jl"); import .CommentHelpers
 
 using .Analysis
-using .ViolationPrinters
+using .ViolationPrinters: highlighting_violation_printer, json_violation_printer
 
 export main
 
@@ -44,6 +44,12 @@ function _parse_commandline(args::Vector{String})
         "--llt"
             help = "Print lossless tree for each input file."
             action = :store_true
+        "--output"
+            help = "Use highlighting output instead of JSON."
+            action = :store_true
+        "--outputfile"
+            help = "Write output to the given file."
+            arg_type = String
         "infiles"
             help = "One or more Julia files to check with available rules."
             nargs = '+'
@@ -64,6 +70,7 @@ function main(args::Vector{String})
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
 
+    output_arg = arguments["output"]
     rules_arg = Set(arguments["rules"])
     available_checks = map(c -> c(), subtypes(Analysis.Check))
     intersect = setdiff(rules_arg, map(id, available_checks))
@@ -87,12 +94,20 @@ function main(args::Vector{String})
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
             Analysis.run_analysis(sourcefile, fresh_checks;
-                violationprinter = highlighting_violation_printer,
+                violationprinter = select_violation_printer(output_arg),
                 print_ast = arguments["ast"],
-                print_llt = arguments["llt"])
+                print_llt = arguments["llt"],
+                outputfile = arguments["outputfile"])
         end
     end
     println()
+end
+
+function select_violation_printer(output_arg::Bool)::Function
+    if output_arg
+        return highlighting_violation_printer
+    end
+    return json_violation_printer
 end
 
 if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE__
