@@ -147,7 +147,7 @@ end
     Use `offsetspan` to specify the range of the violation relative to the node's position.
  """
 function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String;
-    offsetspan::Union{Nothing, Tuple{Int,Int}} = nothing
+    offsetspan::Union{Nothing, Tuple{Int,Int}}=nothing
     )::Nothing
     linepos = JuliaSyntax.source_location(node)
     bufferrange = JuliaSyntax.byte_range(node)
@@ -180,7 +180,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
-    linepos = JuliaSyntax.source_location(ctxt.rootNode.source, bufferrange.start, )
+    linepos = JuliaSyntax.source_location(ctxt.rootNode.source, bufferrange.start)
     push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
     return nothing
 end
@@ -273,9 +273,9 @@ function simple_violation_printer(sourcefile::SourceFile, violations)::Nothing
 end
 
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
-    print_ast::Bool = false,
-    print_llt::Bool = false,
-    violationprinter::Function = simple_violation_printer
+    print_ast::Bool=false,
+    print_llt::Bool=false,
+    violationprinter::Function=simple_violation_printer
     )::Nothing
 
     if length(checks) >= 1

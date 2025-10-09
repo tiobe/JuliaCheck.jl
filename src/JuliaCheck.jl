@@ -87,9 +87,9 @@ function main(args::Vector{String})
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
             Analysis.run_analysis(sourcefile, fresh_checks;
-                violationprinter = highlighting_violation_printer,
-                print_ast = arguments["ast"],
-                print_llt = arguments["llt"])
+                violationprinter=highlighting_violation_printer,
+                print_ast=arguments["ast"],
+                print_llt=arguments["llt"])
         end
     end
     println()
