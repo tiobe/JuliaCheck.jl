@@ -1,6 +1,6 @@
 module AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters
 
-using JuliaSyntax: SourceFile
+using JuliaSyntax: SourceFile, has_flags, head, PARENS_FLAG, is_prefix_call
 using ...Properties: is_toplevel
 
 include("_common.jl")
@@ -27,8 +27,6 @@ const NODE_TYPES_TO_CHECK = KSet"
     comprehension
     typed_comprehension
     tuple
-    block
-    call
     parameters
     "
 
@@ -43,6 +41,31 @@ function _get_relevant_node(n::SyntaxNode)::SyntaxNode
     end
 end
 
+function _shouldCheck(node::SyntaxNode)::Bool
+    if isnothing(node)
+        return false
+    end
+    relnode = _get_relevant_node(node)
+    if kind(relnode) == K"block" && has_flags(head(relnode), PARENS_FLAG)
+        # Do not check every `block` node, because this is also used for struct default value assignments.
+        # Only check `block-p` syntax: e.g.: (a; b; c)
+        return true
+    elseif kind(relnode) == K"call"
+        if is_prefix_call(relnode)
+            # Check normal prefix function calls: f(a, b)
+            return true
+        elseif sourcetext(relnode.children[2]) == "=>"
+            # Check spaces around dictionary pair (a => 1, b => 2)
+            return true
+        else
+            # Skip other calls
+            return false
+        end
+    else
+        return kind(relnode) in NODE_TYPES_TO_CHECK
+    end
+end
+
 function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
     for i in eachindex(ctxt.greenleaves)
         if i == firstindex(ctxt.greenleaves) || i == lastindex(ctxt.greenleaves)
@@ -50,26 +73,26 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
             continue
         end
         cur = ctxt.greenleaves[i]
+        next = ctxt.greenleaves[i+1]
 
         if kind(cur) != K"Whitespace"
             # Only produce violations for whitespace nodes (ignore whitespace with newlines)
+            continue
+        elseif kind(next) == K"Comment"
+            # Skip whitespace that is followed by a comment
             continue
         end
 
         pos = cur.range.start
         node = find_syntaxnode_at_position(ctxt, pos)
-        if isnothing(node)
-            continue
-        end
-
-        if kind(_get_relevant_node(node)) ∉ NODE_TYPES_TO_CHECK
+        if !_shouldCheck(node)
             continue
         end
 
         expected_spaces = nothing
         if sourcetext(ctxt.greenleaves[i-1]) ∈ ("[", "(", "{", "=")
             expected_spaces = 0 # No space after open delimiter
-        elseif sourcetext(ctxt.greenleaves[i+1]) ∈ ("]", ")", "}", "=", ";", ",")
+        elseif sourcetext(next) ∈ ("]", ")", "}", "=", ";", ",")
             expected_spaces = 0 # No space before close delimiter
         else
             expected_spaces = 1 # Exactly one space between elements
