@@ -41,7 +41,7 @@ function _get_relevant_node(n::SyntaxNode)::SyntaxNode
     end
 end
 
-function _shouldCheck(node::SyntaxNode)::Bool
+function _should_check(node::SyntaxNode)::Bool
     if isnothing(node)
         return false
     end
@@ -85,7 +85,7 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
 
         pos = cur.range.start
         node = find_syntaxnode_at_position(ctxt, pos)
-        if !_shouldCheck(node)
+        if !_should_check(node)
             continue
         end
 

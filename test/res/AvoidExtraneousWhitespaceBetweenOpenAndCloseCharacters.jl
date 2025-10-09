@@ -30,6 +30,10 @@ struct FresnelCoefficientContext
     ringWidth::Float64 = 0.003                       #width of ring
     ringCenter::Float64 = 0.145                      #center of ring
 end
+hints = ([0, 1,
+        60,                 # minutes, seconds
+        90, 180, 270, 360   # degrees
+    ])
 const KNOWN_FLOATS = Set{Float64}([0.1, 0.01, 0.001, 0.0001, 0.5]) ∪
                     Set{Float64}(convert.(Float64, POWERS_OF_TEN))
 if kind(glob_var) == K"="      glob_var = first_child(glob_var) end
