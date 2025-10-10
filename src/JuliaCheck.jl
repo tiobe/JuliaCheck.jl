@@ -45,10 +45,11 @@ function _parse_commandline(args::Vector{String})
             help = "Print lossless tree for each input file."
             action = :store_true
         "--output"
-            help = "Use highlighting output instead of JSON."
-            action = :store_true
+            help = "Select output type. Allowed types: json, highlighting."
+            arg_type = String
+            default = "highlighting"
         "--outputfile"
-            help = "Write output to the given file."
+            help = "Write output to the given file. If left empty, this will write to command line."
             arg_type = String
         "infiles"
             help = "One or more Julia files to check with available rules."
@@ -66,11 +67,18 @@ function main(args::Vector{String})
         return nothing
     end
     arguments = _parse_commandline(args)
+
+    # arguments can be empty in the case you only pass -version:
+    # terminate early if that is the case
+    if isnothing(arguments)
+        return nothing
+    end
+
     if arguments["verbose"]
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
 
-    output_arg = arguments["output"]
+    output_file_arg = _parse_output_file_arg(arguments["output"], arguments["outputfile"])
     rules_arg = Set(arguments["rules"])
     available_checks = map(c -> c(), subtypes(Analysis.Check))
     intersect = setdiff(rules_arg, map(id, available_checks))
@@ -94,20 +102,34 @@ function main(args::Vector{String})
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
             Analysis.run_analysis(sourcefile, fresh_checks;
-                violationprinter = select_violation_printer(output_arg),
+                violationprinter = _select_violation_printer(arguments["output"]),
                 print_ast = arguments["ast"],
                 print_llt = arguments["llt"],
-                outputfile = arguments["outputfile"])
+                outputfile = output_file_arg)
         end
     end
     println()
 end
 
-function select_violation_printer(output_arg::Bool)::Function
-    if output_arg
+function _parse_output_file_arg(output_arg::String, output_file_arg::Union{String, Nothing})::String
+    if isnothing(output_file_arg)
+        if output_arg == "json"
+            throw("Error: JSON output requires an output file.")
+        end
+        return ""
+    end
+    return output_file_arg
+end
+
+function _select_violation_printer(output_arg::String)::Function
+    if output_arg == "highlighting"
         return highlighting_violation_printer
     end
-    return json_violation_printer
+    if output_arg == "json"
+        return json_violation_printer
+    end
+    throw("Unknown output format: $output_arg")
+    return nothing
 end
 
 if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE__
