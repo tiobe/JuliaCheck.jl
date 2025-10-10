@@ -16,7 +16,7 @@ function init(this::Check, ctxt::AnalysisContext)
         successive_pairs = collect(zip(starts, Iterators.drop(starts, 1)))
         linenr::Int = 1
         for (start,stop) in successive_pairs
-            line::String = code[start:min(stop-1,length(code))]
+            line::String = code[start:prevind(code, stop)]
             m = match(REGEX, line)
             if m !== nothing
                 offset::Int = length(m.captures[1])
