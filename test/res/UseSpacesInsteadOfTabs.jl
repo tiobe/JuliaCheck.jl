@@ -11,3 +11,5 @@ function get_specific_numbers()::Vector{Int64}
 	
     return vec
 end
+
+fck(;) = π
