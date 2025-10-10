@@ -52,7 +52,7 @@ function _parse_commandline(args::Vector{String})
             help = "Write output to the given file. If left empty, this will write to command line."
             arg_type = String
         "infiles"
-            help = "One or more Julia files to check with available rules."
+            help = "One or more Julia files or directories to check with available rules."
             nargs = '+'
             arg_type = String
             required = true
@@ -87,7 +87,7 @@ function main(args::Vector{String})
     end
     checks_to_run = filter(c -> isempty(rules_arg) || id(c) in rules_arg, available_checks)
 
-    for in_file::String in arguments["infiles"]
+    for in_file::String in _get_files_to_analyze(arguments["infiles"])
         if !(isfile(in_file))
             @error ">> Error: cannot read '$in_file' as a file."
         else
@@ -109,6 +109,28 @@ function main(args::Vector{String})
         end
     end
     println()
+end
+
+_has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
+
+function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
+    file_set = []
+    for element in file_arg
+        if isfile(element) && _has_julia_ext(element)
+            push!(file_set, element)
+        elseif isdir(element)
+            for (root, dirs, files) in walkdir(element)
+                for file in files
+                    if _has_julia_ext(file)
+                        push!(file_set, abspath(joinpath(root, file)))
+                    end
+                end
+            end
+        else
+            error("Path does not exist: ", element)
+        end
+    end
+    return file_set
 end
 
 function _parse_output_file_arg(output_arg::String, output_file_arg::Union{String, Nothing})::String
