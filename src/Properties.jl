@@ -9,7 +9,7 @@ export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
 
     fake_green_node, find_lhs_of_kind, first_child,
 
-    get_assignee, get_call_name_from_call_node, get_flattened_fn_arg_nodes, 
+    get_assignee, get_call_name_from_call_node, get_flattened_fn_arg_nodes,
     get_func_arguments, get_func_body, get_func_name,
     get_imported_pkg, get_iteration_parts, get_module_name, get_number,
     get_string_arg, get_string_fn_args, get_struct_members, get_struct_name,
@@ -53,25 +53,25 @@ function is_fat_snake_case(s::AbstractString)::Bool
 end
 
 
-is_toplevel(  node::AnyTree)::Bool = kind(node) == K"toplevel"
-is_module(    node::AnyTree)::Bool = kind(node) == K"module"
+is_toplevel(node::AnyTree)::Bool = kind(node) == K"toplevel"
+is_module(node::AnyTree)::Bool = kind(node) == K"module"
 is_assignment(node::AnyTree)::Bool = kind(node) == K"="
-is_dot(       node::AnyTree)::Bool = kind(node) == K"."
-is_function(  node::AnyTree)::Bool = kind(node) == K"function"
-is_struct(    node::AnyTree)::Bool = kind(node) == K"struct"
-is_abstract(  node::AnyTree)::Bool = kind(node) == K"abstract"
+is_dot(node::AnyTree)::Bool = kind(node) == K"."
+is_function(node::AnyTree)::Bool = kind(node) == K"function"
+is_struct(node::AnyTree)::Bool = kind(node) == K"struct"
+is_abstract(node::AnyTree)::Bool = kind(node) == K"abstract"
 is_array_indx(node::AnyTree)::Bool = kind(node) == K"ref"
-is_vect(      node::AnyTree)::Bool = kind(node) == K"vect"
-is_call(      node::AnyTree)::Bool = kind(node) == K"call"
+is_vect(node::AnyTree)::Bool = kind(node) == K"vect"
+is_call(node::AnyTree)::Bool = kind(node) == K"call"
 
-is_loop(          node::AnyTree)::Bool = kind(node) in KSet"while for"
-is_separator(     node::AnyTree)::Bool = kind(node) in KSet", ;"
-is_flow_cntrl(    node::AnyTree)::Bool = kind(node) in KSet"if for while try"
+is_loop(node::AnyTree)::Bool = kind(node) in KSet"while for"
+is_separator(node::AnyTree)::Bool = kind(node) in KSet", ;"
+is_flow_cntrl(node::AnyTree)::Bool = kind(node) in KSet"if for while try"
 is_literal_number(node::AnyTree)::Bool = kind(node) in KSet"Float Integer"
 
 is_broadcasting_assignment(n::SyntaxNode)::Bool = is_assignment(n) && is_dotted(n)
-is_field_assignment(       n::SyntaxNode)::Bool = is_assignment(n) && is_dot(first(children(n)))
-is_array_assignment(       n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n.parent) && _is_first_child(n)
+is_field_assignment(n::SyntaxNode)::Bool = is_assignment(n) && is_dot(first(children(n)))
+is_array_assignment(n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n.parent) && _is_first_child(n)
 
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =
@@ -438,7 +438,7 @@ end
 Extracts the name of a call from the call node.
 
 For instance, take the following node: push!(a, 1)
-This is parsed as call (push! a 1). So to find the call, 
+This is parsed as call (push! a 1). So to find the call,
 """
 function get_call_name_from_call_node(call_node::SyntaxNode)::String
     call_type_node = first(children(call_node))
@@ -477,14 +477,14 @@ returned parts are `nothing` (but it is still a pair).
 """
 function get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
     if kind(for_loop) == K"for"
-        if !( haschildren(for_loop) &&
+        if !(haschildren(for_loop) &&
               kind(first_child(for_loop)) == K"iteration"
            )
             @debug "for loop does not have an [iteration]" for_loop
             return nothing, nothing
         end
         node = first_child(for_loop)
-        if !( haschildren(node) && kind(first_child(node)) == K"in" )
+        if !(haschildren(node) && kind(first_child(node)) == K"in")
             @debug "for loop does not have an [iteration]/[in] sequence:" for_loop
             return nothing, nothing
         end

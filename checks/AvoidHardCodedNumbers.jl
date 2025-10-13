@@ -41,7 +41,7 @@ To that end, we climb up the tree until we find a constant declaration, or the r
 """
 function is_const_declaration(node::SyntaxNode)::Bool
     x = node
-    while !( isnothing(x) || is_constant(x) )
+    while !(isnothing(x) || is_constant(x))
         x = x.parent
     end
     return !isnothing(x)
