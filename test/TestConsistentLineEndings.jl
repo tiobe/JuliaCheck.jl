@@ -77,8 +77,10 @@ The line endings of this file itself should always be LF, see .gitattributes
         checks::Vector{Analysis.Check} = [Check()]
         source = SourceFile(text; filename="test_file.jl")
         printer = JuliaCheck._select_violation_printer("highlighting")
+        output_file_arg = ""
         result = IOCapture.capture() do
-            Analysis.run_analysis(source, checks; violationprinter=printer)
+            violations = Analysis.run_analysis(source, checks)          
+            print_violations(printer, output_file_arg, violations)
         end
         @test replace(result.output, r"\r\n?" => "\n") == exp # In the output, we do not need to compare line endings
         return nothing
