@@ -26,6 +26,7 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 
 struct Violation
     check::Check
+    sourcefile::SourceFile
     linepos::Tuple{Int,Int} # The line and column of the violation
     bufferrange::UnitRange{Integer} # The character range in the source code
     msg::String
@@ -35,7 +36,7 @@ end
 abstract type ViolationPrinter end
 shorthand(::ViolationPrinter) = error("shorthand() not implemented for this violation printer")
 requiresfile(::ViolationPrinter) = error("requiresfile() not implemented for this violation printer")
-print_violations(::ViolationPrinter, outputfile::String, sourcefile::SourceFile, violations::Vector{Violation}) = error("print_violations() not implemented for this violation printer")
+print_violations(::ViolationPrinter, outputfile::String, violations::Vector{Violation}) = error("print_violations() not implemented for this violation printer")
 
 struct GreenLeaf
     sourcefile::SourceFile
@@ -54,13 +55,14 @@ struct CheckRegistration
 end
 
 struct AnalysisContext
+    sourcefile::SourceFile
     rootNode::SyntaxNode
     greenleaves::Vector{GreenLeaf}
     registrations::Vector{CheckRegistration} # Holds registrations of syntax node actions.
     violations::Vector{Violation}
     symboltable::SymbolTableStruct
 
-    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
+    AnalysisContext(sourcefile::SourceFile, node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(sourcefile, node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
 end
 
 "Finds GreenLeaf containing given position."
@@ -163,7 +165,7 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
         bufferrange = range(bufferrange.start + offsetspan[1], length=offsetspan[2])
     end
 
-    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.sourcefile, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -175,7 +177,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
-    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.sourcefile, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -188,7 +190,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     msg::String
     )::Nothing
     linepos = JuliaSyntax.source_location(ctxt.rootNode.source, bufferrange.start)
-    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.sourcefile, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -280,11 +282,9 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
 end
 
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
-    violationprinter::ViolationPrinter,
-    print_ast::Bool = false,
-    print_llt::Bool = false,
-    outputfile::String = ""
-    )::Nothing
+        print_ast::Bool = false,
+        print_llt::Bool = false,
+    )::Vector{Violation}
 
     if length(checks) >= 1
         @debug "Enabled rules:\n" * join(map(id, checks), "\n")
@@ -293,7 +293,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     end
 
     syntaxNode = JuliaSyntax.parseall(SyntaxNode, sourcefile.code; filename=sourcefile.filename)
-    ctxt = AnalysisContext(syntaxNode, _get_green_leaves(syntaxNode))
+    ctxt = AnalysisContext(sourcefile, syntaxNode, _get_green_leaves(syntaxNode))
     for check in checks
         typeof(check)
         init(check, ctxt)
@@ -309,8 +309,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     end
 
     _invoke_checks(ctxt, syntaxNode)
-    print_violations(violationprinter, outputfile, sourcefile, ctxt.violations)
-    return nothing
+    return ctxt.violations
 end
 
 end # module Analysis

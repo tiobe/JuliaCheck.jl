@@ -21,17 +21,17 @@ Base.@kwdef struct ViolationOutput
     url::String
 end
 
-function print_violations(this::ViolationPrinter, outputfile::String, sourcefile::SourceFile, violations::Vector{Violation})::Nothing
+function print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
     output_violations = []
     for v in violations
-        l_end, c_end = source_location(sourcefile, v.bufferrange.stop)
+        l_end, c_end = source_location(v.sourcefile, v.bufferrange.stop)
         push!(output_violations, ViolationOutput(
             line_start = v.linepos[1],
             column_start = v.linepos[2],
             line_end = l_end,
             column_end = c_end,
-            julia_source_code_filename = filename(sourcefile),
+            julia_source_code_filename = filename(v.sourcefile),
             severity = severity(v.check),
             rule_id = id(v.check),
             user_message = append_period(v.msg),

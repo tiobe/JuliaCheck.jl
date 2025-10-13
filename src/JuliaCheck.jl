@@ -89,7 +89,7 @@ function main(args::Vector{String})
         throw("Unknown rules: $intersect")
     end
     checks_to_run = filter(c -> isempty(rules_arg) || id(c) in rules_arg, available_checks)
-
+    violations::Vector{Violation} = []
     for in_file::String in _get_files_to_analyze(arguments["infiles"])
         if !(isfile(in_file))
             @error ">> Error: cannot read '$in_file' as a file."
@@ -99,18 +99,17 @@ function main(args::Vector{String})
             print("'...\n")
 
             sourcefile::SourceFile = SourceFile(; filename=in_file)
-            text::String = read(in_file, String)
 
             # Reinstantiate Checks to clear any variables they might have
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
-            Analysis.run_analysis(sourcefile, fresh_checks;
-                violationprinter = violation_printer,
+            new_violations = Analysis.run_analysis(sourcefile, fresh_checks;
                 print_ast = arguments["ast"],
-                print_llt = arguments["llt"],
-                outputfile = output_file_arg)
+                print_llt = arguments["llt"])
+            append!(violations, new_violations)
         end
     end
+    print_violations(violation_printer, output_file_arg, violations)
     println()
 end
 

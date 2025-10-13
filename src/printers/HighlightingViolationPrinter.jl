@@ -7,11 +7,11 @@ struct ViolationPrinter<:Analysis.ViolationPrinter end
 shorthand(::ViolationPrinter) = "highlighting"
 requiresfile(::ViolationPrinter) = false
 
-function print_violations(this::ViolationPrinter, outputfile::String, sourcefile::SourceFile, violations::Vector{Violation})::Nothing
+function print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
     for v in violations
         _report_violation(
-            sourcefile,
+            v.sourcefile,
             index = v.bufferrange.start,
             len = v.bufferrange.stop - v.bufferrange.start + 1,
             line = v.linepos[1],

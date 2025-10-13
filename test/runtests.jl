@@ -122,9 +122,11 @@ end
 end
 
 @testitem "Violation Printers" begin
+    import IOCapture
+
     @testset for printer in JuliaCheck._get_available_printers()
         printer_cmd = JuliaCheck.Analysis.shorthand(printer)
-        printer_file = "ViolationPrinter-$(printer_cmd)-.out"
+        printer_file = "ViolationPrinter-$(printer_cmd).out"
         args = [
             "--output",
             printer_cmd,

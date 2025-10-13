@@ -7,7 +7,7 @@ struct ViolationPrinter<:Analysis.ViolationPrinter end
 shorthand(::ViolationPrinter) = "simple"
 requiresfile(::ViolationPrinter) = false
 
-function print_violations(this::ViolationPrinter, outputfile::String, sourcefile::SourceFile, violations::Vector{Violation})::Nothing
+function print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
     if length(violations) == 0
         println("No violations found.")
     else
