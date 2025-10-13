@@ -137,7 +137,9 @@ end
             joinpath(@__DIR__, "res/ViolationPrinters/file_1.jl"),
             joinpath(@__DIR__, "res/ViolationPrinters/file_2.jl"), 
         ]
-        JuliaCheck.main(args)
+        result = IOCapture.capture() do
+            JuliaCheck.main(args)
+        end
     end
 end
 
