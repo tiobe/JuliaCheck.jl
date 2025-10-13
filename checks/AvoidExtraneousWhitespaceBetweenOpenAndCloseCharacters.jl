@@ -61,9 +61,8 @@ function _should_check(node::SyntaxNode)::Bool
             # Skip other calls
             return false
         end
-    else
-        return kind(relnode) in NODE_TYPES_TO_CHECK
     end
+    return kind(relnode) in NODE_TYPES_TO_CHECK
 end
 
 function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
