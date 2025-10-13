@@ -17,7 +17,7 @@ function check(this::Check, ctxt::AnalysisContext, index_ref::SyntaxNode)
     @assert kind(index_ref) == K"ref" "Expected a [ref] node, got $(kind(index_ref))."
 
     for_loop = index_ref.parent
-    while !( isnothing(for_loop) || is_loop(for_loop) || is_stop_point(for_loop) )
+    while !(isnothing(for_loop) || is_loop(for_loop) || is_stop_point(for_loop))
         for_loop = for_loop.parent
     end
     if isnothing(for_loop) || kind(for_loop) != K"for"
