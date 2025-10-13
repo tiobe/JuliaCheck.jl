@@ -26,4 +26,6 @@ text = """
 """
 sourcefile = SourceFile(text, filename=filename)
 printer = JuliaCheck.Analysis.ViolationPrinter.HighlightingViolationPrinter
-run_analysis(sourcefile, checks1; print_ast=true, print_llt=true, violationprinter=printer)
+violations = run_analysis(sourcefile, checks1; print_ast=true, print_llt=true)
+output_file_arg = ""
+print_violations(printer, output_file_arg, violations)
