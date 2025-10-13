@@ -2,6 +2,7 @@ module Analysis
 
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
+export ViolationPrinter, shorthand, requiresfile, print_violations
 export GreenLeaf, find_greenleaf, kind, sourcetext
 export dfs_traversal, find_syntaxnode_at_position, source_location
 
@@ -29,6 +30,12 @@ struct Violation
     bufferrange::UnitRange{Integer} # The character range in the source code
     msg::String
 end
+
+"The abstract base type for all violation printers."
+abstract type ViolationPrinter end
+shorthand(::ViolationPrinter) = error("shorthand() not implemented for this violation printer")
+requiresfile(::ViolationPrinter) = error("requiresfile() not implemented for this violation printer")
+print_violations(::ViolationPrinter, outputfile::String, sourcefile::SourceFile, violations::Vector{Violation}) = error("print_violations() not implemented for this violation printer")
 
 struct GreenLeaf
     sourcefile::SourceFile
@@ -238,6 +245,21 @@ function discover_checks()::Nothing
     return nothing
 end
 
+"Load all violation printers in printers directory."
+function discover_violation_printers()::Nothing
+    violation_printers_path = joinpath(@__DIR__, "printers")
+    include_dependency(violation_printers_path) # Mark directory contents as precompilation dependency
+    for file in filter(f -> endswith(f, ".jl"), readdir(violation_printers_path, join=true))
+        try
+            include(file)
+            include_dependency(file)
+        catch exception
+            @warn "Failed to load violation printer '$(basename(file))':" exception
+        end
+    end
+    return nothing
+end
+
 function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     visitor = function(n::SyntaxNode)
         for reg in ctxt.registrations
@@ -257,24 +279,10 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-function simple_violation_printer(outputfile::String, sourcefile::SourceFile, violations)::Nothing
-    if length(violations) == 0
-        println("No violations found.")
-    else
-        println("Found $(length(violations)) violations:")
-        idx = 1
-        for v in violations
-            println("$(idx). Check: $(id(v.check)), Line/col: $(v.linepos), Severity: $(severity(v.check)), Message: $(v.msg)")
-            idx += 1
-        end
-    end
-    return nothing
-end
-
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
+    violationprinter::ViolationPrinter,
     print_ast::Bool = false,
     print_llt::Bool = false,
-    violationprinter::Function = simple_violation_printer,
     outputfile::String = ""
     )::Nothing
 
@@ -301,7 +309,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     end
 
     _invoke_checks(ctxt, syntaxNode)
-    violationprinter(outputfile, sourcefile, ctxt.violations)
+    print_violations(violationprinter, outputfile, sourcefile, ctxt.violations)
     return nothing
 end
 

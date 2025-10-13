@@ -8,18 +8,17 @@ include("Properties.jl"); import .Properties
 include("TypeHelpers.jl"); import .TypeHelpers
 include("SymbolTable.jl")
 include("Analysis.jl")
-include("ViolationPrinters.jl")
 include("SyntaxNodeHelpers.jl")
 include("MutatingFunctionsHelpers.jl")
 include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
 include("CommentHelpers.jl"); import .CommentHelpers
 
 using .Analysis
-using .ViolationPrinters: highlighting_violation_printer, json_violation_printer
 
 export main
 
 Analysis.discover_checks()
+Analysis.discover_violation_printers()
 
 function _parse_commandline(args::Vector{String})
     s = ArgParseSettings(
@@ -29,6 +28,9 @@ function _parse_commandline(args::Vector{String})
             """,
             add_version = true, version = project_version(joinpath(@__DIR__, "..", "Project.toml")))
 
+    available_printers = map(p -> p(), subtypes(Analysis.ViolationPrinter))
+    shorthand_ids = map(shorthand, available_printers)
+    printer_string = join(shorthand_ids, ", ")
     @add_arg_table! s begin
         "--enable"
             help = "List of rules to check on the given files."
@@ -45,7 +47,7 @@ function _parse_commandline(args::Vector{String})
             help = "Print lossless tree for each input file."
             action = :store_true
         "--output"
-            help = "Select output type. Allowed types: json, highlighting."
+            help = "Select output type. Allowed types: $(printer_string)."
             arg_type = String
             default = "highlighting"
         "--outputfile"
@@ -78,7 +80,9 @@ function main(args::Vector{String})
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
 
-    output_file_arg = _parse_output_file_arg(arguments["output"], arguments["outputfile"])
+    violation_printer = _select_violation_printer(arguments["output"])
+    output_file_arg = _parse_output_file_arg(violation_printer, arguments["outputfile"])
+
     rules_arg = Set(arguments["rules"])
     available_checks = map(c -> c(), subtypes(Analysis.Check))
     intersect = setdiff(rules_arg, map(id, available_checks))
@@ -102,7 +106,7 @@ function main(args::Vector{String})
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
             Analysis.run_analysis(sourcefile, fresh_checks;
-                violationprinter = _select_violation_printer(arguments["output"]),
+                violationprinter = violation_printer,
                 print_ast = arguments["ast"],
                 print_llt = arguments["llt"],
                 outputfile = output_file_arg)
@@ -133,25 +137,26 @@ function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
     return file_set
 end
 
-function _parse_output_file_arg(output_arg::String, output_file_arg::Union{String, Nothing})::String
+function _select_violation_printer(output_arg::String)::ViolationPrinter
+    available_printers = map(p -> p(), subtypes(Analysis.ViolationPrinter))
+    for printer in available_printers
+        if output_arg == shorthand(printer)
+            return printer
+        end
+    end
+    throw("Unknown violation printer type: $output_arg")
+    return nothing
+end
+
+function _parse_output_file_arg(violation_printer::ViolationPrinter, output_file_arg::Union{String, Nothing})::String
     if isnothing(output_file_arg)
-        if output_arg == "json"
-            throw("Error: JSON output requires an output file.")
+        if requiresfile(violation_printer)
+            shorthand_msg = shorthand(violation_printer)
+            throw("Error: $(shorthand_msg) output requires an output file.")
         end
         return ""
     end
     return output_file_arg
-end
-
-function _select_violation_printer(output_arg::String)::Function
-    if output_arg == "highlighting"
-        return highlighting_violation_printer
-    end
-    if output_arg == "json"
-        return json_violation_printer
-    end
-    throw("Unknown output format: $output_arg")
-    return nothing
 end
 
 if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE__
