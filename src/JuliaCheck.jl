@@ -28,8 +28,7 @@ function _parse_commandline(args::Vector{String})
             """,
             add_version = true, version = project_version(joinpath(@__DIR__, "..", "Project.toml")))
 
-    available_printers = map(p -> p(), subtypes(Analysis.ViolationPrinter))
-    shorthand_ids = map(shorthand, available_printers)
+    shorthand_ids = map(shorthand, _get_available_printers())
     printer_string = join(shorthand_ids, ", ")
     @add_arg_table! s begin
         "--enable"
@@ -116,6 +115,7 @@ function main(args::Vector{String})
 end
 
 _has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
+_get_available_printers() = map(p -> p(), subtypes(Analysis.ViolationPrinter))
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
     file_set = []
@@ -138,8 +138,7 @@ function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
 end
 
 function _select_violation_printer(output_arg::String)::ViolationPrinter
-    available_printers = map(p -> p(), subtypes(Analysis.ViolationPrinter))
-    for printer in available_printers
+    for printer in _get_available_printers()
         if output_arg == shorthand(printer)
             return printer
         end

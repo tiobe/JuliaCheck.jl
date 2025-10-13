@@ -1,7 +1,7 @@
 module JSONViolationPrinter
 
 import ..Analysis: shorthand, requiresfile, print_violations; using ..Analysis
-import JuliaSyntax: SourceFile
+import JuliaSyntax: filename, source_location, SourceFile
 import JSON3
 
 struct ViolationPrinter<:Analysis.ViolationPrinter end
@@ -31,7 +31,7 @@ function print_violations(this::ViolationPrinter, outputfile::String, sourcefile
             column_start = v.linepos[2],
             line_end = l_end,
             column_end = c_end,
-            julia_source_code_filename = JuliaSyntax.filename(sourcefile),
+            julia_source_code_filename = filename(sourcefile),
             severity = severity(v.check),
             rule_id = id(v.check),
             user_message = append_period(v.msg),

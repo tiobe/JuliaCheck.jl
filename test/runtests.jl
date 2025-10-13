@@ -113,13 +113,32 @@ using JuliaCheck
     @test !is_declared(table, y)
 end
 
-
 @testitem "Numbers" begin
     using JuliaSyntax: SyntaxNode, parsestmt
     include("../src/Properties.jl"); using .Properties: get_number
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test get_number(make_node("4.493_775_893_684_088e16")) == 4.493775893684088e16
+end
+
+@testitem "Violation Printers" begin
+    @testset for printer in JuliaCheck._get_available_printers()
+        printer_cmd = JuliaCheck.Analysis.shorthand(printer)
+        printer_file = "ViolationPrinter-$(printer_cmd)-.out"
+        args = [
+            "--output",
+            printer_cmd,
+            "--outputfile",
+            printer_file,
+            "--enable",
+            "do-not-set-variables-to-inf",
+            "do-not-set-variables-to-nan",
+            "--",
+            joinpath(@__DIR__, "res/ViolationPrinters/file_1.jl"),
+            joinpath(@__DIR__, "res/ViolationPrinters/file_2.jl"), 
+        ]
+        JuliaCheck.main(args)
+    end
 end
 
 @testitem "Golden File Tests" begin

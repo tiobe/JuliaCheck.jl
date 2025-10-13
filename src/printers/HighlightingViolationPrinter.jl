@@ -10,7 +10,7 @@ requiresfile(::ViolationPrinter) = false
 function print_violations(this::ViolationPrinter, outputfile::String, sourcefile::SourceFile, violations::Vector{Violation})::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
     for v in violations
-        report_violation(
+        _report_violation(
             sourcefile,
             index = v.bufferrange.start,
             len = v.bufferrange.stop - v.bufferrange.start + 1,
@@ -25,7 +25,7 @@ function print_violations(this::ViolationPrinter, outputfile::String, sourcefile
     return nothing
 end
 
-function report_violation(sourcefile::SourceFile; index::Int, len::Int, line::Int, col::Int,
+function _report_violation(sourcefile::SourceFile; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
                             summary::String, rule_id::String)::Nothing
     printstyled("\n$(JS.filename(sourcefile))($line, $col):\n";
