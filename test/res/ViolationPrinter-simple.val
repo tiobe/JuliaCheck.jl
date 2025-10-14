@@ -1,0 +1,11 @@
+>> Processing file 'ViolationPrinters/file_1.jl'...
+
+>> Processing file 'ViolationPrinters/file_2.jl'...
+Found 7 violations:
+1. Check: do-not-set-variables-to-inf, Line/col: (2, 18), Severity: 3, Message: Do not set variables to Inf, Inf16, Inf32 or Inf64
+2. Check: do-not-set-variables-to-inf, Line/col: (3, 15), Severity: 3, Message: Do not set variables to Inf, Inf16, Inf32 or Inf64
+3. Check: do-not-set-variables-to-inf, Line/col: (4, 17), Severity: 3, Message: Do not set variables to Inf, Inf16, Inf32 or Inf64
+4. Check: do-not-set-variables-to-inf, Line/col: (7, 18), Severity: 3, Message: Do not set variables to Inf, Inf16, Inf32 or Inf64
+5. Check: do-not-set-variables-to-nan, Line/col: (2, 18), Severity: 3, Message: Do not set variables to NaN, NaN16, NaN32 or NaN64
+6. Check: do-not-set-variables-to-nan, Line/col: (3, 15), Severity: 3, Message: Do not set variables to NaN, NaN16, NaN32 or NaN64
+7. Check: do-not-set-variables-to-nan, Line/col: (7, 18), Severity: 3, Message: Do not set variables to NaN, NaN16, NaN32 or NaN64

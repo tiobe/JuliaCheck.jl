@@ -124,23 +124,46 @@ end
 @testitem "Violation Printers" begin
     import IOCapture
 
-    @testset for printer in JuliaCheck._get_available_printers()
-        printer_cmd = JuliaCheck.Analysis.shorthand(printer)
-        printer_file = "ViolationPrinter-$(printer_cmd).out"
-        args = [
-            "--output",
-            printer_cmd,
-            "--outputfile",
-            printer_file,
-            "--enable",
-            "do-not-set-variables-to-inf",
-            "do-not-set-variables-to-nan",
-            "--",
-            joinpath(@__DIR__, "res/ViolationPrinters/file_1.jl"),
-            joinpath(@__DIR__, "res/ViolationPrinters/file_2.jl"), 
-        ]
-        result = IOCapture.capture() do
-            JuliaCheck.main(args)
+    normalize(text) = strip(replace(replace(text, "\r\n" => "\n", "\\" => "/"))) * "\n"
+    cd("res") do
+        @testset for printer in JuliaCheck._get_available_printers()
+            printer_cmd = JuliaCheck.Analysis.shorthand(printer)
+            printer_file = "ViolationPrinter-$(printer_cmd).out"
+            val_file = "ViolationPrinter-$(printer_cmd).val"
+            args = [
+                "--output",
+                printer_cmd,
+                "--outputfile",
+                printer_file,
+                "--enable",
+                "do-not-set-variables-to-inf",
+                "do-not-set-variables-to-nan",
+                "--",
+                "ViolationPrinters/file_1.jl",
+                "ViolationPrinters/file_2.jl", 
+            ]
+            result = IOCapture.capture() do
+                JuliaCheck.main(args)
+            end
+            actual::String = normalize(result.output)
+            actualfile::String = val_file * ".actual"
+            expected::String = normalize(read(val_file, String))
+            
+            if actual == expected
+                if isfile(actualfile)
+                    rm(actualfile)
+                end
+            else
+                write(actualfile, actual)
+            end
+            @test actual == expected
+
+            if JuliaCheck.Analysis.requiresfile(printer)
+                expected_output_file = "ViolationPrinter-$(printer_cmd).out.val"
+                file_output = normalize(result.output)
+                expected_output = normalize(read(val_file, String))
+                @test file_output == expected_output
+            end
         end
     end
 end
