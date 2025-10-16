@@ -127,7 +127,7 @@ end
     normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
     cd("res") do
         @testset for printer in JuliaCheck._get_available_printers()
-            printer_cmd = JuliaCheck.ViolationPrinterInterface.shorthand(printer)
+            printer_cmd = JuliaCheck.Output.shorthand(printer)
             printer_file = "ViolationPrinter-$(printer_cmd).out"
             val_file = "ViolationPrinter-$(printer_cmd).val"
             args = [
@@ -158,7 +158,7 @@ end
             end
             @test actual == expected
 
-            if JuliaCheck.ViolationPrinterInterface.requiresfile(printer)
+            if JuliaCheck.Output.requiresfile(printer)
                 expected_output_file = "ViolationPrinter-$(printer_cmd).out.val"
                 file_output = normalize(result.output)
                 expected_output = normalize(read(val_file, String))

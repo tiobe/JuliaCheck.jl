@@ -1,11 +1,11 @@
 module JSONViolationPrinter
 
 import ...Analysis: Violation, severity, id, synopsis
-import ..ViolationPrinterInterface: shorthand, requiresfile, print_violations; using ..ViolationPrinterInterface
+import ..Output: shorthand, requiresfile, print_violations; using ..Output
 import JuliaSyntax: filename, source_location, SourceFile
 import JSON3
 
-struct ViolationPrinter<:ViolationPrinterInterface.ViolationPrinter end
+struct ViolationPrinter<:Output.ViolationPrinter end
 shorthand(::ViolationPrinter) = "json"
 requiresfile(::ViolationPrinter) = true
 

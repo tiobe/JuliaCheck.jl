@@ -6,7 +6,7 @@ include("../src/printers/HighlightingViolationPrinter.jl")
 include("Properties.jl");
 include("SymbolTable.jl")
 include("Analysis.jl")
-include("ViolationPrinterInterface.jl")
+include("Output.jl")
 include("SyntaxNodeHelpers.jl")
 
 Analysis.discover_checks()
@@ -26,7 +26,7 @@ text = """
     f(; x = 10)
 """
 sourcefile = SourceFile(text, filename=filename)
-printer = JuliaCheck.ViolationPrinterInterface.ViolationPrinter.HighlightingViolationPrinter
+printer = JuliaCheck.Output.ViolationPrinter.HighlightingViolationPrinter
 violations = run_analysis(sourcefile, checks1; print_ast=true, print_llt=true)
 output_file_arg = ""
 print_violations(printer, output_file_arg, violations)

@@ -1,4 +1,4 @@
-module ViolationPrinterInterface
+module Output
 
 export ViolationPrinter, shorthand, requiresfile, print_violations
 
@@ -25,4 +25,4 @@ function discover_violation_printers()::Nothing
     return nothing
 end
 
-end # module ViolationPrinterInterface
+end # module Output

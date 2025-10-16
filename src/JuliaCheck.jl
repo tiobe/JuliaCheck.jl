@@ -8,19 +8,19 @@ include("Properties.jl"); import .Properties
 include("TypeHelpers.jl"); import .TypeHelpers
 include("SymbolTable.jl")
 include("Analysis.jl")
-include("ViolationPrinterInterface.jl")
+include("Output.jl")
 include("SyntaxNodeHelpers.jl")
 include("MutatingFunctionsHelpers.jl")
 include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
 include("CommentHelpers.jl"); import .CommentHelpers
 
 using .Analysis
-using .ViolationPrinterInterface
+using .Output
 
 export main
 
 Analysis.discover_checks()
-ViolationPrinterInterface.discover_violation_printers()
+Output.discover_violation_printers()
 
 function _parse_commandline(args::Vector{String})
     s = ArgParseSettings(
@@ -116,7 +116,7 @@ function main(args::Vector{String})
 end
 
 _has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
-_get_available_printers() = map(p -> p(), subtypes(ViolationPrinterInterface.ViolationPrinter))
+_get_available_printers() = map(p -> p(), subtypes(Output.ViolationPrinter))
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
     file_set = []

@@ -1,10 +1,10 @@
 module HighlightingViolationPrinter
 
 import ...Analysis: Violation, severity, id, synopsis
-import ..ViolationPrinterInterface: shorthand, requiresfile, print_violations; using ..ViolationPrinterInterface
+import ..Output: shorthand, requiresfile, print_violations; using ..Output
 import JuliaSyntax: SourceFile, JuliaSyntax as JS
 
-struct ViolationPrinter<:ViolationPrinterInterface.ViolationPrinter end
+struct ViolationPrinter<:Output.ViolationPrinter end
 shorthand(::ViolationPrinter) = "highlighting"
 requiresfile(::ViolationPrinter) = false
 
