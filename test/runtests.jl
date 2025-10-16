@@ -160,8 +160,8 @@ end
 
             if JuliaCheck.Output.requiresfile(printer)
                 expected_output_file = "ViolationPrinter-$(printer_cmd).out.val"
-                file_output = normalize(result.output)
-                expected_output = normalize(read(val_file, String))
+                file_output = normalize(read(printer_file, String))
+                expected_output = normalize(read(expected_output_file, String))
                 @test file_output == expected_output
             end
         end
