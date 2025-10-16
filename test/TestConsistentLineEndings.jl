@@ -8,6 +8,7 @@ The line endings of this file itself should always be LF, see .gitattributes
 @testitem "ConsistentLineEndings.jl" begin
     include("../src/JuliaCheck.jl")
     using .JuliaCheck.Analysis
+    using .JuliaCheck.Output
     using JuliaSyntax: SourceFile
     using .JuliaCheck.Analysis.ConsistentLineEndings: Check
     using IOCapture
