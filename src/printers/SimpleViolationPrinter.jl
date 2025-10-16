@@ -1,9 +1,10 @@
 module SimpleViolationPrinter
 
-import ..Analysis: shorthand, requiresfile, print_violations; using ..Analysis
+import ...Analysis: Violation, severity, id
+import ..ViolationPrinterInterface: shorthand, requiresfile, print_violations; using ..ViolationPrinterInterface
 import JuliaSyntax: SourceFile
 
-struct ViolationPrinter<:Analysis.ViolationPrinter end
+struct ViolationPrinter<:ViolationPrinterInterface.ViolationPrinter end
 shorthand(::ViolationPrinter) = "simple"
 requiresfile(::ViolationPrinter) = false
 

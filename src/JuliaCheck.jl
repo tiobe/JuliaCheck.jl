@@ -8,17 +8,19 @@ include("Properties.jl"); import .Properties
 include("TypeHelpers.jl"); import .TypeHelpers
 include("SymbolTable.jl")
 include("Analysis.jl")
+include("ViolationPrinterInterface.jl")
 include("SyntaxNodeHelpers.jl")
 include("MutatingFunctionsHelpers.jl")
 include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
 include("CommentHelpers.jl"); import .CommentHelpers
 
 using .Analysis
+using .ViolationPrinterInterface
 
 export main
 
 Analysis.discover_checks()
-Analysis.discover_violation_printers()
+ViolationPrinterInterface.discover_violation_printers()
 
 function _parse_commandline(args::Vector{String})
     s = ArgParseSettings(
@@ -114,7 +116,7 @@ function main(args::Vector{String})
 end
 
 _has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
-_get_available_printers() = map(p -> p(), subtypes(Analysis.ViolationPrinter))
+_get_available_printers() = map(p -> p(), subtypes(ViolationPrinterInterface.ViolationPrinter))
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
     file_set = []
@@ -122,7 +124,7 @@ function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
         if isfile(element) && _has_julia_ext(element)
             push!(file_set, element)
         elseif isdir(element)
-            for (root, dirs, files) in walkdir(element)
+            for (root, _, files) in walkdir(element)
                 for file in files
                     if _has_julia_ext(file)
                         push!(file_set, abspath(joinpath(root, file)))
@@ -130,7 +132,7 @@ function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
                 end
             end
         else
-            error("Path does not exist: ", element)
+            error("No Julia file found at $element")
         end
     end
     return file_set

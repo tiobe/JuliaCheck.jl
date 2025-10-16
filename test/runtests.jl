@@ -124,10 +124,10 @@ end
 @testitem "Violation Printers" begin
     import IOCapture
 
-    normalize(text) = strip(replace(replace(text, "\r\n" => "\n", "\\" => "/"))) * "\n"
+    normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
     cd("res") do
         @testset for printer in JuliaCheck._get_available_printers()
-            printer_cmd = JuliaCheck.Analysis.shorthand(printer)
+            printer_cmd = JuliaCheck.ViolationPrinterInterface.shorthand(printer)
             printer_file = "ViolationPrinter-$(printer_cmd).out"
             val_file = "ViolationPrinter-$(printer_cmd).val"
             args = [
@@ -158,7 +158,7 @@ end
             end
             @test actual == expected
 
-            if JuliaCheck.Analysis.requiresfile(printer)
+            if JuliaCheck.ViolationPrinterInterface.requiresfile(printer)
                 expected_output_file = "ViolationPrinter-$(printer_cmd).out.val"
                 file_output = normalize(result.output)
                 expected_output = normalize(read(val_file, String))
@@ -180,7 +180,7 @@ end
         end
     end
 
-    normalize(text) = strip(replace(replace(text, "\r\n" => "\n", "\\" => "/"))) * "\n"
+    normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
 
     all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))

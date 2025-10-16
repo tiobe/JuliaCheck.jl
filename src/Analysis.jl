@@ -2,7 +2,6 @@ module Analysis
 
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
-export ViolationPrinter, shorthand, requiresfile, print_violations
 export GreenLeaf, find_greenleaf, kind, sourcetext
 export dfs_traversal, find_syntaxnode_at_position, source_location
 
@@ -32,12 +31,6 @@ struct Violation
     msg::String
 end
 
-"The abstract base type for all violation printers."
-abstract type ViolationPrinter end
-shorthand(::ViolationPrinter) = error("shorthand() not implemented for this violation printer")
-requiresfile(::ViolationPrinter) = error("requiresfile() not implemented for this violation printer")
-print_violations(::ViolationPrinter, outputfile::String, violations::Vector{Violation}) = error("print_violations() not implemented for this violation printer")
-
 struct GreenLeaf
     sourcefile::SourceFile
     node::GreenNode
@@ -55,14 +48,13 @@ struct CheckRegistration
 end
 
 struct AnalysisContext
-    sourcefile::SourceFile
     rootNode::SyntaxNode
     greenleaves::Vector{GreenLeaf}
     registrations::Vector{CheckRegistration} # Holds registrations of syntax node actions.
     violations::Vector{Violation}
     symboltable::SymbolTableStruct
 
-    AnalysisContext(sourcefile::SourceFile, node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(sourcefile, node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
+    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
 end
 
 "Finds GreenLeaf containing given position."
@@ -165,7 +157,7 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
         bufferrange = range(bufferrange.start + offsetspan[1], length=offsetspan[2])
     end
 
-    push!(ctxt.violations, Violation(check, ctxt.sourcefile, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.rootNode.source, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -177,7 +169,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
-    push!(ctxt.violations, Violation(check, ctxt.sourcefile, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.rootNode.source, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -190,7 +182,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     msg::String
     )::Nothing
     linepos = JuliaSyntax.source_location(ctxt.rootNode.source, bufferrange.start)
-    push!(ctxt.violations, Violation(check, ctxt.sourcefile, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.rootNode.source, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -247,21 +239,6 @@ function discover_checks()::Nothing
     return nothing
 end
 
-"Load all violation printers in printers directory."
-function discover_violation_printers()::Nothing
-    violation_printers_path = joinpath(@__DIR__, "printers")
-    include_dependency(violation_printers_path) # Mark directory contents as precompilation dependency
-    for file in filter(f -> endswith(f, ".jl"), readdir(violation_printers_path, join=true))
-        try
-            include(file)
-            include_dependency(file)
-        catch exception
-            @warn "Failed to load violation printer '$(basename(file))':" exception
-        end
-    end
-    return nothing
-end
-
 function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     visitor = function(n::SyntaxNode)
         for reg in ctxt.registrations
@@ -293,7 +270,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     end
 
     syntaxNode = JuliaSyntax.parseall(SyntaxNode, sourcefile.code; filename=sourcefile.filename)
-    ctxt = AnalysisContext(sourcefile, syntaxNode, _get_green_leaves(syntaxNode))
+    ctxt = AnalysisContext(syntaxNode, _get_green_leaves(syntaxNode))
     for check in checks
         typeof(check)
         init(check, ctxt)
