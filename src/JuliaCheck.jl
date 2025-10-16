@@ -156,6 +156,11 @@ function _parse_output_file_arg(violation_printer::ViolationPrinter, output_file
         end
         return ""
     end
+    io = open(output_file_arg, "w")
+    if ! iswritable(io)
+        throw("Error: Cannot write to $(output_file_arg).")
+    end
+    close(io)
     return output_file_arg
 end
 

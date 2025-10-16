@@ -14,7 +14,7 @@ Base.@kwdef struct ViolationOutput
     column_start::Int64
     line_end::Int64
     column_end::Int64
-    julia_source_code_filename::String
+    filename::String
     severity::Int64
     rule_id::String
     summary::String
@@ -32,7 +32,7 @@ function print_violations(this::ViolationPrinter, outputfile::String, violations
             column_start = v.linepos[2],
             line_end = l_end,
             column_end = c_end + 1,
-            julia_source_code_filename = filename(v.sourcefile),
+            filename = filename(v.sourcefile),
             severity = severity(v.check),
             rule_id = id(v.check),
             user_message = append_period(v.msg),
@@ -40,9 +40,8 @@ function print_violations(this::ViolationPrinter, outputfile::String, violations
             url = ""
         ))
     end
-    json_string::String = JSON3.write(output_violations)
     io = open(outputfile, "w")
-    JSON3.pretty(io, json_string)
+    JSON3.pretty(io, output_violations)
     close(io)
     return nothing
 end
