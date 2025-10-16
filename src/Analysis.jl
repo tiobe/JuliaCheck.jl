@@ -25,6 +25,7 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 
 struct Violation
     check::Check
+    sourcefile::SourceFile
     linepos::Tuple{Int,Int} # The line and column of the violation
     bufferrange::UnitRange{Integer} # The character range in the source code
     msg::String
@@ -156,7 +157,7 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
         bufferrange = range(bufferrange.start + offsetspan[1], length=offsetspan[2])
     end
 
-    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.rootNode.source, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -168,7 +169,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
-    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.rootNode.source, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -181,7 +182,7 @@ function report_violation(ctxt::AnalysisContext, check::Check,
     msg::String
     )::Nothing
     linepos = JuliaSyntax.source_location(ctxt.rootNode.source, bufferrange.start)
-    push!(ctxt.violations, Violation(check, linepos, bufferrange, msg))
+    push!(ctxt.violations, Violation(check, ctxt.rootNode.source, linepos, bufferrange, msg))
     return nothing
 end
 
@@ -257,26 +258,10 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-
-function simple_violation_printer(sourcefile::SourceFile, violations)::Nothing
-    if length(violations) == 0
-        println("No violations found.")
-    else
-        println("Found $(length(violations)) violations:")
-        idx = 1
-        for v in violations
-            println("$(idx). Check: $(id(v.check)), Line/col: $(v.linepos), Severity: $(severity(v.check)), Message: $(v.msg)")
-            idx += 1
-        end
-    end
-    return nothing
-end
-
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
-    print_ast::Bool=false,
-    print_llt::Bool=false,
-    violationprinter::Function=simple_violation_printer
-    )::Nothing
+        print_ast::Bool = false,
+        print_llt::Bool = false,
+    )::Vector{Violation}
 
     if length(checks) >= 1
         @debug "Enabled rules:\n" * join(map(id, checks), "\n")
@@ -301,8 +286,7 @@ function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
     end
 
     _invoke_checks(ctxt, syntaxNode)
-    violationprinter(sourcefile, ctxt.violations)
-    return nothing
+    return ctxt.violations
 end
 
 end # module Analysis

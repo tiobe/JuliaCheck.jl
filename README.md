@@ -5,6 +5,7 @@ JuliaCheck is a code checker for the Julia language. It checks input files again
 Invocation of JuliaCheck:
 ```
 usage: JuliaCheck.jl [--enable RULES [RULES...]] [-v] [--ast] [--llt]
+                     [--output OUTPUT] [--outputfile OUTPUTFILE]
                      [--version] [-h] infiles...
 
 Code checker for Julia programming language.
@@ -20,6 +21,12 @@ optional arguments:
   --ast                 Print syntax tree for each input file.
   --llt                 Print green tree for each input file.
   --version             show version information and exit
+  --output OUTPUT       Select output type. Allowed types:
+                        highlighting, json, simple. (default:
+                        "highlighting")
+  --outputfile OUTPUTFILE
+                        Write output to the given file. If left empty,
+                        this will write to command line.
   -h, --help            show this help message and exit
 ```
 

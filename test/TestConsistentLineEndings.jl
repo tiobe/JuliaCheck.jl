@@ -8,7 +8,7 @@ The line endings of this file itself should always be LF, see .gitattributes
 @testitem "ConsistentLineEndings.jl" begin
     include("../src/JuliaCheck.jl")
     using .JuliaCheck.Analysis
-    using .JuliaCheck.ViolationPrinters
+    using .JuliaCheck.Output
     using JuliaSyntax: SourceFile
     using .JuliaCheck.Analysis.ConsistentLineEndings: Check
     using IOCapture
@@ -77,8 +77,11 @@ The line endings of this file itself should always be LF, see .gitattributes
     function test(text::AbstractString, exp::AbstractString)::Nothing
         checks::Vector{Analysis.Check} = [Check()]
         source = SourceFile(text; filename="test_file.jl")
+        printer = JuliaCheck.Output.select_violation_printer("highlighting")
+        output_file_arg = ""
         result = IOCapture.capture() do
-            Analysis.run_analysis(source, checks; violationprinter=highlighting_violation_printer)
+            violations = Analysis.run_analysis(source, checks)          
+            print_violations(printer, output_file_arg, violations)
         end
         @test replace(result.output, r"\r\n?" => "\n") == exp # In the output, we do not need to compare line endings
         return nothing

@@ -1,0 +1,45 @@
+>> Processing file 'ViolationPrinters/file_1.jl'...
+
+>> Processing file 'ViolationPrinters/file_2.jl'...
+
+ViolationPrinters/file_1.jl(2, 18):
+value::Float64 = Inf
+#                └─┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+ViolationPrinters/file_1.jl(3, 15):
+strct.value = -Inf64
+#             └────┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+ViolationPrinters/file_1.jl(4, 17):
+arrvalue[end] = Inf16
+#               └───┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+ViolationPrinters/file_1.jl(7, 18):
+const my_value = Inf32
+#                └───┘ ── Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Do not set variables to Inf, Inf16, Inf32 or Inf64.
+Rule: do-not-set-variables-to-inf. Severity: 3
+
+ViolationPrinters/file_2.jl(2, 18):
+value::Float64 = NaN
+#                └─┘ ── Do not set variables to NaN, NaN16, NaN32 or NaN64.
+Do not set variables to NaN, NaN16, NaN32 or NaN64.
+Rule: do-not-set-variables-to-nan. Severity: 3
+
+ViolationPrinters/file_2.jl(3, 15):
+strct.value = NaN16
+#             └───┘ ── Do not set variables to NaN, NaN16, NaN32 or NaN64.
+Do not set variables to NaN, NaN16, NaN32 or NaN64.
+Rule: do-not-set-variables-to-nan. Severity: 3
+
+ViolationPrinters/file_2.jl(7, 18):
+const my_value = NaN32
+#                └───┘ ── Do not set variables to NaN, NaN16, NaN32 or NaN64.
+Do not set variables to NaN, NaN16, NaN32 or NaN64.
+Rule: do-not-set-variables-to-nan. Severity: 3

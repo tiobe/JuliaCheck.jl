@@ -1,0 +1,86 @@
+[
+    {
+        "line_start": 2,
+        "column_start": 18,
+        "line_end": 2,
+        "column_end": 21,
+        "filename": "ViolationPrinters/file_1.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-inf",
+        "summary": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "user_message": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "url": ""
+    },
+    {
+        "line_start": 3,
+        "column_start": 15,
+        "line_end": 3,
+        "column_end": 21,
+        "filename": "ViolationPrinters/file_1.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-inf",
+        "summary": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "user_message": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "url": ""
+    },
+    {
+        "line_start": 4,
+        "column_start": 17,
+        "line_end": 4,
+        "column_end": 22,
+        "filename": "ViolationPrinters/file_1.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-inf",
+        "summary": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "user_message": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "url": ""
+    },
+    {
+        "line_start": 7,
+        "column_start": 18,
+        "line_end": 7,
+        "column_end": 23,
+        "filename": "ViolationPrinters/file_1.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-inf",
+        "summary": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "user_message": "Do not set variables to Inf, Inf16, Inf32 or Inf64.",
+        "url": ""
+    },
+    {
+        "line_start": 2,
+        "column_start": 18,
+        "line_end": 2,
+        "column_end": 21,
+        "filename": "ViolationPrinters/file_2.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-nan",
+        "summary": "Do not set variables to NaN, NaN16, NaN32 or NaN64.",
+        "user_message": "Do not set variables to NaN, NaN16, NaN32 or NaN64.",
+        "url": ""
+    },
+    {
+        "line_start": 3,
+        "column_start": 15,
+        "line_end": 3,
+        "column_end": 20,
+        "filename": "ViolationPrinters/file_2.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-nan",
+        "summary": "Do not set variables to NaN, NaN16, NaN32 or NaN64.",
+        "user_message": "Do not set variables to NaN, NaN16, NaN32 or NaN64.",
+        "url": ""
+    },
+    {
+        "line_start": 7,
+        "column_start": 18,
+        "line_end": 7,
+        "column_end": 23,
+        "filename": "ViolationPrinters/file_2.jl",
+        "severity": 3,
+        "rule_id": "do-not-set-variables-to-nan",
+        "summary": "Do not set variables to NaN, NaN16, NaN32 or NaN64.",
+        "user_message": "Do not set variables to NaN, NaN16, NaN32 or NaN64.",
+        "url": ""
+    }
+]

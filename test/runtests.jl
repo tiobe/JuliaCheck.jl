@@ -113,13 +113,59 @@ using JuliaCheck
     @test !is_declared(table, y)
 end
 
-
 @testitem "Numbers" begin
     using JuliaSyntax: SyntaxNode, parsestmt
     include("../src/Properties.jl"); using .Properties: get_number
 
     make_node(input::String)::SyntaxNode = parsestmt(SyntaxNode, input)
     @test get_number(make_node("4.493_775_893_684_088e16")) == 4.493775893684088e16
+end
+
+@testitem "Violation Printers" begin
+    import IOCapture
+
+    normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
+    cd("res") do
+        @testset for printer in JuliaCheck.Output.get_available_printers()
+            printer_cmd = JuliaCheck.Output.shorthand(printer)
+            printer_file = "ViolationPrinter-$(printer_cmd).out"
+            val_file = "ViolationPrinter-$(printer_cmd).val"
+            args = [
+                "--output",
+                printer_cmd,
+                "--outputfile",
+                printer_file,
+                "--enable",
+                "do-not-set-variables-to-inf",
+                "do-not-set-variables-to-nan",
+                "--",
+                "ViolationPrinters/file_1.jl",
+                "ViolationPrinters/file_2.jl", 
+            ]
+            result = IOCapture.capture() do
+                JuliaCheck.main(args)
+            end
+            actual::String = normalize(result.output)
+            actualfile::String = val_file * ".actual"
+            expected::String = normalize(read(val_file, String))
+            
+            if actual == expected
+                if isfile(actualfile)
+                    rm(actualfile)
+                end
+            else
+                write(actualfile, actual)
+            end
+            @test actual == expected
+
+            if JuliaCheck.Output.requiresfile(printer)
+                expected_output_file = "ViolationPrinter-$(printer_cmd).out.val"
+                file_output = normalize(read(printer_file, String))
+                expected_output = normalize(read(expected_output_file, String))
+                @test file_output == expected_output
+            end
+        end
+    end
 end
 
 @testitem "Golden File Tests" begin
@@ -134,7 +180,7 @@ end
         end
     end
 
-    normalize(text) = strip(replace(replace(text, "\r\n" => "\n", "\\" => "/"))) * "\n"
+    normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
 
     all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
