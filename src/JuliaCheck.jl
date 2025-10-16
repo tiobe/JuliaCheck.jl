@@ -30,7 +30,7 @@ function _parse_commandline(args::Vector{String})
             """,
             add_version = true, version = project_version(joinpath(@__DIR__, "..", "Project.toml")))
 
-    shorthand_ids = map(shorthand, _get_available_printers())
+    shorthand_ids = map(shorthand, get_available_printers())
     printer_string = join(shorthand_ids, ", ")
     @add_arg_table! s begin
         "--enable"
@@ -81,8 +81,8 @@ function main(args::Vector{String})
         ENV["JULIA_DEBUG"] = "Main,JuliaCheck"
     end
 
-    violation_printer = _select_violation_printer(arguments["output"])
-    output_file_arg = _parse_output_file_arg(violation_printer, arguments["outputfile"])
+    violation_printer = select_violation_printer(arguments["output"])
+    output_file_arg = parse_output_file_arg(violation_printer, arguments["outputfile"])
 
     rules_arg = Set(arguments["rules"])
     available_checks = map(c -> c(), subtypes(Analysis.Check))
@@ -116,7 +116,6 @@ function main(args::Vector{String})
 end
 
 _has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
-_get_available_printers() = map(p -> p(), subtypes(Output.ViolationPrinter))
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
     file_set = []
@@ -136,32 +135,6 @@ function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
         end
     end
     return file_set
-end
-
-function _select_violation_printer(output_arg::String)::ViolationPrinter
-    for printer in _get_available_printers()
-        if output_arg == shorthand(printer)
-            return printer
-        end
-    end
-    throw("Unknown violation printer type: $output_arg")
-    return nothing
-end
-
-function _parse_output_file_arg(violation_printer::ViolationPrinter, output_file_arg::Union{String, Nothing})::String
-    if isnothing(output_file_arg)
-        if requiresfile(violation_printer)
-            shorthand_msg = shorthand(violation_printer)
-            throw("Error: $(shorthand_msg) output requires an output file.")
-        end
-        return ""
-    end
-    io = open(output_file_arg, "w")
-    if ! iswritable(io)
-        throw("Error: Cannot write to $(output_file_arg).")
-    end
-    close(io)
-    return output_file_arg
 end
 
 if endswith(PROGRAM_FILE, "run_debugger.jl") || abspath(PROGRAM_FILE) == @__FILE__
