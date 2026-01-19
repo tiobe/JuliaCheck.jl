@@ -2,7 +2,7 @@ module FunctionsMutateOnlyZeroOrOneArguments
 
 using JuliaSyntax: SyntaxNode, children, is_dotted
 using ...MutatingFunctionsHelpers: get_mutated_variables_in_scope
-using ...Properties: get_flattened_fn_arg_nodes, get_string_arg, is_function
+using ...Properties: get_flattened_fn_arg_nodes, get_func_body, get_string_arg, is_function
 
 include("_common.jl")
 struct Check <: Analysis.Check end
@@ -17,7 +17,7 @@ end
 
 function check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
     func_arg_nodes = get_flattened_fn_arg_nodes(function_node)
-    all_mutated_variables = get_mutated_variables_in_scope(ctxt, function_node)
+    all_mutated_variables = get_mutated_variables_in_scope(ctxt, get_func_body(function_node))
     for func_arg in func_arg_nodes[2:end]
         func_arg_string = get_string_arg(func_arg)
         if func_arg_string ∈ all_mutated_variables
