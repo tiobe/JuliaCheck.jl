@@ -36,3 +36,13 @@ function _check_on_another_boolean(a::Int64, b::Bool)::Int64
     end
     return a
 end
+
+function add_child_element!(a::Vector{Int64}, b::Int64, c::Int64)::Nothing
+    push!(a, b)
+    push!(a, c)
+    return nothing
+end
+
+add_child_element!(_, _, _::Nothing)::Nothing = nothing
+
+add_child_element!(__, __, __::Nothing)::Nothing = nothing
