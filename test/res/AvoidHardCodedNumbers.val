@@ -2,78 +2,78 @@
 
 AvoidHardCodedNumbers.jl(21, 23):
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
-#                     └─┘ ── Implement hard-coded numbers via a const variable.
+#                     └─┘ ── Hard-coded number '1.1' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(21, 33):
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
-#                               └─┘ ── Implement hard-coded numbers via a const variable.
+#                               └─┘ ── Hard-coded number '1.1' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(21, 46):
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
-#                                            └─┘ ── Implement hard-coded numbers via a const variable.
+#                                            └─┘ ── Hard-coded number '1.1' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(21, 51):
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
-#                                                 └─┘ ── Implement hard-coded numbers via a const variable.
+#                                                 └─┘ ── Hard-coded number '0.2' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(21, 56):
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
-#                                                      └─┘ ── Implement hard-coded numbers via a const variable.
+#                                                      └─┘ ── Hard-coded number '0.2' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(21, 61):
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
-#                                                           └────┘ ── Implement hard-coded numbers via a const variable.
+#                                                           └────┘ ── Hard-coded number '1000.1' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(41, 17):
 energy(m) = m * 4.493775893684088e16
-#               └──────────────────┘ ── Implement hard-coded numbers via a const variable.
+#               └──────────────────┘ ── Hard-coded number '4.493775893684088e16' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(42, 11):
 Area(r) = 3.14 * r ^ 2
-#         └──┘ ── Implement hard-coded numbers via a const variable.
+#         └──┘ ── Hard-coded number '3.14' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(49, 20):
 universal_answer = 42
-#                  └┘ ── Implement hard-coded numbers via a const variable.
+#                  └┘ ── Hard-coded number '42' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(53, 40):
 another_vectorwraparound_overflow_19 = -8446744073709551616
-#                                      └──────────────────┘ ── Implement hard-coded numbers via a const variable.
+#                                      └──────────────────┘ ── Hard-coded number '-8446744073709551616' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(54, 40):
 another_vectorwraparound_overflow_20 = 7766279631452241920
-#                                      └─────────────────┘ ── Implement hard-coded numbers via a const variable.
+#                                      └─────────────────┘ ── Hard-coded number '7766279631452241920' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(55, 44):
 another_vectorwraparound_overflow_19_neg = -7766279631452241920
-#                                          └──────────────────┘ ── Implement hard-coded numbers via a const variable.
+#                                          └──────────────────┘ ── Hard-coded number '-7766279631452241920' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(56, 44):
 another_vectorwraparound_overflow_20_neg = 8446744073709551616
-#                                          └─────────────────┘ ── Implement hard-coded numbers via a const variable.
+#                                          └─────────────────┘ ── Hard-coded number '8446744073709551616' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3

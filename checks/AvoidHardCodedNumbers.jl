@@ -25,7 +25,7 @@ function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     if !is_const_declaration(node) && !in_array_assignment(node) && is_magic_number(node)
         n = get_number(node)
         if n ∈ this.seen_before
-            report_violation(ctxt, this, node, "Implement hard-coded numbers via a const variable.")
+            report_violation(ctxt, this, node, "Hard-coded number '$n' should be a const variable.")
         else
             push!(this.seen_before, n)
         end
