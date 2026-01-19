@@ -55,6 +55,6 @@ second_add_without_override!(_, _, _::Nothing)::Nothing = nothing
 
 third_add_without_override!(a, b, c::Nothing)::Nothing = nothing
 
-one_more(_, a::Nothing)::Nothing = nothing
+one_more!(_, a::Nothing)::Nothing = nothing
 
-two_more(b, _::Nothing)::Nothing = nothing
+two_more!(b, _::Nothing)::Nothing = nothing
