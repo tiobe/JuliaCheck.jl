@@ -89,16 +89,22 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
         end
 
         expected_spaces = nothing
-        if sourcetext(ctxt.greenleaves[i-1]) ∈ ("[", "(", "{", "=")
+        location_msg = ""
+        prev_leaf_text = sourcetext(ctxt.greenleaves[i-1])
+        next_leaf_text = sourcetext(next)
+        if prev_leaf_text ∈ ("[", "(", "{", "=")
             expected_spaces = 0 # No space after open delimiter
-        elseif sourcetext(next) ∈ ("]", ")", "}", "=", ";", ",")
+            location_msg = " after '$prev_leaf_text'"
+        elseif next_leaf_text ∈ ("]", ")", "}", "=", ";", ",")
             expected_spaces = 0 # No space before close delimiter
+            location_msg = " before '$next_leaf_text'"
         else
             expected_spaces = 1 # Exactly one space between elements
+            location_msg = " between '$prev_leaf_text' and '$next_leaf_text'" 
         end
 
         if !isnothing(expected_spaces) && length(cur.range) != expected_spaces
-            msg = "Expected $expected_spaces " * (expected_spaces == 1 ? "space" : "spaces")
+            msg = "Expected $expected_spaces " * (expected_spaces == 1 ? "space" : "spaces") * location_msg
             report_violation(ctxt, this, source_location(sf, pos), cur.range, msg)
         end
     end

@@ -5,5 +5,5 @@ Manifest.toml
 /test/test.jl
 *.jl-
 *.swp
-/test/*.actual
-/test/*.out
+/test/**/*.actual
+/test/**/*.out
