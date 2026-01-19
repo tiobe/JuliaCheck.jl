@@ -36,43 +36,43 @@ nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(41, 17):
+AvoidHardCodedNumbers.jl(44, 17):
 energy(m) = m * 4.493775893684088e16
 #               └──────────────────┘ ── Hard-coded number '4.493775893684088e16' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(42, 11):
+AvoidHardCodedNumbers.jl(45, 11):
 Area(r) = 3.14 * r ^ 2
 #         └──┘ ── Hard-coded number '3.14' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(49, 20):
+AvoidHardCodedNumbers.jl(52, 20):
 universal_answer = 42
 #                  └┘ ── Hard-coded number '42' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(53, 40):
+AvoidHardCodedNumbers.jl(56, 40):
 another_vectorwraparound_overflow_19 = -8446744073709551616
 #                                      └──────────────────┘ ── Hard-coded number '-8446744073709551616' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(54, 40):
+AvoidHardCodedNumbers.jl(57, 40):
 another_vectorwraparound_overflow_20 = 7766279631452241920
 #                                      └─────────────────┘ ── Hard-coded number '7766279631452241920' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(55, 44):
+AvoidHardCodedNumbers.jl(58, 44):
 another_vectorwraparound_overflow_19_neg = -7766279631452241920
 #                                          └──────────────────┘ ── Hard-coded number '-7766279631452241920' should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
 
-AvoidHardCodedNumbers.jl(56, 44):
+AvoidHardCodedNumbers.jl(59, 44):
 another_vectorwraparound_overflow_20_neg = 8446744073709551616
 #                                          └─────────────────┘ ── Hard-coded number '8446744073709551616' should be a const variable.
 Avoid hard-coded numbers.

@@ -32,6 +32,9 @@ energy = mass * C_SPEED_OF_LIGHT^2
 # ok: known values
 ok_floats = max(0.1, 1.0, 0.0, 1.0, 1000.0, 1.0, 0.0, 0.1, 1000.0)
 
+# ok: multi-dim array in function call
+converted = convert.(Float64, [[2, 8446744073709551616, 42, 5.76, 3.14], [2, 8446744073709551616, 42, 5.76, 3.14]])
+
 # ok: array literal
 weights_vec = [2.2, 1.2, 3.4, 4.5, 2.2, 2.2, 1.2, 3.4, 4.5]
 end # GoodStyle
