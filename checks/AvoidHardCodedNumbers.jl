@@ -50,7 +50,7 @@ end
 
 ## Magic numbers
 # Integers
-const POWERS_OF_TEN_POSITIVE = Set{Int64}([10^i for i in 1:20])
+const POWERS_OF_TEN_POSITIVE = Set{Int64}([10^i for i in 1:18])
 const POWERS_OF_TEN_NEGATIVE = Set{Int64}([-i for i in POWERS_OF_TEN_POSITIVE])
 const POWERS_OF_TEN = POWERS_OF_TEN_POSITIVE ∪ POWERS_OF_TEN_NEGATIVE
 const POWERS_OF_TWO = Set{Int64}([2^i for i in 1:20])
@@ -61,7 +61,7 @@ const SOME_SPECIAL_INTS = Set{Int64}([0, 1,
 const KNOWN_INTS = SOME_SPECIAL_INTS ∪ POWERS_OF_TEN ∪ POWERS_OF_TWO
 # Floats
 const KNOWN_FLOATS = Set{Float64}([0.1, 0.01, 0.001, 0.0001, 0.5]) ∪
-                    Set{Float64}(convert.(Float64, POWERS_OF_TEN))
+                    Set{Float64}(convert.(Float64, POWERS_OF_TEN)) ∪
                     Set{Float64}(convert.(Float64, SOME_SPECIAL_INTS))
 """
     is_magic_number(node::SyntaxNode)::Bool
@@ -79,4 +79,3 @@ end
 # TODO Add unit test
 
 end # module AvoidHardCodedNumbers
-

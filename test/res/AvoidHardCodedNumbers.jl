@@ -11,6 +11,13 @@ energy =  ONE_HALF * m * v^2
 
 universal_answer = 42
 
+# Including 10^19 and 10^20 in allowed values (out of int64 range)
+# caused false negatives due to wraparound
+wraparound_overflow_19 = -8446744073709551616
+wraparound_overflow_20 = 7766279631452241920
+wraparound_overflow_19_neg = 8446744073709551616
+wraparound_overflow_20_neg = -7766279631452241920
+
 end # BadStyle
 
 module GoodStyle
@@ -20,6 +27,8 @@ energy =  0.5 * mass * velocity^2
 "C_SPEED_OF_LIGHT represents the speed of light in m/s"
 const C_SPEED_OF_LIGHT::Float64 = 299792458.0
 energy = mass * C_SPEED_OF_LIGHT^2
+
+some_ok_floats = [0.1, 1.0, 0.0, 1.0, 1000.0, 1.0, 0.0, 0.1, 1000.0]
 
 end # GoodStyle
 
@@ -34,5 +43,12 @@ energy(m, v) =  0.5 * m * v^2
 energy_var =  ONE_HALF * m * v^2
 
 universal_answer = 42
+
+# Including 10^19 and 10^20 in allowed values (out of int64 range)
+# caused false negatives due to wraparound
+another_vectorwraparound_overflow_19 = -8446744073709551616
+another_vectorwraparound_overflow_20 = 7766279631452241920
+another_vectorwraparound_overflow_19_neg = -7766279631452241920
+another_vectorwraparound_overflow_20_neg = 8446744073709551616
 
 end # BadStyle2ndRound
