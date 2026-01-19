@@ -24,3 +24,15 @@ function keyword_arguments(; a::Vector{Int64}, b::Vector{Int64})
 #                                              └──────────────┘ ── Function mutates variable b while it is not the first argument.
 Functions should change only one or zero argument(s).
 Rule: functions-mutate-only-zero-or-one-arguments. Severity: 3
+
+FunctionsMutateOnlyZeroOrOneArguments.jl(20, 30):
+function first_discarded!(_, b::Vector{Int64})
+#                            └──────────────┘ ── Function mutates variable b while it is not the first argument.
+Functions should change only one or zero argument(s).
+Rule: functions-mutate-only-zero-or-one-arguments. Severity: 3
+
+FunctionsMutateOnlyZeroOrOneArguments.jl(24, 44):
+function first_and_second_discarded!(_, _, c::Vector{Int64})
+#                                          └──────────────┘ ── Function mutates variable c while it is not the first argument.
+Functions should change only one or zero argument(s).
+Rule: functions-mutate-only-zero-or-one-arguments. Severity: 3
