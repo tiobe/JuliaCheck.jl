@@ -22,3 +22,17 @@ function reset_vector!(vec1::Vector{T}, vec2::Vector{T})::Nothing where T <: Rea
     vec1 .= zero(T)
     return nothing
 end
+
+function _check_on_boolean(a::Int64, b::Bool)::Int64
+    if a > 10 && !b
+        return 64
+    end
+    return a
+end
+
+function _check_on_another_boolean(a::Int64, b::Bool)::Int64
+    if a >= 5 && ! b
+        return 32
+    end
+    return a
+end
