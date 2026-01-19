@@ -418,11 +418,19 @@ length(a) returns false.
 
 Naïve implementation. Does not recurse. Assumption is that we can trust
 whether a function has been marked as mutating (so has the !).
+
+This call check explicitly excludes operators. Mutating calls and mutating operators
+are marked via different paths in the check on mutating functions, as they both look for
+different markers in the call resp. operator.
+    
 Furthermore, the second child should be an identifier - otherwise we might
 be checking against the actual function definition itself rather than its invocation.
 """
 function is_mutating_call(node::SyntaxNode)::Bool
-    return is_call(node) && _call_name_has_exclamation(node) && kind(children(node)[2]) == K"Identifier"
+    return is_call(node) &&
+            !is_operator(node) &&
+            _call_name_has_exclamation(node) &&
+            kind(children(node)[2]) == K"Identifier"
 end
 
 function _call_name_has_exclamation(call_node::SyntaxNode)::Bool
