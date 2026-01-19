@@ -17,6 +17,14 @@ function keyword_arguments(; a::Vector{Int64}, b::Vector{Int64})
     b[2] = 2
 end
 
+function first_discarded!(_, b::Vector{Int64})
+    b[2] = 0
+end
+
+function first_and_second_discarded!(_, _, c::Vector{Int64})
+    c[6] = 1
+end
+
 # Good
 function reset_vector!(vec1::Vector{T}, vec2::Vector{T})::Nothing where T <: Real  # bang omitted
     vec1 .= zero(T)
@@ -49,6 +57,10 @@ add_child_element!(__, __, __::Nothing)::Nothing = nothing
 
 function first_add_without_override!(_, _, _::Nothing)::Nothing
     return nothing
+end
+
+function second_discarded!(a::Vector{Int64}, _)
+    a[1] = 1
 end
 
 second_add_without_override!(_, _, _::Nothing)::Nothing = nothing
