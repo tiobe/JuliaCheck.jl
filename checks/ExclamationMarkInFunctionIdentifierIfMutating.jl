@@ -2,7 +2,7 @@ module ExclamationMarkInFunctionIdentifierIfMutating
 
 using JuliaSyntax: SyntaxNode, children, is_dotted
 using ...MutatingFunctionsHelpers: get_mutated_variables_in_scope
-using ...Properties: get_func_name, get_string_fn_args, is_function
+using ...Properties: get_func_body, get_func_name, get_string_fn_args, is_function
 
 include("_common.jl")
 struct Check <: Analysis.Check end
@@ -19,7 +19,7 @@ _is_nonmutating_fn(n::SyntaxNode)::Bool = is_function(n) && !endswith(string(get
 
 function check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
     func_arg_strings = get_string_fn_args(function_node)
-    all_mutated_variables = get_mutated_variables_in_scope(ctxt, function_node)
+    all_mutated_variables = get_mutated_variables_in_scope(ctxt, get_func_body(function_node))
     for func_arg in func_arg_strings
         if func_arg ∈ all_mutated_variables
             report_violation(ctxt, this, function_node,
