@@ -21,9 +21,8 @@ function init(this::Check, ctxt::AnalysisContext)
         end
         glob_vars = get_all_assignees(node)
         for glob_var in glob_vars
-            if glob_var !== nothing
-                report_node = kind(glob_var) == K"::" ? first(children(glob_var)) : glob_var
-                report_violation(ctxt, this, report_node, "Consider making global variable $report_node a const.")
+            if !isnothing(glob_var)
+                report_violation(ctxt, this, glob_var, "Consider making global variable '$glob_var' a const.")
             end
         end
     end)

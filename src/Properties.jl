@@ -260,10 +260,18 @@ function find_descendants(pred::Function, node::AnyTree)::Vector{AnyTree}
     return res
 end
 
+"""
+Return a list of `Identifier` SyntaxNodes representing all assignees of the given assignment node.
+
+Examples:
+* `a::Int64, b::String, c = someFunc()` returns `[a, b, c]`
+* `c, d = someFunc()` returns `[c, d]`
+"""
 function get_all_assignees(node::SyntaxNode)::Vector{SyntaxNode}
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
     lhs = first(children(node))
-    return find_descendants(n -> kind(n) in KSet"Identifier ::", lhs)
+    assigneeNodes = find_descendants(n -> kind(n) in KSet"Identifier ::", lhs)
+    return map(n -> kind(n) == K"::" ? first(children(n)) : n, assigneeNodes)
 end
 
 function get_struct_name(node::SyntaxNode)::NullableNode
