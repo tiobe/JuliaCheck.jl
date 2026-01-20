@@ -1,8 +1,10 @@
 some_number::Float64 = 1
 const global some_other_number = 42
+another_number = 42506
 
 function foo()
     global yet_another_number = 7.0
+    local_var = 9
     return nothing
 end
 
@@ -22,3 +24,6 @@ some_function(:AnIdentifier;
 CASES = (
     (m = 1, n = 1) => (x, y) -> x, y # RM-37330: prevent false positive for named tuples
 )
+
+# RM-37725: should not trigger on field assignments
+ExternalModule.EXTERNAL_GLOBAL.timeout = 3600
