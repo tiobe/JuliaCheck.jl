@@ -2,7 +2,7 @@ module PreferConstVariablesOverNonConstGlobalVariables
 
 include("_common.jl")
 
-using ...Properties: find_lhs_of_kind, is_assignment, is_global_decl
+using ...Properties: find_lhs_of_kind, is_assignment, is_global_decl, get_all_assignees
 using ...SyntaxNodeHelpers
 
 struct Check<:Analysis.Check end
@@ -23,9 +23,12 @@ function init(this::Check, ctxt::AnalysisContext)
             # Skip assignment to const or local variables
             return
         end
-        glob_var = find_lhs_of_kind(K"Identifier", node)
-        if glob_var !== nothing
-            report_violation(ctxt, this, glob_var, "Consider making global variable $glob_var a const.")
+        glob_vars = get_all_assignees(node)
+        for glob_var in glob_vars
+            if glob_var !== nothing
+                report_node = kind(glob_var) == K"::" ? first(children(glob_var)) : glob_var
+                report_violation(ctxt, this, report_node, "Consider making global variable $report_node a const.")
+            end
         end
     end)
 end

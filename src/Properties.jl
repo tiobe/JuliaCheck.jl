@@ -244,6 +244,27 @@ function get_assignee(node::SyntaxNode)::NodeAndString
     return (assignee, string(assignee))
 end
 
+"""
+Return a list of all descendant nodes of the given node that match the predicate.
+"""
+function find_descendants(pred::Function, node::AnyTree)::Vector{AnyTree}
+    if pred(node)
+        return [node]
+    end
+    res = []
+    if haschildren(node)
+        for child in children(node)
+            append!(res, find_descendants(pred, child))
+        end
+    end
+    return res
+end
+
+function get_all_assignees(node::SyntaxNode)::Vector{SyntaxNode}
+    @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
+    lhs = first(children(node))
+    return find_descendants(n -> kind(n) in KSet"Identifier ::", lhs)
+end
 
 function get_struct_name(node::SyntaxNode)::NullableNode
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."

@@ -13,6 +13,8 @@ CAPS_NUMBER::Int6 = 12
 
 function bar()
     global YET_ANOTHER_NUMBER = 7.0 # OK: 'global const' is not allowed in function scope
+    d, e, f = 1, 2, 3
+    return d, e, f
 end
 
 some_function(:AnIdentifier;
@@ -22,6 +24,11 @@ some_function(:AnIdentifier;
 const CASES = (
     (m = 1, n = 1) => (x, y) -> x, y # RM-37336: prevent false positive for named tuples
 )
+
+# RM-37722: Multi-var assignments should report on each variable
+a, b, c = bar()
+p::Float16, q::Int64 = foo()
+
 # RM-37723: Enum values are OK
 @enum MyEnum::Int64 begin
     VAL1 = 128
