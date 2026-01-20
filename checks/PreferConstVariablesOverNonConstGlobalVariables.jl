@@ -2,7 +2,7 @@ module PreferConstVariablesOverNonConstGlobalVariables
 
 include("_common.jl")
 
-using ...Properties: find_lhs_of_kind, is_assignment
+using ...Properties: find_lhs_of_kind, is_assignment, is_global_decl
 using ...SyntaxNodeHelpers
 
 struct Check<:Analysis.Check end
@@ -11,14 +11,12 @@ severity(::Check) = 3
 synopsis(::Check) = "Prefer const variables over non-const global variables"
 
 function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_assignment, node -> begin
-
+    register_syntaxnode_action(ctxt, n -> is_global_decl(n) && is_assignment(n), node -> begin
         ancs = ancestors(node)
         head = ancs[1:something(findfirst(is_scope_construct, ancs), length(ancs))]
         enclosing_scope = head[end]
-        if (!(kind(enclosing_scope) in KSet"toplevel module baremodule")
-            && !any(n -> kind(n) == K"global", head))
-            # Skip assignment that is not in global scope and does not have an explicit global modifier
+        if !(kind(enclosing_scope) in KSet"toplevel module baremodule")
+            # Skip assignment that is not in global scope
             return
         end
         if any(n -> kind(n) in KSet"const local", head)
