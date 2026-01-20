@@ -12,7 +12,10 @@ synopsis(::Check) = "Function name should be written in \"lower_snake_case\""
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin
         fname = get_func_name(node)
-        
+
+        if kind(fname.parent) == K"."
+            return #RM-37316: do not trigger on extension of a function defined in another module
+        end
         checkFunctionName(this, ctxt, fname)
     end)
 end
@@ -27,7 +30,7 @@ function checkFunctionName(this::Check, ctxt::AnalysisContext, func_name::Syntax
     end
     fname = string(func_name)
     if ! is_lower_snake(fname)
-        report_violation(ctxt, this, func_name, 
+        report_violation(ctxt, this, func_name,
             "Function name $fname should be written in lower_snake_case."
             )
     end

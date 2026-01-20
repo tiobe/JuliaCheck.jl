@@ -48,3 +48,15 @@ function get_SPAM_from_somewhere()::SPAM return nothing end
 #        └─────────────────────┘ ── Function name get_SPAM_from_somewhere should be written in lower_snake_case.
 Function name should be written in "lower_snake_case".
 Rule: function-identifiers-in-lower-snake-case. Severity: 8
+
+FunctionIdentifiersInLowerSnakeCase.jl(9, 1):
+RetrieveBacon() = nothing
+└───────────┘ ── Function name RetrieveBacon should be written in lower_snake_case.
+Function name should be written in "lower_snake_case".
+Rule: function-identifiers-in-lower-snake-case. Severity: 8
+
+FunctionIdentifiersInLowerSnakeCase.jl(10, 1):
+retrieve_Bacon() = nothing
+└────────────┘ ── Function name retrieve_Bacon should be written in lower_snake_case.
+Function name should be written in "lower_snake_case".
+Rule: function-identifiers-in-lower-snake-case. Severity: 8
