@@ -30,9 +30,7 @@ function checkFuncBody(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode
     if !_ends_with_return(func_body)
         parent = func_body.parent
         green_children = children(parent.raw)
-        green_end_node = green_children[end]
-        green_idx = first(indexin([green_end_node], green_children))
-        end_range = normalized_green_child_range(parent, green_idx)
+        end_range = normalized_green_child_range(parent, lastindex(green_children))
         report_violation(ctxt, this, end_range, synopsis(this))
     end
     return nothing

@@ -23,3 +23,9 @@ end
 └─┘ ── Long form functions should end with an explicit return statement.
 Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
+
+LongFormFunctionsHaveATerminatingReturnStatement.jl(34, 1):
+end                # It gets the correct end too, even if there's trailing whitespace and comments.
+└─┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
