@@ -9,7 +9,7 @@ SOME_NUMBER::Float64
 global const SOME_OTHER_NUMBER::Int = 42
 const N1 = const N2 = 3.14159
 
-CAPS_NUMBER::Int6 = 12
+CAPS_NUMBER::Int64 = 12
 
 function bar()
     global YET_ANOTHER_NUMBER = 7.0 # OK: 'global const' is not allowed in function scope
