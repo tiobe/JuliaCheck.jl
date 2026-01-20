@@ -7,7 +7,7 @@ Prefer const variables over non-const global variables.
 Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
 
 PreferConstVariablesOverNonConstGlobalVariables.jl(12, 1):
-CAPS_NUMBER::Int6 = 12
+CAPS_NUMBER::Int64 = 12
 └─────────┘ ── Consider making global variable CAPS_NUMBER a const.
 Prefer const variables over non-const global variables.
 Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
