@@ -35,3 +35,8 @@ function skip_over_arguments(;
 )::Nothing
     return nothing
 end 
+
+function extra_scope_check()::Nothing
+    a = (x=5   , y=5   )
+    b = (x=0.01, y=0.01)
+end
