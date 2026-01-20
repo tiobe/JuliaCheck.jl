@@ -15,12 +15,8 @@ function init(this::Check, ctxt::AnalysisContext)
         ancs = ancestors(node)
         head = ancs[1:something(findfirst(is_scope_construct, ancs), length(ancs))]
         enclosing_scope = head[end]
-        if !(kind(enclosing_scope) in KSet"toplevel module baremodule")
-            # Skip assignment that is not in global scope
-            return
-        end
-        if any(n -> kind(n) in KSet"const local", head)
-            # Skip assignment to const or local variables
+        if any(n -> kind(n) == K"const", head)
+            # Skip assignment to const variables
             return
         end
         glob_vars = get_all_assignees(node)
