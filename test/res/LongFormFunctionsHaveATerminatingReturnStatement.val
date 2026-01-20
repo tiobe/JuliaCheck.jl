@@ -1,24 +1,25 @@
 >> Processing file 'LongFormFunctionsHaveATerminatingReturnStatement.jl'...
 
-LongFormFunctionsHaveATerminatingReturnStatement.jl(3, 5):
-    nothing
-#   └─────┘ ── Long form functions should end with an explicit return statement.
+LongFormFunctionsHaveATerminatingReturnStatement.jl(4, 1):
+end
+└─┘ ── Long form functions should end with an explicit return statement.
 Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
 
-LongFormFunctionsHaveATerminatingReturnStatement.jl(7, 5):
-    println("println returns nothing")
-#   └────────────────────────────────┘ ── Long form functions should end with an explicit return statement.
+LongFormFunctionsHaveATerminatingReturnStatement.jl(8, 1):
+end
+└─┘ ── Long form functions should end with an explicit return statement.
 Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
 
-LongFormFunctionsHaveATerminatingReturnStatement.jl(11, 5):
-#   ┌────────
-    if x == 0
-        return 0
-⋮
-        println(x)
-    end
-#─────┘ ── Long form functions should end with an explicit return statement.
+LongFormFunctionsHaveATerminatingReturnStatement.jl(16, 1):
+end
+└─┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
+
+LongFormFunctionsHaveATerminatingReturnStatement.jl(26, 1):
+end
+└─┘ ── Long form functions should end with an explicit return statement.
 Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3

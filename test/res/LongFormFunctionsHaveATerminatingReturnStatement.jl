@@ -15,6 +15,16 @@ function with_if(x)
     end
 end
 
+function lengthy_function_end()::Nothing
+    tuple = (
+        a=1,
+        b=2,
+        c=3,
+        d=4,
+        e=5
+    )
+end
+
 # Good style
 function foo()::String
     return "foo!"

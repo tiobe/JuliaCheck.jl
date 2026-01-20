@@ -3,6 +3,7 @@ module LongFormFunctionsHaveATerminatingReturnStatement
 include("_common.jl")
 
 using ...Properties: inside, is_struct, get_func_name, get_func_body, haschildren
+using ...WhitespaceHelpers: normalized_green_child_range
 
 struct Check<:Analysis.Check end
 id(::Check) = "long-form-functions-have-a-terminating-return-statement"
@@ -27,8 +28,12 @@ function checkFuncBody(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode
         return
     end
     if !_ends_with_return(func_body)
-        node = haschildren(func_body) ? children(func_body)[end] : func_body
-        report_violation(ctxt, this, node, synopsis(this))
+        parent = func_body.parent
+        green_children = children(parent.raw)
+        green_end_node = green_children[end]
+        green_idx = first(indexin([green_end_node], green_children))
+        end_range = normalized_green_child_range(parent, green_idx)
+        report_violation(ctxt, this, end_range, synopsis(this))
     end
     return nothing
 end
@@ -49,4 +54,3 @@ function _ends_with_return(node::SyntaxNode)::Bool
 end
 
 end # module LongFormFunctionsHaveATerminatingReturnStatement
-
