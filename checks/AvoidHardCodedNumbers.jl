@@ -22,10 +22,10 @@ end
 # Also FIXME: should I use all the 64 bits versions of the types?
 function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     @assert is_literal_number(node) "Expected a node with a literal number, got $(kind(node))"
-    if !is_const_declaration(node) && is_magic_number(node)
+    if !is_const_declaration(node) && !in_array_assignment(node) && is_magic_number(node)
         n = get_number(node)
         if n ∈ this.seen_before
-            report_violation(ctxt, this, node, "Implement hard-coded numbers via a const variable.")
+            report_violation(ctxt, this, node, "Hard-coded number '$n' should be a const variable.")
         else
             push!(this.seen_before, n)
         end
@@ -46,6 +46,12 @@ function is_const_declaration(node::SyntaxNode)::Bool
     end
     return !isnothing(x)
 end
+
+function in_array_assignment(node::SyntaxNode)::Bool
+    p = node.parent
+    return !isnothing(p) && kind(p) == K"vect"
+end
+
 # TODO Add (unit?) tests
 
 ## Magic numbers
