@@ -55,7 +55,8 @@ end
 
 is_toplevel(node::AnyTree)::Bool = kind(node) == K"toplevel"
 is_module(node::AnyTree)::Bool = kind(node) == K"module"
-is_assignment(node::AnyTree)::Bool = kind(node) == K"="
+is_assignment(node::AnyTree)::Bool = kind(node) == K"=" &&
+    kind(node.parent) ∉ KSet"parameters tuple" # Do not consider keyword arguments an assignment
 is_dot(node::AnyTree)::Bool = kind(node) == K"."
 is_function(node::AnyTree)::Bool = kind(node) == K"function"
 is_struct(node::AnyTree)::Bool = kind(node) == K"struct"
@@ -422,7 +423,7 @@ whether a function has been marked as mutating (so has the !).
 This call check explicitly excludes operators. Mutating calls and mutating operators
 are marked via different paths in the check on mutating functions, as they both look for
 different markers in the call resp. operator.
-    
+
 Furthermore, the second child should be an identifier - otherwise we might
 be checking against the actual function definition itself rather than its invocation.
 """
