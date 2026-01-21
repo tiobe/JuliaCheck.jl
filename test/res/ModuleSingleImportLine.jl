@@ -8,14 +8,23 @@ module BadStyle
 
 end # module BadStyle
 
-module ReportOnlyOnceOnOrdering
+module ReportOnlyOnceOnUsingOrdering
 
     using A
     using D
     using C
     using B
 
-end # module ReportOnlyOnceOnOrdering
+end # module ReportOnlyOnceOnIncludeOrdering
+
+module ReportOnlyOnceOnIncludeOrdering
+
+    include("JuliaA.jl")
+    include("JuliaD.jl")
+    include("JuliaC.jl")
+    include("JuliaB.jl")
+
+end # module ReportOnlyOnceOnIncludeOrdering
 
 module GoodStyle
 
