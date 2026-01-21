@@ -244,36 +244,6 @@ function get_assignee(node::SyntaxNode)::NodeAndString
     return (assignee, string(assignee))
 end
 
-"""
-Return a list of all descendant nodes of the given node that match the predicate.
-"""
-function find_descendants(pred::Function, node::AnyTree)::Vector{AnyTree}
-    if pred(node)
-        return [node]
-    end
-    res = []
-    if haschildren(node)
-        for child in children(node)
-            append!(res, find_descendants(pred, child))
-        end
-    end
-    return res
-end
-
-"""
-Return a list of `Identifier` SyntaxNodes representing all assignees of the given assignment node.
-
-Examples:
-* `a::Int64, b::String, c = someFunc()` returns `[a, b, c]`
-* `c, d = someFunc()` returns `[c, d]`
-"""
-function get_all_assignees(node::SyntaxNode)::Vector{SyntaxNode}
-    @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    lhs = first(children(node))
-    assigneeNodes = find_descendants(n -> kind(n) in KSet"Identifier ::", lhs)
-    return map(n -> kind(n) == K"::" ? first(children(n)) : n, assigneeNodes)
-end
-
 function get_struct_name(node::SyntaxNode)::NullableNode
     @assert kind(node) == K"struct" "Expected a [struct] node, got [$(kind(node))]."
     return find_lhs_of_kind(K"Identifier", node)
