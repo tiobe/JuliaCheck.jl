@@ -4,7 +4,7 @@ export ancestors, is_scope_construct, apply_to_operands, extract_special_value, 
 export SpecialValue
 
 using JuliaSyntax: SyntaxNode, GreenNode, kind, numchildren, children, source_location, is_operator,
-    is_infix_op_call, is_prefix_op_call, byte_range, haschildren
+    is_infix_op_call, is_prefix_op_call, byte_range, is_leaf
 import JuliaSyntax: @K_str, @KSet_str
 
 const AnyTree = Union{SyntaxNode, GreenNode}
@@ -92,7 +92,7 @@ function find_descendants(pred::Function, node::AnyTree, stop_traversal::Bool = 
             return out
         end
     end
-    if haschildren(node)
+    if !is_leaf(node)
         for child in children(node)
             append!(out, find_descendants(pred, child, stop_traversal))
         end
