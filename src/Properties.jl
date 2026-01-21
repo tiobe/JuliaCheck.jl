@@ -43,10 +43,22 @@ const EOL = (Sys.iswindows() ? "\n\r" : "\n")
 function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
 end
+
+"""
+    Returns whether the given string is in Upper Camel Case (also known as Pascal Case).
+
+A string is considered upper camel case when it starts with a capital letter,
+does not have two consecutive capital letters, and does not have any underscores or spaces.
+
+An empty string is also considered upper camel case.
+"""
 function is_upper_camel_case(s::AbstractString)::Bool
-    m = match(r"([[:upper:]][[:lower:][:digit:]]+)+", s)
-    return !isnothing(m) && length(m.match) == length(s)
+    return isempty(s) || (isuppercase(first(s)) &&
+        !occursin(r"[[:upper:]][[:upper:]]", s) &&
+        !occursin(r"[ _]", s)
+        )
 end
+
 function is_fat_snake_case(s::AbstractString)::Bool
     m = match(r"[[:upper:]_[:digit:]]+", s)
     return !isnothing(m) && length(m.match) == length(s)
@@ -242,36 +254,6 @@ function get_assignee(node::SyntaxNode)::NodeAndString
         throw("No identifier found in assignment!")
     end
     return (assignee, string(assignee))
-end
-
-"""
-Return a list of all descendant nodes of the given node that match the predicate.
-"""
-function find_descendants(pred::Function, node::AnyTree)::Vector{AnyTree}
-    if pred(node)
-        return [node]
-    end
-    res = []
-    if haschildren(node)
-        for child in children(node)
-            append!(res, find_descendants(pred, child))
-        end
-    end
-    return res
-end
-
-"""
-Return a list of `Identifier` SyntaxNodes representing all assignees of the given assignment node.
-
-Examples:
-* `a::Int64, b::String, c = someFunc()` returns `[a, b, c]`
-* `c, d = someFunc()` returns `[c, d]`
-"""
-function get_all_assignees(node::SyntaxNode)::Vector{SyntaxNode}
-    @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
-    lhs = first(children(node))
-    assigneeNodes = find_descendants(n -> kind(n) in KSet"Identifier ::", lhs)
-    return map(n -> kind(n) == K"::" ? first(children(n)) : n, assigneeNodes)
 end
 
 function get_struct_name(node::SyntaxNode)::NullableNode

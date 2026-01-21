@@ -2,8 +2,8 @@ module PreferConstVariablesOverNonConstGlobalVariables
 
 include("_common.jl")
 
-using ...Properties: find_lhs_of_kind, is_assignment, is_global_decl, get_all_assignees
-using ...SyntaxNodeHelpers
+using ...Properties: is_assignment, is_global_decl
+using ...SyntaxNodeHelpers: ancestors, get_all_assignees, is_scope_construct
 
 struct Check<:Analysis.Check end
 id(::Check) = "prefer-const-variables-over-non-const-global-variables"
