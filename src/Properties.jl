@@ -43,10 +43,19 @@ const EOL = (Sys.iswindows() ? "\n\r" : "\n")
 function is_lower_snake(s::AbstractString)::Bool
     return isnothing(match(r"[[:upper:]]", s))
 end
+
+"""
+    Returns whether the given string is in Upper Camel Case (also known as Pascal Case).
+
+A string is considered upper camel case when it starts with a capital letter,
+and does not have two consecutive capital letters.
+
+An empty string is also considered upper camel case.
+"""
 function is_upper_camel_case(s::AbstractString)::Bool
-    m = match(r"([[:upper:]][[:lower:][:digit:]]+)+", s)
-    return !isnothing(m) && length(m.match) == length(s)
+    return isempty(s) || (isuppercase(first(s)) && !occursin(r"[[:upper:]][[:upper:]]", s))
 end
+
 function is_fat_snake_case(s::AbstractString)::Bool
     m = match(r"[[:upper:]_[:digit:]]+", s)
     return !isnothing(m) && length(m.match) == length(s)
