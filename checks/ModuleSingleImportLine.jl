@@ -12,12 +12,12 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))
 end
 
-function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
-    @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
-    @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
-    @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"
+function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
+    @assert kind(module_node) == K"module" "Expected a [module] node, got [$(kind(module_node))]."
+    @assert numchildren(module_node) == 2 "This module has a weird shape: "* string(module_node)
+    @assert kind(children(module_node)[2]) == K"block" "The second child of a [module] node is not a [block]!"
 
-    imports = filter(is_import, children(children(modjule)[2]))
+    imports = filter(is_import, children(children(module_node)[2]))
     first_include = findfirst(is_include, imports)
     if isnothing(first_include) first_include = 1 + length(imports) end
 
@@ -41,6 +41,7 @@ function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vec
     for node in imports[1 : first_include-1]
         pkg_name = get_imported_pkg(node)
         if pkg_name < previous
+            println(node)
             report_violation(ctxt, this, node, synopsis(this))
         else
             previous = pkg_name
