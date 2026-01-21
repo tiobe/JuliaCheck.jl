@@ -2,53 +2,39 @@ module UseEachindexToIterateIndices
 
 include("_common.jl")
 
-using ...Properties: get_iteration_parts, NullableNode, is_range, is_stop_point
+using ...Properties: find_descendants, get_iteration_parts, is_range
 
-struct Check<:Analysis.Check
-    already_reported::Set{SyntaxNode}
-    Check() = new(Set{SyntaxNode}())
-end
+struct Check<:Analysis.Check end
 id(::Check) = "use-eachindex-to-iterate-indices"
 severity(::Check) = 5
 synopsis(::Check) = "Use eachindex() instead of a constructed range for iteration over a collection."
 
 function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, n -> kind(n) == K"ref", node -> _check(this, ctxt, node))
+    register_syntaxnode_action(ctxt, n -> kind(n) == K"for", node -> _check(this, ctxt, node))
 end
 
-"""
-Given a array index syntax node `ref`,
-this function searches upwards through the parent nodes to find an enclosing `for` loop
-where the variable is defined as a loop iterator.
-"""
-function _find_enclosing_loop_binding(ref::SyntaxNode)::Tuple{NullableNode, NullableNode}
-    if length(ref.children) == 2 && kind(ref.children[2]) == K"Identifier"
-        ref_var = string(ref.children[2])
-    else
-        return (nothing, nothing)
+function _check(this::Check, ctxt::AnalysisContext, for_node::SyntaxNode)::Nothing
+    @assert kind(for_node) == K"for" "Expected a [for] node, got $(kind(for_node))."
+
+    loop_var, loop_expr = get_iteration_parts(for_node)
+    if isnothing(loop_var) ||
+        !is_range(loop_expr) # Only trigger when loop expression uses a 'range'
+        return
     end
-    n = ref;
-    while !isnothing(n) && !is_stop_point(n)
-        if kind(n) == K"for"
-            loop_var, loop_expr = get_iteration_parts(n)
-            if string(loop_var) == ref_var
-                return (loop_var, loop_expr)
+
+    for ref in find_descendants(n -> kind(n) == K"ref", for_node)
+        if length(ref.children) == 2 && kind(ref.children[2]) == K"Identifier"
+            index_var = ref.children[2] # Take the `index` in array[index]
+
+            # Do simple name resolution to check whether the loop variable is used as index variable
+            if string(loop_var) == string(index_var)
+                report_violation(ctxt, this, loop_var, synopsis(this))
+
+                # Return so that we report at most one violation per 'for' node
+                return
             end
         end
-        n = n.parent
-    end
-    return (nothing, nothing)
-end
 
-function _check(this::Check, ctxt::AnalysisContext, index_ref::SyntaxNode)::Nothing
-    @assert kind(index_ref) == K"ref" "Expected a [ref] node, got $(kind(index_ref))."
-
-    (loop_var, loop_expr) = _find_enclosing_loop_binding(index_ref)
-    if !isnothing(loop_var) && is_range(loop_expr)
-        if loop_var ∉ this.already_reported
-            push!(this.already_reported, loop_var)
-            report_violation(ctxt, this, loop_var, synopsis(this))
-        end
     end
     return nothing
 end
