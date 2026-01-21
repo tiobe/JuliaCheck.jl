@@ -1,4 +1,4 @@
-module SingleModuleFile
+module MultiModuleFile
 
 module SubModuleIsOK
 end  # SubModuleIsOK
