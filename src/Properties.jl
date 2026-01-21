@@ -48,12 +48,15 @@ end
     Returns whether the given string is in Upper Camel Case (also known as Pascal Case).
 
 A string is considered upper camel case when it starts with a capital letter,
-and does not have two consecutive capital letters.
+does not have two consecutive capital letters, and does not have any underscores or spaces.
 
 An empty string is also considered upper camel case.
 """
 function is_upper_camel_case(s::AbstractString)::Bool
-    return isempty(s) || (isuppercase(first(s)) && !occursin(r"[[:upper:]][[:upper:]]", s))
+    return isempty(s) || (isuppercase(first(s)) &&
+        !occursin(r"[[:upper:]][[:upper:]]", s) &&
+        !occursin(r"[ _]", s)
+        )
 end
 
 function is_fat_snake_case(s::AbstractString)::Bool
