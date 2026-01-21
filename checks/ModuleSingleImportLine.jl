@@ -41,7 +41,6 @@ function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vec
     for node in imports[1 : first_include-1]
         pkg_name = get_imported_pkg(node)
         if pkg_name < previous
-            println(node)
             report_violation(ctxt, this, node, synopsis(this))
         else
             previous = pkg_name
