@@ -13,7 +13,7 @@ The list of packages should be in alphabetic order.
 Rule: module-single-import-line. Severity: 9
 
 ModuleSingleImportLine.jl(15, 5):
-    using D
+    using C
 #   └─────┘ ── The list of packages should be in alphabetic order.
 The list of packages should be in alphabetic order.
 Rule: module-single-import-line. Severity: 9
