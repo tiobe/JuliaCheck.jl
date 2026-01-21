@@ -1,14 +1,14 @@
 >> Processing file 'ModuleSingleImportLine.jl'...
 
-ModuleSingleImportLine.jl(5, 5):
-    using .SomeOtherSubmodule
-#   └───────────────────────┘ ── The list of packages should be in alphabetic order.
-The list of packages should be in alphabetic order.
-Rule: module-single-import-line. Severity: 9
-
 ModuleSingleImportLine.jl(7, 5):
     using LinearAlgebra, Random, Statistics, Test
 #   └───────────────────────────────────────────┘ ── Import only one package per line.
+The list of packages should be in alphabetic order.
+Rule: module-single-import-line. Severity: 9
+
+ModuleSingleImportLine.jl(5, 5):
+    using .SomeOtherSubmodule
+#   └───────────────────────┘ ── The list of packages should be in alphabetic order.
 The list of packages should be in alphabetic order.
 Rule: module-single-import-line. Severity: 9
 
