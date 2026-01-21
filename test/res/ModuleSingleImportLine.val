@@ -24,6 +24,12 @@ ModuleSingleImportLine.jl(24, 5):
 The list of packages should be in alphabetical order.
 Rule: module-single-import-line. Severity: 9
 
+ModuleSingleImportLine.jl(39, 5):
+    using I, J, K
+#   └───────────┘ ── Import only one package per line.
+The list of packages should be in alphabetical order.
+Rule: module-single-import-line. Severity: 9
+
 ModuleSingleImportLine.jl(35, 5):
     using G
 #   └─────┘ ── The list of packages should be in alphabetical order.

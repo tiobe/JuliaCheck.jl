@@ -36,6 +36,7 @@ module StillReportOnAnInterleavedMess
     using F
     include("JuliaE.jl")
     include("JuliaH.jl")
+    using I, J, K
 
 end # module StillReportOnAnInterleavedMess
 
