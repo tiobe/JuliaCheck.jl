@@ -2,7 +2,9 @@ module UseEachindexToIterateIndices
 
 include("_common.jl")
 
-using ...Properties: find_descendants, get_iteration_parts, is_range
+using JuliaSyntax: sourcetext
+using ...Properties: get_iteration_parts, is_range
+using ...SyntaxNodeHelpers: find_descendants
 
 struct Check<:Analysis.Check end
 id(::Check) = "use-eachindex-to-iterate-indices"
@@ -24,11 +26,14 @@ function _check(this::Check, ctxt::AnalysisContext, for_node::SyntaxNode)::Nothi
 
     for ref in find_descendants(n -> kind(n) == K"ref", for_node)
         if length(ref.children) == 2 && kind(ref.children[2]) == K"Identifier"
-            index_var = ref.children[2] # Take the `index` in array[index]
+            collection = sourcetext(ref.children[1])
+            index_var = ref.children[2] # Take the `index` in collection[index]
 
             # Do simple name resolution to check whether the loop variable is used as index variable
             if string(loop_var) == string(index_var)
-                report_violation(ctxt, this, loop_var, synopsis(this))
+                report_violation(ctxt, this, loop_expr,
+                    "Use eachindex() instead of a constructed range for iteration over collection '$collection'"
+                )
 
                 # Return so that we report at most one violation per 'for' node
                 return

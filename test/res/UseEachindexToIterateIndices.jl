@@ -22,6 +22,12 @@ for i1 in 1:2 # Violation on `i1`
     end
 end
 
+for i in 1:length(nested_collection)
+    for j in 1:length(nested_collection[i])
+        nested_collection[i][j]
+    end
+end
+
 # Good style:
 for index in eachindex(weights_vec)
     for i in 1:5 # For-loop with range, but is not used an array index

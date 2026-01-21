@@ -3,9 +3,11 @@ module SyntaxNodeHelpers
 export ancestors, is_scope_construct, apply_to_operands, extract_special_value, find_node_at_position
 export SpecialValue
 
-using JuliaSyntax: SyntaxNode, kind, numchildren, children, source_location, is_operator,
-    is_infix_op_call, is_prefix_op_call, byte_range
+using JuliaSyntax: SyntaxNode, GreenNode, kind, numchildren, children, source_location, is_operator,
+    is_infix_op_call, is_prefix_op_call, byte_range, haschildren
 import JuliaSyntax: @K_str, @KSet_str
+
+const AnyTree = Union{SyntaxNode, GreenNode}
 
 "Returns list of ancestors for given node, excluding self, ordered by increasing distance."
 function ancestors(node::SyntaxNode; include_self::Bool=false)::Vector{SyntaxNode}
@@ -78,6 +80,25 @@ function extract_special_value(expr::SyntaxNode)::Union{String, Nothing}
     return nothing
 end
 
+"""
+Return a list of all descendant nodes of the given node that match the predicate.
+By default visits the full tree. Use `stop_traversal=true` to stop recursing into subtree when a node matches predicate.
+"""
+function find_descendants(pred::Function, node::AnyTree, stop_traversal::Bool = false)::Vector{AnyTree}
+    out = []
+    if pred(node)
+        push!(out, node)
+        if stop_traversal
+            return out
+        end
+    end
+    if haschildren(node)
+        for child in children(node)
+            append!(out, find_descendants(pred, child, stop_traversal))
+        end
+    end
+    return out
+end
 
 """
 Finds deepest node containing the given `pos`.
@@ -99,6 +120,20 @@ function find_node_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode
 
     # If no child matches, this is the most specific node
     return node
+end
+
+"""
+Return a list of `Identifier` SyntaxNodes representing all assignees of the given assignment node.
+
+Examples:
+* `a::Int64, b::String, c = someFunc()` returns `[a, b, c]`
+* `c, d = someFunc()` returns `[c, d]`
+"""
+function get_all_assignees(node::SyntaxNode)::Vector{SyntaxNode}
+    @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
+    lhs = first(children(node))
+    assigneeNodes = find_descendants(n -> kind(n) in KSet"Identifier ::", lhs, true)
+    return map(n -> kind(n) == K"::" ? first(children(n)) : n, assigneeNodes)
 end
 
 """
