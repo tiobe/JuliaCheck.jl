@@ -23,3 +23,15 @@ ModuleSingleImportLine.jl(24, 5):
 #   └──────────────────┘ ── The list of packages should be in alphabetical order.
 The list of packages should be in alphabetical order.
 Rule: module-single-import-line. Severity: 9
+
+ModuleSingleImportLine.jl(35, 5):
+    using G
+#   └─────┘ ── The list of packages should be in alphabetical order.
+The list of packages should be in alphabetical order.
+Rule: module-single-import-line. Severity: 9
+
+ModuleSingleImportLine.jl(37, 5):
+    include("JuliaE.jl")
+#   └──────────────────┘ ── The list of packages should be in alphabetical order.
+The list of packages should be in alphabetical order.
+Rule: module-single-import-line. Severity: 9

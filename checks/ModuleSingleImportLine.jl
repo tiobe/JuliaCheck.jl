@@ -17,18 +17,17 @@ function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Not
     @assert numchildren(module_node) == 2 "This module has a weird shape: "* string(module_node)
     @assert kind(children(module_node)[2]) == K"block" "The second child of a [module] node is not a [block]!"
 
+    # Filters on using, import, include.
     imports = filter(is_import, children(children(module_node)[2]))
-    first_include = findfirst(is_include, imports)
-    if isnothing(first_include) first_include = 1 + length(imports) end
 
-    _check_multiple_imports_on_line(this, ctxt, imports, first_include)
-    _check_import_ordering(this, ctxt, imports, first_include)
-    _check_include_ordering(this, ctxt, imports, first_include)
+    _check_multiple_imports_on_line(this, ctxt, imports)
+    _check_import_ordering(this, ctxt, imports)
+    _check_include_ordering(this, ctxt, imports)
     return nothing
 end
 
-function _check_multiple_imports_on_line(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
-    for node in imports[1 : first_include-1]
+function _check_multiple_imports_on_line(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode})::Nothing
+    for node in filter(!is_include, imports)
         if numchildren(node) > 1
             report_violation(ctxt, this, node, "Import only one package per line.")
         end
@@ -36,9 +35,9 @@ function _check_multiple_imports_on_line(this::Check, ctxt::AnalysisContext, imp
     return nothing
 end
 
-function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
+function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode})::Nothing
     previous = ""
-    for node in imports[1 : first_include-1]
+    for node in filter(!is_include, imports)
         pkg_name = get_imported_pkg(node)
         if numchildren(node) <= 1
             if pkg_name < previous
@@ -52,9 +51,9 @@ function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vec
     return nothing
 end
 
-function _check_include_ordering(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
+function _check_include_ordering(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode})::Nothing
     previous = ""
-    for node in filter(is_include, imports[first_include : end])
+    for node in filter(is_include, imports)
         pkg_name = get_imported_pkg(node)
         if pkg_name < previous
             report_violation(ctxt, this, node, synopsis(this))

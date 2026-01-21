@@ -26,6 +26,19 @@ module ReportOnlyOnceOnIncludeOrdering
 
 end # module ReportOnlyOnceOnIncludeOrdering
 
+module StillReportOnAnInterleavedMess
+
+    using E
+    using H
+    include("JuliaF.jl")
+    include("JuliaG.jl")
+    using G
+    using F
+    include("JuliaE.jl")
+    include("JuliaH.jl")
+
+end # module StillReportOnAnInterleavedMess
+
 module GoodStyle
 
     using JuliaSyntax: GreenNode, SyntaxNode, children
