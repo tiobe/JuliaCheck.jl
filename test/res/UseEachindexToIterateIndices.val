@@ -1,13 +1,43 @@
 >> Processing file 'UseEachindexToIterateIndices.jl'...
 
-UseEachindexToIterateIndices.jl(4, 5):
-for index in 1:5 # This raises a BoundsError
-#   └───┘ ── Use eachindex() instead of a constructed range for iteration over a collection.
+UseEachindexToIterateIndices.jl(4, 13):
+for index in 1:5 # One violation on `index`
+#           └──┘ ── Use eachindex() instead of a constructed range for iteration over collection 'weights_vec'.
 Use eachindex() instead of a constructed range for iteration over a collection.
 Rule: use-eachindex-to-iterate-indices. Severity: 5
 
-UseEachindexToIterateIndices.jl(8, 5):
-for index in range(1:length(weights_vec))
-#   └───┘ ── Use eachindex() instead of a constructed range for iteration over a collection.
+UseEachindexToIterateIndices.jl(9, 13):
+for index in 1:5 # Violation on `index`
+#           └──┘ ── Use eachindex() instead of a constructed range for iteration over collection 'weights_vec'.
+Use eachindex() instead of a constructed range for iteration over a collection.
+Rule: use-eachindex-to-iterate-indices. Severity: 5
+
+UseEachindexToIterateIndices.jl(15, 14):
+for index in range(1, length(weights_vec)) # Violation on `index`
+#            └───────────────────────────┘ ── Use eachindex() instead of a constructed range for iteration over collection 'weights_vec'.
+Use eachindex() instead of a constructed range for iteration over a collection.
+Rule: use-eachindex-to-iterate-indices. Severity: 5
+
+UseEachindexToIterateIndices.jl(19, 10):
+for i1 in 1:2 # Violation on `i1`
+#        └──┘ ── Use eachindex() instead of a constructed range for iteration over collection 'weights_vec'.
+Use eachindex() instead of a constructed range for iteration over a collection.
+Rule: use-eachindex-to-iterate-indices. Severity: 5
+
+UseEachindexToIterateIndices.jl(20, 14):
+    for i2 in 1:2 # Violation on `i2`
+#            └──┘ ── Use eachindex() instead of a constructed range for iteration over collection 'weights_vec'.
+Use eachindex() instead of a constructed range for iteration over a collection.
+Rule: use-eachindex-to-iterate-indices. Severity: 5
+
+UseEachindexToIterateIndices.jl(25, 9):
+for i in 1:length(nested_collection)
+#       └──────────────────────────┘ ── Use eachindex() instead of a constructed range for iteration over collection 'nested_collection'.
+Use eachindex() instead of a constructed range for iteration over a collection.
+Rule: use-eachindex-to-iterate-indices. Severity: 5
+
+UseEachindexToIterateIndices.jl(26, 13):
+    for j in 1:length(nested_collection[i])
+#           └─────────────────────────────┘ ── Use eachindex() instead of a constructed range for iteration over collection 'nested_collection[i]'.
 Use eachindex() instead of a constructed range for iteration over a collection.
 Rule: use-eachindex-to-iterate-indices. Severity: 5

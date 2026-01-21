@@ -14,3 +14,10 @@ function bar()
     global YET_ANOTHER_NUMBER = 7.0
     return nothing
 end
+
+SOME_STRING = "Tell 'em this string is a string!"
+
+module MyModule
+YES_REALLY_ANOTHER_NUMBER = 2.5
+AND_A_STRING = "This string is secretly.. a string!"
+end # MyModule
