@@ -40,10 +40,12 @@ function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vec
     previous = ""
     for node in imports[1 : first_include-1]
         pkg_name = get_imported_pkg(node)
-        if pkg_name < previous
-            report_violation(ctxt, this, node, synopsis(this))
-        else
-            previous = pkg_name
+        if numchildren(node) <= 1
+            if pkg_name < previous
+                report_violation(ctxt, this, node, synopsis(this))
+            else
+                previous = pkg_name
+            end
         end
     end
     return nothing
@@ -55,6 +57,7 @@ function _check_include_ordering(this::Check, ctxt::AnalysisContext, imports::Ve
         pkg_name = get_imported_pkg(node)
         if pkg_name < previous
             report_violation(ctxt, this, node, synopsis(this))
+            return nothing
         else
             previous = pkg_name
         end
