@@ -2,18 +2,24 @@
 
 GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(2, 8):
 global some_other_number = 42
-#      └───────────────┘ ── Global non-const variable some_other_number does not have a type annotation.
+#      └───────────────┘ ── Global non-const variable 'some_other_number' does not have a type annotation.
 Global non-const variables should have type annotations.
 Rule: global-non-const-variables-should-have-type-annotations. Severity: 6
 
-GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(5, 12):
-    global yet_another_number = 7.0
-#          └────────────────┘ ── Global non-const variable yet_another_number does not have a type annotation.
+GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(18, 1):
+SOME_STRING = "Tell 'em this string is a string!"
+└─────────┘ ── Global non-const variable 'SOME_STRING' does not have a type annotation.
 Global non-const variables should have type annotations.
 Rule: global-non-const-variables-should-have-type-annotations. Severity: 6
 
-GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(14, 12):
-    global YET_ANOTHER_NUMBER = 7.0
-#          └────────────────┘ ── Global non-const variable YET_ANOTHER_NUMBER does not have a type annotation.
+GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(21, 1):
+YES_REALLY_ANOTHER_NUMBER = 2.5
+└───────────────────────┘ ── Global non-const variable 'YES_REALLY_ANOTHER_NUMBER' does not have a type annotation.
+Global non-const variables should have type annotations.
+Rule: global-non-const-variables-should-have-type-annotations. Severity: 6
+
+GlobalNonConstVariablesShouldHaveTypeAnnotations.jl(22, 1):
+AND_A_STRING = "This string is secretly.. a string!"
+└──────────┘ ── Global non-const variable 'AND_A_STRING' does not have a type annotation.
 Global non-const variables should have type annotations.
 Rule: global-non-const-variables-should-have-type-annotations. Severity: 6
