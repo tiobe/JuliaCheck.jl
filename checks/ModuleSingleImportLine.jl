@@ -12,7 +12,6 @@ function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))
 end
 
-
 function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
     @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
@@ -22,24 +21,35 @@ function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     first_include = findfirst(is_include, imports)
     if isnothing(first_include) first_include = 1 + length(imports) end
 
-    # First, check import's and using's (they are supposed to be contiguous, or
-    # else they violate another rule)
-    previous = ""
-    for node in imports[1 : first_include-1]
+    _check_multiple_imports_on_line(this, ctxt, imports, first_include)
+    _check_import_ordering(this, ctxt, imports, first_include)
+    _check_include_ordering(this, ctxt, imports, first_include)
+    return nothing
+end
+
+function _check_multiple_imports_on_line(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
+    for node in filter(is_include, imports[first_include : end])
         if numchildren(node) > 1
             report_violation(ctxt, this, node, "Import only one package per line.")
-        else
-            pkg_name = get_imported_pkg(node)
-            if pkg_name < previous
-                report_violation(ctxt, this, node, synopsis(this))
-            else
-                previous = pkg_name
-            end
         end
     end
+    return nothing
+end
 
-    # Now, we check the include's. Only their sorting (cannot include multiple
-    # files at once)
+function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
+    previous = ""
+    for node in imports[1 : first_include-1]
+        pkg_name = get_imported_pkg(node)
+        if pkg_name < previous
+            report_violation(ctxt, this, node, synopsis(this))
+        else
+            previous = pkg_name
+        end
+    end
+    return nothing
+end
+
+function _check_include_ordering(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
     previous = ""
     for node in filter(is_include, imports[first_include : end])
         pkg_name = get_imported_pkg(node)
@@ -53,4 +63,3 @@ function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
 end
 
 end # module ModuleSingleImportLine
-

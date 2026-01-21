@@ -8,6 +8,15 @@ module BadStyle
 
 end # module BadStyle
 
+module ReportOnlyOnceOnOrdering
+
+    using A
+    using D
+    using C
+    using B
+
+end # module ReportOnlyOnceOnOrdering
+
 module GoodStyle
 
     using JuliaSyntax: GreenNode, SyntaxNode, children
