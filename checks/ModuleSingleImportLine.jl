@@ -28,7 +28,7 @@ function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Not
 end
 
 function _check_multiple_imports_on_line(this::Check, ctxt::AnalysisContext, imports::Vector{SyntaxNode},first_include::Int64)::Nothing
-    for node in filter(is_include, imports[first_include : end])
+    for node in imports[1 : first_include-1]
         if numchildren(node) > 1
             report_violation(ctxt, this, node, "Import only one package per line.")
         end
@@ -43,6 +43,7 @@ function _check_import_ordering(this::Check, ctxt::AnalysisContext, imports::Vec
         if numchildren(node) <= 1
             if pkg_name < previous
                 report_violation(ctxt, this, node, synopsis(this))
+                return nothing
             else
                 previous = pkg_name
             end
