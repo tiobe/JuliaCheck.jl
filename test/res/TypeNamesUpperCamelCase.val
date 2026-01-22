@@ -17,3 +17,15 @@ abstract type myabstracttype end      # Bad
 #             └────────────┘ ── Type names such as 'myabstracttype' should be written in "UpperCamelCase".
 Type names should be in "UpperCamelCase".
 Rule: type-names-upper-camel-case. Severity: 3
+
+TypeNamesUpperCamelCase.jl(13, 8):
+struct TEst5 end # Bad
+#      └───┘ ── Type names such as 'TEst5' should be written in "UpperCamelCase".
+Type names should be in "UpperCamelCase".
+Rule: type-names-upper-camel-case. Severity: 3
+
+TypeNamesUpperCamelCase.jl(14, 8):
+struct tEst5 end # Bad
+#      └───┘ ── Type names such as 'tEst5' should be written in "UpperCamelCase".
+Type names should be in "UpperCamelCase".
+Rule: type-names-upper-camel-case. Severity: 3

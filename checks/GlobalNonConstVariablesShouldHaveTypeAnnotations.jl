@@ -1,6 +1,6 @@
 module GlobalNonConstVariablesShouldHaveTypeAnnotations
 
-using ...Properties: first_child, is_constant, is_global_decl, haschildren
+using ...Properties: first_child, is_constant, is_global_decl, haschildren, is_mod_toplevel
 
 include("_common.jl")
 
@@ -9,13 +9,14 @@ id(::Check) = "global-non-const-variables-should-have-type-annotations"
 severity(::Check) = 6
 synopsis(::Check) = "Global non-const variables should have type annotations"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, n -> is_global_decl(n) && !is_constant(n), node -> begin
+function init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, n -> is_global_decl(n) && !is_constant(n) && !isnothing(n.parent) && is_mod_toplevel(n.parent), node -> begin
         check(this, ctxt, node)
     end)
+    return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, glob_var::SyntaxNode)
+function check(this::Check, ctxt::AnalysisContext, glob_var::SyntaxNode)::Nothing
     # This must not be a [const], so it must be [global].
     @assert is_global_decl(glob_var) "Expected a global declaration, got [$(kind(glob_var))]."
     @assert !is_constant(glob_var) "Run this check on non-const global declarations only!"
@@ -27,9 +28,10 @@ function check(this::Check, ctxt::AnalysisContext, glob_var::SyntaxNode)
     if kind(glob_var) == K"="      glob_var = first_child(glob_var) end
     if kind(glob_var) != K"::"
         report_violation(ctxt, this, glob_var,
-            "Global non-const variable $glob_var does not have a type annotation."
+            "Global non-const variable '$glob_var' does not have a type annotation."
             )
     end
+    return nothing
 end
 
 end # module GlobalNonConstVariablesShouldHaveTypeAnnotations
