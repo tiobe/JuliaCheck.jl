@@ -25,7 +25,7 @@ function init(this::Check, ctxt::AnalysisContext)::Nothing
     end)
 end
 
-function has_const_annotation(node::SyntaxNode)
+function has_const_annotation(node::SyntaxNode)::Bool
     ancs = ancestors(node)
     head = ancs[1:something(findfirst(is_scope_construct, ancs), length(ancs))]
     return any(n -> kind(n) == K"const", head)
