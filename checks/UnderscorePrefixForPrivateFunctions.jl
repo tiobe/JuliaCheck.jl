@@ -27,7 +27,7 @@ file per module, the export statement is guaranteed to be findable).
 
 Another is the typical idiom as can be seen in JuliaSyntax:
 
-module X 
+module X
 
 include("file_a.jl")
 include("file_b.jl")
@@ -47,6 +47,9 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
     all_exported_names = _get_exported_function_names(module_content_node)
     for function_node in _get_function_nodes(module_content_node)
         function_name_node = get_func_name(function_node)
+        if kind(function_name_node.parent) == K"."
+            continue # Do not trigger on extension of a function defined in another module
+        end
         if !isnothing(function_name_node)
             function_name = string(function_name_node)
             has_underscore = startswith(function_name, "_")
