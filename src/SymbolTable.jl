@@ -14,10 +14,10 @@ export update_symbol_table_on_node_leave!, is_global, type_has_changed_from_init
 
 struct SymbolTableItem
     declaration_node::SyntaxNode # The node where this symbol was first seen and thus declared
-    all_nodes::Set{SyntaxNode} # Keep a set of all nodes that we encounter for this symbol
+    all_nodes::Vector{SyntaxNode} # Keep a set of all nodes that we encounter for this symbol
     initial_type::TypeSpecifier
 end
-SymbolTableItem(node, type) = SymbolTableItem(node, Set{SyntaxNode}([node]), type)
+SymbolTableItem(node, type) = SymbolTableItem(node, Vector{SyntaxNode}([node]), type)
 
 #=
 A scope is represented by a vector (because we would like to keep the ordering!)
@@ -232,9 +232,9 @@ function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::Synt
     elseif is_global_decl(node)
         _process_global!(table, node)
     elseif is_assignment(node)
-        assignment_to_global = any(n -> kind(n) == K"global", ancestors(node)) ||
+        is_assignment_to_global = any(n -> kind(n) == K"global", ancestors(node)) ||
             is_mod_toplevel(node.parent) # Top-level assignment defines a global variable
-        scope = assignment_to_global ? _global_scope(table) : _current_scope(table)
+        scope = is_assignment_to_global ? _global_scope(table) : _current_scope(table)
         _process_assignment!(scope, node)
     end
 end

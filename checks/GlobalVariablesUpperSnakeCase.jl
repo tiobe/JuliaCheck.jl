@@ -1,6 +1,6 @@
 module GlobalVariablesUpperSnakeCase
 
-using ...Properties: is_fat_snake_case, find_lhs_of_kind, is_assignment, is_field_assignment, NullableNode
+using ...Properties: is_fat_snake_case, is_assignment, is_field_assignment
 using ...SymbolTable: is_global, node_is_declaration_of_variable
 using ...SyntaxNodeHelpers: get_all_assignees
 
