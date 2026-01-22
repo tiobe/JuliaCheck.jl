@@ -1,32 +1,25 @@
-# This file demonstrates the proposed Check and AnalysisContext types that are more in line with Roslyn analysis
-# Checks implementing the Check type are in check2 directory
+# This file can be used to invoke a single rule on a piece of code, useful during development
 using InteractiveUtils
 
-include("../src/printers/HighlightingViolationPrinter.jl")
-include("Properties.jl");
-include("SymbolTable.jl")
-include("Analysis.jl")
-include("Output.jl")
-include("SyntaxNodeHelpers.jl")
-
-Analysis.discover_checks()
+using JuliaCheck
 
 using JuliaSyntax: SourceFile
-using .Analysis
-using .Properties
+using JuliaCheck.Analysis
+using JuliaCheck.Analysis: Check, id
+using JuliaCheck.Output: print_violations
 
 global checks = map(c -> c(), subtypes(Check))
-global checks1 = filter(c -> id(c) === "avoid-extraneous-whitespace-between-open-and-close-characters", checks)
+target_check = "type-names-upper-camel-case"
+global checks1 = filter(c -> id(c) === target_check, checks)
+@assert length(checks1) == 1
 
-filename = "dummy.jl"
 text = """
-    println( "test")
-    ham[ 1  2  [3  4] ]
-    a = [ 1, 2,  4]
-    f(; x = 10)
+struct transX end
+struct TransX end
 """
-sourcefile = SourceFile(text, filename=filename)
-printer = JuliaCheck.Output.ViolationPrinter.HighlightingViolationPrinter
-violations = run_analysis(sourcefile, checks1; print_ast=true, print_llt=true)
+
+sourcefile = SourceFile(text, filename="dummy.jl")
+printer = JuliaCheck.Output.select_violation_printer("highlighting")
+violations = Analysis.run_analysis(sourcefile, checks1; print_ast=true, print_llt=true)
 output_file_arg = ""
 print_violations(printer, output_file_arg, violations)
