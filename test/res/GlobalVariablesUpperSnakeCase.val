@@ -1,25 +1,37 @@
 >> Processing file 'GlobalVariablesUpperSnakeCase.jl'...
 
 GlobalVariablesUpperSnakeCase.jl(1, 1):
-some_number::Float64 = 1
-└─────────┘ ── Variable some_number should be written in UPPER_SNAKE_CASE.
+some_number::Float64 = 1 # Bad
+└─────────┘ ── Variable 'some_number' should be written in UPPER_SNAKE_CASE.
 Casing of globals.
 Rule: global-variables-upper-snake-case. Severity: 3
 
 GlobalVariablesUpperSnakeCase.jl(2, 14):
-const global some_other_number = 42
-#            └───────────────┘ ── Variable some_other_number should be written in UPPER_SNAKE_CASE.
+const global some_other_number = 42 # Bad
+#            └───────────────┘ ── Variable 'some_other_number' should be written in UPPER_SNAKE_CASE.
 Casing of globals.
 Rule: global-variables-upper-snake-case. Severity: 3
 
 GlobalVariablesUpperSnakeCase.jl(3, 1):
-another_number = 42506
-└────────────┘ ── Variable another_number should be written in UPPER_SNAKE_CASE.
+another_number, another_number2 = 42506, 512 # Bad: two violations expected
+└────────────┘ ── Variable 'another_number' should be written in UPPER_SNAKE_CASE.
 Casing of globals.
 Rule: global-variables-upper-snake-case. Severity: 3
 
-GlobalVariablesUpperSnakeCase.jl(6, 12):
-    global yet_another_number = 7.0
-#          └────────────────┘ ── Variable yet_another_number should be written in UPPER_SNAKE_CASE.
+GlobalVariablesUpperSnakeCase.jl(3, 17):
+another_number, another_number2 = 42506, 512 # Bad: two violations expected
+#               └─────────────┘ ── Variable 'another_number2' should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: global-variables-upper-snake-case. Severity: 3
+
+GlobalVariablesUpperSnakeCase.jl(34, 7):
+const dict = Dict()
+#     └──┘ ── Variable 'dict' should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: global-variables-upper-snake-case. Severity: 3
+
+GlobalVariablesUpperSnakeCase.jl(38, 30):
+some_number, another_number, yet_another_number = 3, 1, 1 # Bad: yet_another_number
+#                            └────────────────┘ ── Variable 'yet_another_number' should be written in UPPER_SNAKE_CASE.
 Casing of globals.
 Rule: global-variables-upper-snake-case. Severity: 3
