@@ -8,6 +8,7 @@ using JuliaCheck
         JuliaSyntax as JS
     include("../src/Properties.jl")
     include("../src/TypeHelpers.jl")
+    include("../src/SyntaxNodeHelpers.jl")
     include("../src/SymbolTable.jl"); using .SymbolTable: _is_declared_in_current_scope,
         _declare!, _enter_module!, enter_main_module!, _enter_scope!,
         exit_module!, exit_main_module!, _exit_scope!, is_declared, is_global, SymbolTableStruct
@@ -140,7 +141,7 @@ end
                 "do-not-set-variables-to-nan",
                 "--",
                 "ViolationPrinters/file_1.jl",
-                "ViolationPrinters/file_2.jl", 
+                "ViolationPrinters/file_2.jl",
             ]
             result = IOCapture.capture() do
                 JuliaCheck.main(args)
@@ -148,7 +149,7 @@ end
             actual::String = normalize(result.output)
             actualfile::String = val_file * ".actual"
             expected::String = normalize(read(val_file, String))
-            
+
             if actual == expected
                 if isfile(actualfile)
                     rm(actualfile)
@@ -183,7 +184,7 @@ end
     normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
     camel_to_kebab(s::String) = lowercase(replace(s, r"(?<!^)([A-Z])" => s"-\1"))
 
-    all_checks = filter(f -> !startswith(f, "_"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
+    all_checks = filter(f -> !startswith(f, "_") && endswith(f, ".jl"), map(basename, readdir(joinpath(dirname(@__DIR__), "checks"))))
 
     # cd into res so that '>> Processing file 'SingleModuleFile.jl'...' does not change to
     # '>> Processing file 'res/SingleModuleFile.jl'...'
