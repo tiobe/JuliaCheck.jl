@@ -42,4 +42,8 @@ end
 
 end
 
+function Base.extension_method_should_be_ignored()::Bool # Good: extension of a method in another module
+    return true
+end
+
 end
