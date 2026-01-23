@@ -6,10 +6,10 @@ using InteractiveUtils
 
 include("Properties.jl"); import .Properties
 include("TypeHelpers.jl"); import .TypeHelpers
+include("SyntaxNodeHelpers.jl")
 include("SymbolTable.jl")
 include("Analysis.jl")
 include("Output.jl")
-include("SyntaxNodeHelpers.jl")
 include("MutatingFunctionsHelpers.jl")
 include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
 include("CommentHelpers.jl"); import .CommentHelpers

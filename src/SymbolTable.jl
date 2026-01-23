@@ -5,17 +5,19 @@ import DataStructures: Stack
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
     get_module_name, get_var_from_assignment, haschildren, is_assignment, is_function,
-    is_global_decl, is_module, opens_scope
+    is_global_decl, is_module, opens_scope, is_mod_toplevel
+using ..SyntaxNodeHelpers: ancestors, find_descendants, get_all_assignees
 using ..TypeHelpers: get_variable_type_from_node, is_different_type, TypeSpecifier
 
 export Module, SymbolTableItem, SymbolTableStruct, enter_main_module!, exit_main_module!, update_symbol_table_on_node_enter!
 export update_symbol_table_on_node_leave!, is_global, type_has_changed_from_init, get_initial_type_of_node
 
 struct SymbolTableItem
-    all_nodes::Vector{SyntaxNode}
+    declaration_node::SyntaxNode # The node where this symbol was first seen and thus declared
+    all_nodes::Vector{SyntaxNode} # Keep a set of all nodes that we encounter for this symbol
     initial_type::TypeSpecifier
 end
-SymbolTableItem(all_nodes::Vector{SyntaxNode}) = SymbolTableItem(all_nodes, nothing)
+SymbolTableItem(node, type) = SymbolTableItem(node, Vector{SyntaxNode}([node]), type)
 
 #=
 A scope is represented by a vector (because we would like to keep the ordering!)
@@ -167,7 +169,7 @@ then want to check whether certain operations might be redefining.
 function node_is_declaration_of_variable(table::SymbolTableStruct, node::SyntaxNode)::Bool
     var_node = string(node.data.val)
     scp = _current_scope(table)
-    return haskey(scp, var_node) && first(scp[var_node].all_nodes) === node
+    return haskey(scp, var_node) && scp[var_node].declaration_node === node
 end
 
 _is_declared_in_current_scope(table::SymbolTableStruct, node::SyntaxNode)::Bool = _node_is_in_scope(node, _current_scope(table))
@@ -192,16 +194,10 @@ function _declare_on_scope!(scp::Scope, node::SyntaxNode, type_spec::TypeSpecifi
     if haskey(scp, symbol_id)
         push!(scp[symbol_id].all_nodes, node)
     else
-        scp[symbol_id] = SymbolTableItem([node], type_spec)
+        scp[symbol_id] = SymbolTableItem(node, type_spec)
     end
 end
 
-"""
-Register a typed identifier.
-"""
-function _declare_with_type!(table::SymbolTableStruct, symbol::SyntaxNode, var_type::TypeSpecifier)
-    _declare_on_scope!(_current_scope(table), symbol, var_type)
-end
 
 """
 Register a (change to a) global identifier.
@@ -236,7 +232,10 @@ function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::Synt
     elseif is_global_decl(node)
         _process_global!(table, node)
     elseif is_assignment(node)
-        _process_assignment!(table, node)
+        is_assignment_to_global = any(n -> kind(n) == K"global", ancestors(node)) ||
+            is_mod_toplevel(node.parent) # Top-level assignment defines a global variable
+        scope = is_assignment_to_global ? _global_scope(table) : _current_scope(table)
+        _process_assignment!(scope, node)
     end
 end
 
@@ -264,11 +263,20 @@ function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
 end
 
 function _process_global!(table::SymbolTableStruct, node::SyntaxNode)
-    arg = find_lhs_of_kind(K"Identifier", node)
-    if isnothing(arg)
-        return nothing
+    # Handle statements like `global x, y = 1, 2`
+    # We need to handle assignment here and cannot wait until the descendant 'assignment' expression
+    # is encountered in `update_symbol_table_on_node_enter!`, because the check might listen to `is_global_decl` event.
+    assignments = find_descendants(n -> kind(n) == K"=", node)
+    for assignment in assignments
+        _process_assignment!(_global_scope(table), assignment)
     end
-    _declare_global!(table, arg)
+
+    # Handle statements like 'global x, y'
+    if length(assignments) == 0
+        for c in something(node.children, [])
+            _declare_global!(table, c)
+        end
+    end
 end
 
 function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
@@ -279,10 +287,20 @@ function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
     _declare!(table, arg)
 end
 
-function _process_assignment!(table::SymbolTableStruct, node::SyntaxNode)
-    var_node = first(get_assignee(node))
-    type_of_node = get_variable_type_from_node(node)
-    _declare_with_type!(table, var_node, type_of_node)
+function _process_assignment!(scope::Scope, node::SyntaxNode)
+    @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
+    assignees = get_all_assignees(node)
+    if length(assignees) == 1
+        # For now, we can only infer the type for statements with only one assignee
+        var_node = first(assignees)
+        type_of_node = get_variable_type_from_node(node)
+        _declare_on_scope!(scope, var_node, type_of_node)
+    else
+        # In case of multiple assignees, we register the variables, but without a type for now
+        for var_node in assignees
+            _declare_on_scope!(scope, var_node, nothing)
+        end
+    end
 end
 
 function _process_struct!(table::SymbolTableStruct, node::SyntaxNode)

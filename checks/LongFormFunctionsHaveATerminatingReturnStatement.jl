@@ -37,17 +37,20 @@ function checkFuncBody(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode
 end
 
 function _ends_with_return(node::SyntaxNode)::Bool
-    if ! haschildren(node)
-        # Empty block. Odd, but happens. Assuming it should contain "return nothing"
-        return false
-    end
-    last_expr = children(node)[end]
-    return if kind(last_expr) == K"if"
-        # Each branch of the 'if' is a [block] (the first child is not a branch,
-        # but the condition)
-        all(_ends_with_return, children(last_expr)[2:end])
+    if kind(node) == K"block"
+        if ! haschildren(node)
+            # Empty block. Odd, but happens. Assuming it should contain "return nothing"
+            return false
+        end
+        return _ends_with_return(children(node)[end])
+    elseif kind(node) ∈ KSet"if elseif"
+        # The first child of the [if] is the condition,
+        # the rest are either [block] or [elseif]
+        return all(_ends_with_return, children(node)[2:end])
+    elseif kind(node) == K"return"
+        return true
     else
-        kind(last_expr) == K"return"
+        return false
     end
 end
 

@@ -1,28 +1,30 @@
 module GlobalVariablesUpperSnakeCase
 
-using ...Properties: is_fat_snake_case, find_lhs_of_kind, is_assignment, is_field_assignment, NullableNode
-using ...SymbolTable: is_global
+using ...Properties: is_fat_snake_case, is_assignment, is_field_assignment
+using ...SymbolTable: is_global, node_is_declaration_of_variable
+using ...SyntaxNodeHelpers: get_all_assignees
 
 include("_common.jl")
 
-struct Check<:Analysis.Check
-    already_reported::Set{SyntaxNode}
-    Check() = new(Set{SyntaxNode}())
-end
+struct Check<:Analysis.Check end
 id(::Check) = "global-variables-upper-snake-case"
 severity(::Check) = 3
 synopsis(::Check) = "Casing of globals"
 
 function init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> is_assignment(n) && !is_field_assignment(n), n -> begin
-        id::NullableNode = find_lhs_of_kind(K"Identifier", n)
-        if !isnothing(id)
+        ids = get_all_assignees(n)
+        for id in ids
             if !is_global(ctxt.symboltable, id)
-                return nothing
+                continue
+            end
+            if !node_is_declaration_of_variable(ctxt.symboltable, id)
+                continue
             end
             var_name::String = string(id)
             if !is_fat_snake_case(var_name)
-                report_violation(ctxt, this, id, "Variable $var_name should be written in UPPER_SNAKE_CASE.")
+                report_violation(ctxt, this, id, "Variable '$var_name' should be written in UPPER_SNAKE_CASE")
+
             end
         end
     end)
