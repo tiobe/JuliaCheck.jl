@@ -7,6 +7,8 @@ struct MyType
     x::Int
 end
 const UNDOCUMENTED_GLOBAL_ITEM = MyType(3)
+const myvar = {}
+const MyVector = Vector{Float64}(undef, 3)
 
 # Good
 "MAG_THRESHOLD is dimensionless. A value of 0 means no expansion."
@@ -17,3 +19,7 @@ const THE_ANSWER = 42
 
 "Cierto!"
 const E_VERO = true
+
+# RM-37765: No docstring needed for 'type aliases'
+const AnyTree = Union{SyntaxNode, GreenNode}
+const MyTuple = Tuple{SyntaxNode, GreenNode}
