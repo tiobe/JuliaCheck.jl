@@ -5,24 +5,24 @@ using JuliaSyntax: sourcetext
 using ...Properties: MAX_LINE_LENGTH, expr_depth, expr_size, get_func_name, get_func_body
 
 struct Check<:Analysis.Check end
-id(::Check) = "short-hand-function-too-complicated"
-severity(::Check) = 3
-synopsis(::Check) = "Short-hand notation with concise functions"
+Analysis.id(::Check) = "short-hand-function-too-complicated"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Short-hand notation with concise functions"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", func -> begin
         body = get_func_body(func)
         if !isnothing(body) && kind(body) != K"block"
-            checkFunction(this, ctxt, func, body)
+            _check(this, ctxt, func, body)
         end
     end)
 end
 
-function checkFunction(this::Check, ctxt::AnalysisContext, func::SyntaxNode, body::SyntaxNode)
-    report() = report_violation(ctxt, this, body, 
+function _check(this::Check, ctxt::AnalysisContext, func::SyntaxNode, body::SyntaxNode)
+    report() = report_violation(ctxt, this, body,
         "Function '$(get_func_name(func))' is too complex for the shorthand notation; use keyword 'function'."
     )
-    
+
     line_len = length(sourcetext(func))
     if line_len > MAX_LINE_LENGTH
         report()

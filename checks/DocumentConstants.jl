@@ -5,15 +5,15 @@ using ...Properties: find_lhs_of_kind, haschildren, is_constant
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "document-constants"
-severity(::Check) = 7
-synopsis(::Check) = "Constants must have a docstring"
+Analysis.id(::Check) = "document-constants"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Constants must have a docstring"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_constant, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)
+    register_syntaxnode_action(ctxt, is_constant, n -> _check(this, ctxt, n))
 end
 
-function check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
     if kind(const_node) == K"global"
         if haschildren(const_node)
             const_node = children(const_node)[1]
@@ -39,4 +39,4 @@ function check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
     end
 end
 
-end
+end # module DocumentConstants

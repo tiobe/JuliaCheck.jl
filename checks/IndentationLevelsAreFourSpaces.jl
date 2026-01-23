@@ -6,11 +6,11 @@ using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers
 
 struct Check<:Analysis.Check end
-id(::Check) = "indentation-levels-are-four-spaces"
-severity(::Check) = 7
-synopsis(::Check) = "Indentation should be a multiple of four spaces"
+Analysis.id(::Check) = "indentation-levels-are-four-spaces"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Indentation should be a multiple of four spaces"
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, n -> begin
         for gl in ctxt.greenleaves
             # We will inspect nodes of kind [NewlineWs] containing indentation spaces

@@ -7,15 +7,15 @@ using ...Properties: get_flattened_fn_arg_nodes, get_func_body, get_string_arg, 
 include("_common.jl")
 struct Check <: Analysis.Check end
 
-id(::Check) = "functions-mutate-only-zero-or-one-arguments"
-severity(::Check) = 3
-synopsis(::Check) = "Functions should change only one or zero argument(s)."
+Analysis.id(::Check) = "functions-mutate-only-zero-or-one-arguments"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Functions should change only one or zero argument(s)."
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_function, n -> check_function(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)
+    register_syntaxnode_action(ctxt, is_function, n -> _check_function(this, ctxt, n))
 end
 
-function check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
+function _check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)
     func_arg_nodes = get_flattened_fn_arg_nodes(function_node)
     all_mutated_variables = get_mutated_variables_in_scope(ctxt, get_func_body(function_node))
     for func_arg in func_arg_nodes[2:end]

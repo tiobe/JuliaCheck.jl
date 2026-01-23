@@ -134,11 +134,13 @@ scopes_within_module(table::SymbolTableStruct)::NestedScopes = _current_module(t
 
 _current_module(table::SymbolTableStruct)::Module = first(table.stack)
 
-# TODO: a file can be `include`d into another, thus into another
-# module and, what is most important from the point of view of the
-# symbols table and declarations: something can be declared outside
-# the file under analysis, and we will surely get confused about its
-# scope.
+#=
+TODO: a file can be `include`d into another, thus into another
+module and, what is most important from the point of view of the
+symbols table and declarations: something can be declared outside
+the file under analysis, and we will surely get confused about its
+scope.
+=#
 
 function _enter_scope!(table::SymbolTableStruct)
     push!(scopes_within_module(table), Scope())
@@ -365,4 +367,4 @@ function print_state(table::SymbolTableStruct)::String
     return state
 end
 
-end
+end # module SymbolTable

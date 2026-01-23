@@ -38,20 +38,22 @@ const ABSTRACT_NUMBER_TYPES = Set([
 ])
 
 struct Check<:Analysis.Check end
-id(::Check) = "avoid-containers-with-abstract-types"
-severity(::Check) = 6
-synopsis(::Check) = "Avoid containers with abstract types."
+Analysis.id(::Check) = "avoid-containers-with-abstract-types"
+Analysis.severity(::Check) = 6
+Analysis.synopsis(::Check) = "Avoid containers with abstract types."
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_container, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, _is_container, n -> _check(this, ctxt, n))
     return nothing
 end
 
-# Structure of a typical node we want to check here:
-# (= num_vector (ref Real 1.0 2 3))
-# We want to check the type right-hand side of the assignment.
-# For some invocations, this is also wrapped inside a call (eg. list comprehensions)
-function is_container(node::SyntaxNode)::Bool
+#=
+Structure of a typical node we want to check here:
+(= num_vector (ref Real 1.0 2 3))
+We want to check the type right-hand side of the assignment.
+For some invocations, this is also wrapped inside a call (eg. list comprehensions)
+=#
+function _is_container(node::SyntaxNode)::Bool
     if !is_assignment(node) || numchildren(node) < 2
         return false
     end
@@ -59,7 +61,7 @@ function is_container(node::SyntaxNode)::Bool
     return !is_leaf(rhs) && kind(rhs) in KSet"ref call curly"
 end
 
-function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     assignment_rhs = children(node)[2]
     id_type_node = _get_identifier_node_to_check(assignment_rhs)
     if !isnothing(id_type_node)
@@ -76,11 +78,13 @@ function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-# Curly braces notations get translated like this:
-# - Array{Number}[] => (curly Array Number)
-# - Array{Array}{Number}[] => (curly Array (curly Array Number))
-# As such, to find the type of multidimensional arrays, it's convenient to be able
-# to walk down the tree until an identifier is found.
+#=
+Curly braces notations get translated like this:
+- Array{Number}[] => (curly Array Number)
+- Array{Array}{Number}[] => (curly Array (curly Array Number))
+As such, to find the type of multidimensional arrays, it's convenient to be able
+to walk down the tree until an identifier is found.
+=#
 function _get_identifier_node_to_check(node::SyntaxNode)::NullableNode
     while _search_further(node)
         node = _get_next_search_node(node)

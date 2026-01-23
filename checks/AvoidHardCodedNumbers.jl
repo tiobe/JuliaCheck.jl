@@ -11,18 +11,18 @@ struct Check<:Analysis.Check
     # probably use a tolerance to compare them.
     Check() = new(Set{Number}())
 end
-id(::Check) = "avoid-hard-coded-numbers"
-severity(::Check) = 3
-synopsis(::Check) = "Avoid hard-coded numbers"
+Analysis.id(::Check) = "avoid-hard-coded-numbers"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Avoid hard-coded numbers"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_literal_number, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)
+    register_syntaxnode_action(ctxt, is_literal_number, n -> _check(this, ctxt, n))
 end
 
 # Also FIXME: should I use all the 64 bits versions of the types?
-function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     @assert is_literal_number(node) "Expected a node with a literal number, got $(kind(node))"
-    if !is_const_declaration(node) && !in_array_assignment(node) && is_magic_number(node)
+    if !_is_const_declaration(node) && !_in_array_assignment(node) && _is_magic_number(node)
         n = get_number(node)
         if n ∈ this.seen_before
             report_violation(ctxt, this, node, "Hard-coded number '$n' should be a const variable.")
@@ -39,7 +39,7 @@ Check if the literal number is part of a constant declaration.
 
 To that end, we climb up the tree until we find a constant declaration, or the root.
 """
-function is_const_declaration(node::SyntaxNode)::Bool
+function _is_const_declaration(node::SyntaxNode)::Bool
     x = node
     while !(isnothing(x) || is_constant(x))
         x = x.parent
@@ -47,7 +47,7 @@ function is_const_declaration(node::SyntaxNode)::Bool
     return !isnothing(x)
 end
 
-function in_array_assignment(node::SyntaxNode)::Bool
+function _in_array_assignment(node::SyntaxNode)::Bool
     p = node.parent
     return !isnothing(p) && kind(p) == K"vect"
 end
@@ -75,7 +75,7 @@ const KNOWN_FLOATS = Set{Float64}([0.1, 0.01, 0.001, 0.0001, 0.5]) ∪
 Check if the given literal is a magic number, i.e., it is not a "usual number",
 i.e., one usually found in initializations.
 """
-function is_magic_number(node::SyntaxNode)::Bool
+function _is_magic_number(node::SyntaxNode)::Bool
     n = get_number(node)
     return !isnothing(n) && (
                 kind(node) == K"Float" ? n ∉ KNOWN_FLOATS : n ∉ KNOWN_INTS

@@ -3,13 +3,13 @@ module UseSpacesInsteadOfTabs
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "use-spaces-instead-of-tabs"
-severity(::Check) = 7
-synopsis(::Check) = "Use spaces instead of tabs for indentation"
+Analysis.id(::Check) = "use-spaces-instead-of-tabs"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Use spaces instead of tabs for indentation"
 
 const REGEX = r"(\s*)\t+.*"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) == K"toplevel", node -> begin
         code = node.source.code
         starts = node.source.line_starts
@@ -18,7 +18,7 @@ function init(this::Check, ctxt::AnalysisContext)
         for (start,stop) in successive_pairs
             line::String = code[start:prevind(code, stop)]
             m = match(REGEX, line)
-            if m !== nothing
+            if ! isnothing(m)
                 offset::Int = length(m.captures[1])
                 linepos = (linenr, offset+1)
                 bufferrange = range(start + offset, length=1)

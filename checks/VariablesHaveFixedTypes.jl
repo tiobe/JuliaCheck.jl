@@ -21,16 +21,16 @@ and doing this completely would be a _lot_ of specific cases.
 =#
 
 struct Check<:Analysis.Check end
-id(::Check) = "variables-have-fixed-types"
-severity(::Check) = 3
-synopsis(::Check) = "Types of variables should not change."
+Analysis.id(::Check) = "variables-have-fixed-types"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Types of variables should not change."
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_assignment, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, is_assignment, n -> _check(this, ctxt, n))
     return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)::Nothing
+function _check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)::Nothing
     if type_has_changed_from_init(ctxt.symboltable, assignment_node)
         assigned_variable = get_var_from_assignment(assignment_node)
         if isnothing(assigned_variable)

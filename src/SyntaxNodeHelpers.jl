@@ -113,7 +113,7 @@ function find_node_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode
     # Search through children to find the most specific node
     for child in something(children(node), [])
         found_child = find_node_at_position(child, pos)
-        if found_child !== nothing
+        if !isnothing(found_child)
             return found_child
         end
     end

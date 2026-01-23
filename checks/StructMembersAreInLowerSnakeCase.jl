@@ -5,19 +5,19 @@ include("_common.jl")
 using ...Properties: find_lhs_of_kind, is_lower_snake, get_struct_members
 
 struct Check<:Analysis.Check end
-id(::Check) = "struct-members-are-in-lower-snake-case"
-severity(::Check) = 8
-synopsis(::Check) = "Struct members should be in \"lower_snake_case\"."
+Analysis.id(::Check) = "struct-members-are-in-lower-snake-case"
+Analysis.severity(::Check) = 8
+Analysis.synopsis(::Check) = "Struct members should be in \"lower_snake_case\"."
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) === K"struct", node -> begin
         for field in get_struct_members(node)
-            check(this, ctxt, field)
+            _check(this, ctxt, field)
         end
     end)
 end
 
-function check(this::Check, ctxt::AnalysisContext, field::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, field::SyntaxNode)
     @assert kind(field.parent) == K"block" &&
             kind(field.parent.parent) == K"struct"  "Expected a node representing" *
                         " a field (child of a [struct])" field.parent

@@ -7,11 +7,11 @@ using ...SyntaxNodeHelpers: get_all_assignees
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "global-variables-upper-snake-case"
-severity(::Check) = 3
-synopsis(::Check) = "Casing of globals"
+Analysis.id(::Check) = "global-variables-upper-snake-case"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Casing of globals"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> is_assignment(n) && !is_field_assignment(n), n -> begin
         ids = get_all_assignees(n)
         for id in ids

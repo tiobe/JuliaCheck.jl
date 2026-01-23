@@ -5,15 +5,15 @@ using JuliaSyntax: filename
 using ...Properties: is_module
 
 struct Check<:Analysis.Check end
-id(::Check) = "single-module-file"
-severity(::Check) = 5
-synopsis(::Check) = "Single module per file"
+Analysis.id(::Check) = "single-module-file"
+Analysis.severity(::Check) = 5
+Analysis.synopsis(::Check) = "Single module per file"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_module, node -> check(this, ctxt, node))
+function Analysis.init(this::Check, ctxt::AnalysisContext)
+    register_syntaxnode_action(ctxt, is_module, node -> _check(this, ctxt, node))
 end
 
-function check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(node))]."
     father = modjule.parent
     kids = children(father)

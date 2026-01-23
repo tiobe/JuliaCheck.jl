@@ -5,14 +5,14 @@ include("_common.jl")
 using ...Properties: is_upper_camel_case, find_lhs_of_kind
 
 struct Check<:Analysis.Check end
-id(::Check) = "type-names-upper-camel-case"
-severity(::Check) = 3
-synopsis(::Check) = "Type names should be in \"UpperCamelCase\""
+Analysis.id(::Check) = "type-names-upper-camel-case"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Type names should be in \"UpperCamelCase\""
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> kind(n) ∈ KSet"abstract struct", node -> begin
         identifier = find_lhs_of_kind(K"Identifier", node)
-        if identifier !== nothing
+        if ! isnothing(identifier)
             name = string(identifier)
             if ! is_upper_camel_case(name)
                 report_violation(ctxt, this, identifier, "Type names such as '$name' should be written in \"UpperCamelCase\".")

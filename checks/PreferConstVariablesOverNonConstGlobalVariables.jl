@@ -6,11 +6,11 @@ using ...Properties: is_assignment, is_global_decl
 using ...SyntaxNodeHelpers: ancestors, get_all_assignees, is_scope_construct
 
 struct Check<:Analysis.Check end
-id(::Check) = "prefer-const-variables-over-non-const-global-variables"
-severity(::Check) = 3
-synopsis(::Check) = "Prefer const variables over non-const global variables"
+Analysis.id(::Check) = "prefer-const-variables-over-non-const-global-variables"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Prefer const variables over non-const global variables"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)
     register_syntaxnode_action(ctxt, n -> is_global_decl(n) && is_assignment(n), node -> begin
         ancs = ancestors(node)
         head = ancs[1:something(findfirst(is_scope_construct, ancs), length(ancs))]

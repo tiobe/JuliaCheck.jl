@@ -7,11 +7,11 @@ using ...WhitespaceHelpers: get_line_range
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "one-expression-per-line"
-severity(::Check) = 7
-synopsis(::Check) = "The number of expressions per line is limited to one."
+Analysis.id(::Check) = "one-expression-per-line"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "The number of expressions per line is limited to one."
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> n == ctxt.rootNode, n -> _check(this, ctxt, n))
     return nothing
 end

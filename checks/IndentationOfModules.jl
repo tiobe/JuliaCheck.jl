@@ -8,11 +8,11 @@ using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: normalized_green_child_range
 
 struct Check<:Analysis.Check end
-id(::Check) = "indentation-of-modules"
-severity(::Check) = 7
-synopsis(::Check) = "Do not indent top level module body, do indent submodules"
+Analysis.id(::Check) = "indentation-of-modules"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Do not indent top level module body, do indent submodules"
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
     return nothing
 end

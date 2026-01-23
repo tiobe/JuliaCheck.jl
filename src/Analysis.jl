@@ -84,7 +84,7 @@ end
 
 function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)
     cs = children(node)
-    if cs === nothing
+    if isnothing(cs)
         rng = range(pos, prevind(sf.code, pos + node.span))
         push!(list, GreenLeaf(sf, node, rng))
         return
@@ -117,7 +117,7 @@ function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{Synt
     # Iterate through children to find a more specific node.
     for child in something(children(node), [])
         found_child = find_syntaxnode_at_position(child, pos)
-        if found_child !== nothing
+        if ! isnothing(found_child)
             return found_child
         end
     end
@@ -153,7 +153,7 @@ function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode,
     linepos = JuliaSyntax.source_location(node)
     bufferrange = JuliaSyntax.byte_range(node)
 
-    if offsetspan !== nothing
+    if ! isnothing(offsetspan)
         bufferrange = range(bufferrange.start + offsetspan[1], length=offsetspan[2])
     end
 
@@ -211,7 +211,7 @@ function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Fu
 
     # 3. Recursively visit children
     local children = JuliaSyntax.children(node)
-    if children === nothing
+    if isnothing(children)
         return
     end
     for child_node in children

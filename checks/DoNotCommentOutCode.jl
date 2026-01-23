@@ -18,12 +18,12 @@ const KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "ex
         "type", "var", "(", ")"]
 
 struct Check<:Analysis.Check end
-id(::Check) = "do-not-comment-out-code"
-severity(::Check) = 9
-synopsis(::Check) = "Do not comment out code."
+Analysis.id(::Check) = "do-not-comment-out-code"
+Analysis.severity(::Check) = 9
+Analysis.synopsis(::Check) = "Do not comment out code."
 
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, contains_comments, n -> _check(this, ctxt, n))
     return nothing
 end

@@ -24,9 +24,9 @@ Currently, possible literals in JuliaSyntax are:
 "Char"
 "CmdString"
 
-All of these are returned as kinds, and are flagged by the is_literal function. 
-=#      
-TypeSpecifier = Union{String, Nothing}
+All of these are returned as kinds, and are flagged by the is_literal function.
+=#
+const TypeSpecifier = Union{String, Nothing}
 
 function is_different_type(type_1::TypeSpecifier, type_2::TypeSpecifier)::Bool
     if isnothing(type_1) || isnothing(type_2)
@@ -38,7 +38,7 @@ end
 """
 Tries to find the type of the associated variable from a node.
 
-For now, this only covers assignments of the form 
+For now, this only covers assignments of the form
 a = /something/.
 """
 function get_variable_type_from_node(node::SyntaxNode)::TypeSpecifier

@@ -3,7 +3,7 @@ module CommentHelpers
 using JuliaSyntax: @K_str, @KSet_str, SyntaxNode, kind, child_position_span, view, JuliaSyntax as JS
 using ..WhitespaceHelpers: combine_ranges, normalized_green_child_range
 
-export Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
+export Comment, CommentBlock, get_comments, get_comment_blocks, get_range, get_text, contains_comments
 
 struct Comment
     range::UnitRange

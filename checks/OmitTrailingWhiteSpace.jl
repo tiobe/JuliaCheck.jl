@@ -5,15 +5,15 @@ include("_common.jl")
 using ...Properties: is_toplevel
 
 struct Check<:Analysis.Check end
-id(::Check) = "omit-trailing-white-space"
-severity(::Check) = 7
-synopsis(::Check) = "Omit spaces at the end of a line"
+Analysis.id(::Check) = "omit-trailing-white-space"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Omit spaces at the end of a line"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_toplevel, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)
+    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
 end
 
-function check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
     code = node.source.code
     for m in eachmatch(r"( +)\r?\n", code)
         line::Int = count("\n", code[1:m.offset]) + 1

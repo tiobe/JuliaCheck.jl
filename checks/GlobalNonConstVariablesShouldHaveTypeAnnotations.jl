@@ -5,18 +5,18 @@ using ...Properties: first_child, is_constant, is_global_decl, haschildren, is_m
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "global-non-const-variables-should-have-type-annotations"
-severity(::Check) = 6
-synopsis(::Check) = "Global non-const variables should have type annotations"
+Analysis.id(::Check) = "global-non-const-variables-should-have-type-annotations"
+Analysis.severity(::Check) = 6
+Analysis.synopsis(::Check) = "Global non-const variables should have type annotations"
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> is_global_decl(n) && !is_constant(n) && !isnothing(n.parent) && is_mod_toplevel(n.parent), node -> begin
-        check(this, ctxt, node)
+        _check(this, ctxt, node)
     end)
     return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, glob_var::SyntaxNode)::Nothing
+function _check(this::Check, ctxt::AnalysisContext, glob_var::SyntaxNode)::Nothing
     # This must not be a [const], so it must be [global].
     @assert is_global_decl(glob_var) "Expected a global declaration, got [$(kind(glob_var))]."
     @assert !is_constant(glob_var) "Run this check on non-const global declarations only!"
