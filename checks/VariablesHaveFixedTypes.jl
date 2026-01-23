@@ -39,7 +39,8 @@ function _check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)
         initial_type = get_initial_type_of_node(ctxt.symboltable, assignment_node)
         current_type = get_variable_type_from_node(assignment_node)
         report_violation(ctxt, this, assignment_node,
-          "Variable '$assigned_variable' has changed type (from $initial_type to $current_type).")
+            "Variable '$assigned_variable' has changed type (from $initial_type to $current_type)."
+            )
     end
     return nothing
 end

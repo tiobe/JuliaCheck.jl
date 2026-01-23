@@ -1,7 +1,7 @@
 module DoNotChangeGeneratedIndices
 
 using ...Properties: first_child, get_assignee, get_iteration_parts,
-                     is_assignment, is_flow_cntrl, is_range
+                    is_assignment, is_flow_cntrl, is_range
 
 include("_common.jl")
 
@@ -25,7 +25,7 @@ function _check_for_loop(this::Check, ctxt::AnalysisContext, for_loop::SyntaxNod
         kind(iter_expr) == K"call" &&
         kind(first_child(iter_expr)) == K"Identifier" &&
         string(first_child(iter_expr)) ∈ ["eachindex", "enumerate", "axes"]
-       )
+        )
         # Look into the loop's body to see if `loop_var` is modified.
         @assert numchildren(for_loop) == 2 &&
                 kind(children(for_loop)[2]) == K"block" "An empty loop or what? $for_loop"

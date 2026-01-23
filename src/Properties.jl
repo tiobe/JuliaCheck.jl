@@ -108,7 +108,7 @@ function is_global_decl(node::AnyTree)::Bool
 end
 function is_constant(node::AnyTree)::Bool
     return kind(node) == K"const" ||
-           (kind(node) == K"global" && haschildren(node) &&
+            (kind(node) == K"global" && haschildren(node) &&
             kind(children(node)[1]) == K"const")
 end
 
@@ -146,7 +146,7 @@ function is_range(node::SyntaxNode)::Bool
             (kind(kids[1]) == K"Identifier" && string(kids[1]) == "range")
             ||
             (kind(kids[2]) == K"Identifier" && string(kids[2]) == ":")
-           )
+            )
     end
     return false
 end
@@ -171,7 +171,7 @@ end
 
 function opens_scope(node::SyntaxNode)
     return is_function(node) ||
-           kind(node) ∈ [KSet"for while try do let macro generator"]
+            kind(node) ∈ [KSet"for while try do let macro generator"]
                                 # comprehensions contain a generator
 end
 function closes_scope(node::SyntaxNode)
@@ -315,7 +315,7 @@ function get_imported_pkg(node::SyntaxNode)::String
     else
         pkg = children(node)[1]
         if kind(pkg) == K":" || # importing/using items from a package
-           kind(pkg) == K"as"   # import with an alias
+            kind(pkg) == K"as" # import with an alias
             pkg = children(pkg)[1]
         end
         @assert kind(pkg) == K"importpath"
@@ -500,8 +500,8 @@ returned parts are `nothing` (but it is still a pair).
 function get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
     if kind(for_loop) == K"for"
         if !(haschildren(for_loop) &&
-              kind(first_child(for_loop)) == K"iteration"
-           )
+                kind(first_child(for_loop)) == K"iteration"
+            )
             @debug "for loop does not have an [iteration]" for_loop
             return nothing, nothing
         end

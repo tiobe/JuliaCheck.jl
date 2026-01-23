@@ -33,8 +33,8 @@ top to bottom. Symbols from other modules have to be qualified, or entered into
 the current module's global scope with a `using` declaration.
 =#
 
-Scope = Dict{String, SymbolTableItem}
-NestedScopes = Stack{Scope}
+const Scope = Dict{String, SymbolTableItem}
+const NestedScopes = Stack{Scope}
 """
 A module containing an identifier and a stack of scopes.
 
