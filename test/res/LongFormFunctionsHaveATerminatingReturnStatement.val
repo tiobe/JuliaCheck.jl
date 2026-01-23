@@ -29,3 +29,21 @@ end                # It gets the correct end too, even if there's trailing white
 └─┘ ── Long form functions should end with an explicit return statement.
 Long form functions should end with an explicit return statement.
 Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
+
+LongFormFunctionsHaveATerminatingReturnStatement.jl(45, 1):
+end  # Bad: missing return for `if x == 1`
+└─┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
+
+LongFormFunctionsHaveATerminatingReturnStatement.jl(56, 1):
+end # Bad: missing return for `elseif x == 2`
+└─┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
+
+LongFormFunctionsHaveATerminatingReturnStatement.jl(67, 1):
+end # Bad: missing return for `else`
+└─┘ ── Long form functions should end with an explicit return statement.
+Long form functions should end with an explicit return statement.
+Rule: long-form-functions-have-a-terminating-return-statement. Severity: 3
