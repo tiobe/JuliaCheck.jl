@@ -20,9 +20,12 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, func::SyntaxNode, body::SyntaxNode)::Nothing
-    report() = report_violation(ctxt, this, body,
-        "Function '$(get_func_name(func))' is too complex for the shorthand notation; use keyword 'function'."
-    )
+    function report()::Nothing
+        report_violation(ctxt, this, body,
+            "Function '$(get_func_name(func))' is too complex for the shorthand notation; use keyword 'function'."
+        )
+        return nothing
+    end
 
     line_len = length(sourcetext(func))
     if line_len > MAX_LINE_LENGTH

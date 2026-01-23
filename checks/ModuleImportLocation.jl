@@ -9,8 +9,6 @@ Analysis.id(::Check) = "module-import-location"
 Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "Packages should be imported after the module keyword."
 
-const USER_MSG = "Move imports to the top of the module, before any actual code"
-
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
     return nothing
@@ -28,7 +26,9 @@ function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothin
             if is_import(node) && !is_include(node)
                 # We can skip include's because they are followed by an import
                 # or a using (we made sure in 'is_import').
-                report_violation(ctxt, this, node, USER_MSG)
+                report_violation(ctxt, this, node,
+                    "Move imports to the top of the module, before any actual code"
+                    )
             end
         end
     end

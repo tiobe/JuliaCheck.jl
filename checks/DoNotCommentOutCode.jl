@@ -44,7 +44,10 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-_report(ctxt::AnalysisContext, this::Check, range::UnitRange) = report_violation(ctxt, this, range, "Comment contains code")
+function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)::Nothing
+    report_violation(ctxt, this, range, "Comment contains code")
+    return nothing
+end
 
 # If JS can parse the comment contents, it must be code
 function _contains_code(text::AbstractString)::Bool

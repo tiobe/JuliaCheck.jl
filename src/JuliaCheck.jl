@@ -116,7 +116,9 @@ function main(args::Vector{String})::Nothing
     return nothing
 end
 
-_has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
+function _has_julia_ext(file_arg::String)::Bool
+    return lowercase(splitext(file_arg)[end]) == ".jl"
+end
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
     file_set = []

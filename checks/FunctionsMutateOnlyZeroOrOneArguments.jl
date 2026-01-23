@@ -5,8 +5,7 @@ using ...MutatingFunctionsHelpers: get_mutated_variables_in_scope
 using ...Properties: get_flattened_fn_arg_nodes, get_func_body, get_string_arg, is_function
 
 include("_common.jl")
-struct Check <: Analysis.Check end
-
+struct Check<:Analysis.Check end
 Analysis.id(::Check) = "functions-mutate-only-zero-or-one-arguments"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Functions should change only one or zero argument(s)."

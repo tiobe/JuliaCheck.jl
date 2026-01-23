@@ -9,7 +9,9 @@ using ...SyntaxNodeHelpers: find_descendants
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "use-eachindex-to-iterate-indices"
 Analysis.severity(::Check) = 5
-Analysis.synopsis(::Check) = "Use eachindex() instead of a constructed range for iteration over a collection."
+function Analysis.synopsis(::Check)::String
+    return "Use eachindex() instead of a constructed range for iteration over a collection."
+end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"for", node -> _check(this, ctxt, node))

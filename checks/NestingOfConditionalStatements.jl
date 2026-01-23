@@ -9,8 +9,8 @@ Analysis.id(::Check) = "nesting-of-conditional-statements"
 Analysis.severity(::Check) = 4
 Analysis.synopsis(::Check) = "Avoid deep nesting of conditional statements"
 
+""" Violation is produced when nesting exceeds this threshold """
 const MAX_ALLOWED_NESTING_LEVELS = 3
-const USER_MSG = "This conditional expression is too deeply nested (deeper than $MAX_ALLOWED_NESTING_LEVELS levels)."
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_flow_cntrl, n -> _check(this, ctxt, n))
@@ -23,7 +23,10 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     # Count the nesting level of conditional statements
     if _conditional_nesting_level(node) > MAX_ALLOWED_NESTING_LEVELS
         length_of_keyword = length(string(kind(node)))
-        report_violation(ctxt, this, node, USER_MSG; offsetspan=(0, length_of_keyword))
+        report_violation(ctxt, this, node,
+            "This conditional expression is too deeply nested (deeper than $MAX_ALLOWED_NESTING_LEVELS levels)."
+            ; offsetspan=(0, length_of_keyword)
+            )
     end
     return nothing
 end

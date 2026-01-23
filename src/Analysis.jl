@@ -42,6 +42,9 @@ sourcetext(gl::GreenLeaf)::String = gl.sourcefile.code[gl.range]
 kind(gl::GreenLeaf) = kind(gl.node)
 source_location(gl::GreenLeaf) = source_location(gl.sourcefile, gl.range.start)
 
+const NullableGreenLeaf = Union{GreenLeaf, Nothing}
+const NullableSyntaxNode = Union{SyntaxNode, Nothing}
+
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
     action::Function # The action to be performed on SyntaxNode when the predicate applies
@@ -54,16 +57,18 @@ struct AnalysisContext
     violations::Vector{Violation}
     symboltable::SymbolTableStruct
 
-    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
+    function AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf})
+        return new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
+    end
 end
 
 "Finds GreenLeaf containing given position."
-function find_greenleaf(ctxt::AnalysisContext, pos::Int)::Union{GreenLeaf, Nothing}
+function find_greenleaf(ctxt::AnalysisContext, pos::Int)::NullableGreenLeaf
     return _find_greenleaf(ctxt.greenleaves, pos)
 end
 
 "Performs a binary search to find the GreenLeaf containing given position."
-function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, Nothing}
+function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::NullableGreenLeaf
     low = 1
     high = length(leaves)
     while low <= high
@@ -105,11 +110,11 @@ function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
 end
 
 """
-    find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode, Nothing}
+    find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::NullableSyntaxNode
 
 Finds the most specific SyntaxNode that spans the given character position `pos`.
 """
-function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode, Nothing}
+function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::NullableSyntaxNode
     # Check if the current node's range contains the position.
     if ! (pos in JuliaSyntax.byte_range(node))
         return nothing
@@ -128,11 +133,11 @@ function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{Synt
 end
 
 """
-    find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::Union{SyntaxNode, Nothing}
+    find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::NullableSyntaxNode
 
 Finds the most specific SyntaxNode that spans the given character position `pos`.
 """
-function find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::Union{SyntaxNode, Nothing}
+function find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::NullableSyntaxNode
     return find_syntaxnode_at_position(ctxt.rootNode, pos)
 end
 

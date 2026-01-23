@@ -9,14 +9,18 @@ struct Check<:Analysis.Check end
 
 Analysis.id(::Check) = "exclamation-mark-in-function-identifier-if-mutating"
 Analysis.severity(::Check) = 4
-Analysis.synopsis(::Check) = "Only functions postfixed with an exclamation mark can mutate an argument."
+function Analysis.synopsis(::Check)::String
+    return "Only functions postfixed with an exclamation mark can mutate an argument."
+end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, _is_nonmutating_fn, n -> _check_function(this, ctxt, n))
     return nothing
 end
 
-_is_nonmutating_fn(n::SyntaxNode)::Bool = is_function(n) && !endswith(string(get_func_name(n)), "!")
+function _is_nonmutating_fn(n::SyntaxNode)::Bool
+    return is_function(n) && !endswith(string(get_func_name(n)), "!")
+end
 
 function _check_function(this::Check, ctxt::AnalysisContext, function_node::SyntaxNode)::Nothing
     func_arg_strings = get_string_fn_args(function_node)
