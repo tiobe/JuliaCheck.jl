@@ -30,14 +30,20 @@ a, b, c = bar()
 Prefer const variables over non-const global variables.
 Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
 
-PreferConstVariablesOverNonConstGlobalVariables.jl(30, 1):
+PreferConstVariablesOverNonConstGlobalVariables.jl(33, 1):
 p::Float16, q::Int64 = foo()
 ╙ ── Consider making global variable 'p' a const.
 Prefer const variables over non-const global variables.
 Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
 
-PreferConstVariablesOverNonConstGlobalVariables.jl(30, 13):
+PreferConstVariablesOverNonConstGlobalVariables.jl(33, 13):
 p::Float16, q::Int64 = foo()
 #           ╙ ── Consider making global variable 'q' a const.
+Prefer const variables over non-const global variables.
+Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3
+
+PreferConstVariablesOverNonConstGlobalVariables.jl(50, 1):
+dict_data = Dict() # Should report here
+└───────┘ ── Consider making global variable 'dict_data' a const.
 Prefer const variables over non-const global variables.
 Rule: prefer-const-variables-over-non-const-global-variables. Severity: 3

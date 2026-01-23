@@ -27,6 +27,9 @@ const CASES = (
 
 # RM-37722: Multi-var assignments should report on each variable
 a, b, c = bar()
+
+const g, h = 1, 2 # OK: const applies to all here: https://docs.julialang.org/en/v1/base/base/#const
+
 p::Float16, q::Int64 = foo()
 
 # RM-37723: Enum values are OK
@@ -41,3 +44,9 @@ map(1:10) do x
     mult = 2
     y = mult * x
 end
+
+GLOBAL.field = "val" # Mutation, not declaration -> OK here
+
+dict_data = Dict() # Should report here
+dict_data["string1"] = "string test" # Mutation of a dict should not trigger rule
+dict_data["int1"] = 31 # Mutation of a dict should not trigger rule
