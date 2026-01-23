@@ -9,8 +9,9 @@ Analysis.id(::Check) = "module-include-location"
 Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "The list of included files should be after the list of imported packages"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing

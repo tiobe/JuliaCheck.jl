@@ -12,7 +12,7 @@ Analysis.synopsis(::Check) = "Don't nest multiline comments"
 
 const ML_COMMENT = "#="
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, node -> begin
         code = node.source.code
         comments = filter(gl -> kind(gl) == K"Comment", ctxt.greenleaves)
@@ -33,6 +33,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
         end
         return nothing
     end)
+    return nothing
 end
 
 end # module DoNotNestMultilineComments

@@ -82,12 +82,12 @@ function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, 
     return nothing
 end
 
-function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)
+function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)::Nothing
     cs = children(node)
     if isnothing(cs)
         rng = range(pos, prevind(sf.code, pos + node.span))
         push!(list, GreenLeaf(sf, node, rng))
-        return
+        return nothing
     end
 
     p = pos
@@ -95,6 +95,7 @@ function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::Green
         _get_green_leaves!(list, sf, child, p)
         p += child.span
     end
+    return nothing
 end
 
 function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
@@ -240,7 +241,7 @@ function discover_checks()::Nothing
 end
 
 function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    visitor = function(n::SyntaxNode)
+    visitor(n::SyntaxNode)::Nothing = begin
         for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
@@ -249,6 +250,7 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
                 #println("Not a match: $(reg.nodeType) vs $(kind(n))")
             end
         end
+        return nothing
     end
 
     # TODO: Is the enter and exit on the main level really necessary?

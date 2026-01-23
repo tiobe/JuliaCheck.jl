@@ -15,12 +15,13 @@ Analysis.id(::Check) = "avoid-hard-coded-numbers"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Avoid hard-coded numbers"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_literal_number, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 # Also FIXME: should I use all the 64 bits versions of the types?
-function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     @assert is_literal_number(node) "Expected a node with a literal number, got $(kind(node))"
     if !_is_const_declaration(node) && !_in_array_assignment(node) && _is_magic_number(node)
         n = get_number(node)
@@ -30,6 +31,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
             push!(this.seen_before, n)
         end
     end
+    return nothing
 end
 
 """

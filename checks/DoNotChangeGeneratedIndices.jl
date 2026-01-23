@@ -10,11 +10,12 @@ Analysis.id(::Check) = "do-not-change-generated-indices"
 Analysis.severity(::Check) = 5
 Analysis.synopsis(::Check) = "Do not change generated indices"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"for", n -> _check_for_loop(this, ctxt, n))
+    return nothing
 end
 
-function _check_for_loop(this::Check, ctxt::AnalysisContext, for_loop::SyntaxNode)
+function _check_for_loop(this::Check, ctxt::AnalysisContext, for_loop::SyntaxNode)::Nothing
     loop_var, iter_expr = get_iteration_parts(for_loop)
     if isnothing(loop_var) || isnothing(iter_expr)
         return nothing
@@ -31,9 +32,10 @@ function _check_for_loop(this::Check, ctxt::AnalysisContext, for_loop::SyntaxNod
         body = children(for_loop)[2]
         _frisk_for_modification(this, ctxt, body, var_name)
     end
+    return nothing
 end
 
-function _loop_var_to_string(var::SyntaxNode)
+function _loop_var_to_string(var::SyntaxNode)::String
     x = var
     if kind(x) == K"tuple" x = first_child(x) end
     if kind(x) == K"Identifier" return string(x) end

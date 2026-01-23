@@ -88,8 +88,9 @@ Module 'Main' is always there, at the bottom of the stack of modules.
 
 This function makes sure to reflect that situation.
 """
-function enter_main_module!(table::SymbolTableStruct)
+function enter_main_module!(table::SymbolTableStruct)::Nothing
     _enter_module!(table, "Main")
+    return nothing
 end
 
 """
@@ -142,12 +143,14 @@ the file under analysis, and we will surely get confused about its
 scope.
 =#
 
-function _enter_scope!(table::SymbolTableStruct)
+function _enter_scope!(table::SymbolTableStruct)::Nothing
     push!(scopes_within_module(table), Scope())
+    return nothing
 end
 
-function _exit_scope!(table::SymbolTableStruct)
+function _exit_scope!(table::SymbolTableStruct)::Nothing
     pop!(scopes_within_module(table))
+    return nothing
 end
 
 _global_scope(table::SymbolTableStruct)::Scope = last(scopes_within_module(table))
@@ -191,13 +194,14 @@ Register an identifier.
 """
 _declare!(table::SymbolTableStruct, symbol::SyntaxNode) = _declare_on_scope!(_current_scope(table), symbol, nothing)
 
-function _declare_on_scope!(scp::Scope, node::SyntaxNode, type_spec::TypeSpecifier)
+function _declare_on_scope!(scp::Scope, node::SyntaxNode, type_spec::TypeSpecifier)::Nothing
     symbol_id = _get_symbol_id(node)
     if haskey(scp, symbol_id)
         push!(scp[symbol_id].all_nodes, node)
     else
         scp[symbol_id] = SymbolTableItem(node, type_spec)
     end
+    return nothing
 end
 
 
@@ -226,7 +230,7 @@ while preserving the state in between.
 
 Currently logs new modules, functions, and (global) variables.
 """
-function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::SyntaxNode)
+function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     if is_module(node)
         _enter_module!(table, node)
     elseif is_function(node)
@@ -239,9 +243,10 @@ function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::Synt
         scope = is_assignment_to_global ? _global_scope(table) : _current_scope(table)
         _process_assignment!(scope, node)
     end
+    return nothing
 end
 
-function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
+function _process_function!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     fname = get_func_name(node)
     if !isnothing(fname)
         if kind(fname) == K"Identifier"
@@ -262,9 +267,10 @@ function _process_function!(table::SymbolTableStruct, node::SyntaxNode)
             _process_argument!(table, arg)
         end
     end
+    return nothing
 end
 
-function _process_global!(table::SymbolTableStruct, node::SyntaxNode)
+function _process_global!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     # Handle statements like `global x, y = 1, 2`
     # We need to handle assignment here and cannot wait until the descendant 'assignment' expression
     # is encountered in `update_symbol_table_on_node_enter!`, because the check might listen to `is_global_decl` event.
@@ -279,17 +285,18 @@ function _process_global!(table::SymbolTableStruct, node::SyntaxNode)
             _declare_global!(table, c)
         end
     end
+    return nothing
 end
 
-function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)
+function _process_argument!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     arg = find_lhs_of_kind(K"Identifier", node)
-    if isnothing(arg)
-        return nothing
+    if ! isnothing(arg)
+        _declare!(table, arg)
     end
-    _declare!(table, arg)
+    return nothing
 end
 
-function _process_assignment!(scope::Scope, node::SyntaxNode)
+function _process_assignment!(scope::Scope, node::SyntaxNode)::Nothing
     @assert kind(node) == K"=" "Expected a [=] node, got [$(kind(node))]."
     assignees = get_all_assignees(node)
     if length(assignees) == 1
@@ -303,10 +310,12 @@ function _process_assignment!(scope::Scope, node::SyntaxNode)
             _declare_on_scope!(scope, var_node, nothing)
         end
     end
+    return nothing
 end
 
-function _process_struct!(table::SymbolTableStruct, node::SyntaxNode)
+function _process_struct!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     _declare!(table, find_lhs_of_kind(K"Identifier", node))
+    return nothing
 end
 
 """
@@ -316,12 +325,13 @@ When a module or a scope-opening function is left, this is then
 used to exit scopes and move back to the table below it (so scoped
 variables within the current scope are no longer present then).
 """
-function update_symbol_table_on_node_leave!(table::SymbolTableStruct, node::SyntaxNode)
+function update_symbol_table_on_node_leave!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     if is_module(node)
         exit_module!(table)
     elseif opens_scope(node)
         _exit_scope!(table)
     end
+    return nothing
 end
 
 function get_initial_type_of_node(table::SymbolTableStruct, assignment_node::SyntaxNode)::TypeSpecifier

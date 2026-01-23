@@ -9,11 +9,12 @@ Analysis.id(::Check) = "single-module-file"
 Analysis.severity(::Check) = 5
 Analysis.synopsis(::Check) = "Single module per file"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, node -> _check(this, ctxt, node))
+    return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(node))]."
     father = modjule.parent
     kids = children(father)
@@ -48,6 +49,7 @@ function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)
             end
         end
     end
+    return nothing
 end
 
 end # module SingleModuleFile

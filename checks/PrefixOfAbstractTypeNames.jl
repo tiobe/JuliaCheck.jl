@@ -8,11 +8,12 @@ Analysis.id(::Check) = "prefix-of-abstract-type-names"
 Analysis.severity(::Check) = 4
 Analysis.synopsis(::Check) = "Abstract type names should be prefixed by \"Abstract\"."
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"abstract", node -> _check(this, ctxt, node))
+    return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     @assert kind(node) == K"abstract"  "Expected an [abstract] node, got $(kind(node))"
     type_id = find_lhs_of_kind(K"Identifier", node)
     @assert ! isnothing(type_id) "Got a type declaration without name (identifier)."
@@ -22,6 +23,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
             "Abstract type names like $type_name should have prefix \"Abstract\"."
             )
     end
+    return nothing
 end
 
 end # module PrefixOfAbstractTypeNames

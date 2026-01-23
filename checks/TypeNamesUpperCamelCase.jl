@@ -9,7 +9,7 @@ Analysis.id(::Check) = "type-names-upper-camel-case"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Type names should be in \"UpperCamelCase\""
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) ∈ KSet"abstract struct", node -> begin
         identifier = find_lhs_of_kind(K"Identifier", node)
         if ! isnothing(identifier)
@@ -19,6 +19,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             end
         end
     end)
+    return nothing
 end
 
 end # module TypeNamesUpperCamelCase

@@ -225,11 +225,13 @@ function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
         # Probably a function "stub", which declares a function name but no methods.
         return []
     end
-    # This returns all the arguments without any further processing.
-    # As such, this may contain:
-    # - only positional arguments (direct children)
-    # - only keyword arguments    (grandchildren, children of a parameters node)
-    # - both                      (combination of children and parameters->grandchildren)
+    #=
+    This returns all the arguments without any further processing.
+    As such, this may contain:
+    - only positional arguments (direct children)
+    - only keyword arguments    (grandchildren, children of a parameters node)
+    - both                      (combination of children and parameters->grandchildren)
+    =#
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 

@@ -10,13 +10,14 @@ Analysis.id(::Check) = "long-form-functions-have-a-terminating-return-statement"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Long form functions should end with an explicit return statement"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin
         body = get_func_body(node)
-        if body !== nothing
+        if ! isnothing(body)
             _check(this, ctxt, body)
         end
     end)
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, func_body::SyntaxNode)::Nothing

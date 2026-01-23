@@ -10,7 +10,7 @@ Analysis.synopsis(::Check) = "Too many types in Unions"
 
 const MAX_UNION_TYPES = 4
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_union_decl, node -> begin
         local union_types = children(node)[2:end] # discard the 1st, which is "Union"
         local count = length(union_types)
@@ -18,6 +18,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             report_violation(ctxt, this, node, "Union has too many types ($count > $MAX_UNION_TYPES).")
         end
     end)
+    return nothing
 end
 
 end # module TooManyTypesInUnions

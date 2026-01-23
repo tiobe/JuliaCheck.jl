@@ -9,8 +9,9 @@ Analysis.id(::Check) = "module-export-location"
 Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "Exports should be implemented after the include instructions"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 _no_ex_imports(node::SyntaxNode) = ! (is_import(node) || is_export(node))

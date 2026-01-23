@@ -9,11 +9,12 @@ Analysis.id(::Check) = "document-constants"
 Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Constants must have a docstring"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_constant, n -> _check(this, ctxt, n))
+    return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)::Nothing
     if kind(const_node) == K"global"
         if haschildren(const_node)
             const_node = children(const_node)[1]
@@ -37,6 +38,7 @@ function _check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
             @debug "An assignment without children:" assignment
         end
     end
+    return nothing
 end
 
 end # module DocumentConstants

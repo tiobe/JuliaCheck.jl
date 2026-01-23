@@ -11,8 +11,9 @@ Analysis.synopsis(::Check) = "Packages should be imported after the module keywo
 
 const USER_MSG = "Move imports to the top of the module, before any actual code"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing

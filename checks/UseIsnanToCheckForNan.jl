@@ -10,7 +10,7 @@ Analysis.id(::Check) = "use-isnan-to-check-for-nan"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Use isnan to check for not-a-number values"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_eq_neq_comparison, node -> begin
         apply_to_operands(node, node -> begin
             if extract_special_value(node) ∈ SyntaxNodeHelpers.NAN_VALUES
@@ -18,6 +18,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             end
         end)
     end)
+    return nothing
 end
 
 end # module UseIsnanToCheckForNan

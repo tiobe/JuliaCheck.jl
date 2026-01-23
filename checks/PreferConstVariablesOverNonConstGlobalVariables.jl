@@ -10,7 +10,7 @@ Analysis.id(::Check) = "prefer-const-variables-over-non-const-global-variables"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Prefer const variables over non-const global variables"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> is_global_decl(n) && is_assignment(n), node -> begin
         ancs = ancestors(node)
         head = ancs[1:something(findfirst(is_scope_construct, ancs), length(ancs))]
@@ -26,6 +26,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             end
         end
     end)
+    return nothing
 end
 
 end # module PreferConstVariablesOverNonConstGlobalVariables

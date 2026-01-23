@@ -9,15 +9,16 @@ Analysis.id(::Check) = "no-whitespace-around-type-operators"
 Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Do not add whitespace around type operators"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, _is_type_assertion_or_constraint, n -> _check(this, ctxt, n))
+    return nothing
 end
 
-function _is_type_assertion_or_constraint(node)
+function _is_type_assertion_or_constraint(node)::Bool
     return kind(node) in KSet":: <: >:"
 end
 
-function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     code = node.source.code
     if is_prefix_op_call(node)
         start = node.position
@@ -39,6 +40,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
             "Omit whitespace around this operator"
             )
     end
+    return nothing
 end
 
 end # module NoWhitespaceAroundTypeOperators

@@ -9,7 +9,7 @@ Analysis.synopsis(::Check) = "Use spaces instead of tabs for indentation"
 
 const REGEX = r"(\s*)\t+.*"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"toplevel", node -> begin
         code = node.source.code
         starts = node.source.line_starts
@@ -27,6 +27,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             linenr += 1
         end
     end)
+    return nothing
 end
 
 end # module UseSpacesInsteadOfTabs

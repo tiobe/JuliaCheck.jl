@@ -10,8 +10,9 @@ Analysis.id(::Check) = "module-end-comment"
 Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "The end statement of a module should have a comment with the module name"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, mod::SyntaxNode)::Nothing
@@ -34,7 +35,7 @@ function _check(this::Check, ctxt::AnalysisContext, mod::SyntaxNode)::Nothing
     return nothing
 end
 
-function _matches_module_name(mod_name::AbstractString, comment::AbstractString)
+function _matches_module_name(mod_name::AbstractString, comment::AbstractString)::Bool
     return occursin(Regex("(module[ ]+)?" * mod_name), comment)
 end
 

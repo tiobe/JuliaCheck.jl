@@ -9,15 +9,16 @@ Analysis.id(::Check) = "struct-members-are-in-lower-snake-case"
 Analysis.severity(::Check) = 8
 Analysis.synopsis(::Check) = "Struct members should be in \"lower_snake_case\"."
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) === K"struct", node -> begin
         for field in get_struct_members(node)
             _check(this, ctxt, field)
         end
     end)
+    return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, field::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, field::SyntaxNode)::Nothing
     @assert kind(field.parent) == K"block" &&
             kind(field.parent.parent) == K"struct"  "Expected a node representing" *
                         " a field (child of a [struct])" field.parent
@@ -31,6 +32,7 @@ function _check(this::Check, ctxt::AnalysisContext, field::SyntaxNode)
     if !is_lower_snake(string(field_name))
         report_violation(ctxt, this, field_name, "Field '$field_name' not in \"lower_snake_case\"")
     end
+    return nothing
 end
 
 end # module StructMembersAreInLowerSnakeCase

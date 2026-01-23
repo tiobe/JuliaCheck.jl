@@ -8,8 +8,9 @@ Analysis.id(::Check) = "module-single-import-line"
 Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "The list of packages should be in alphabetical order"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing

@@ -11,7 +11,7 @@ Analysis.id(::Check) = "newline-at-file-end"
 Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Single newline at the end of file"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
     return nothing
 end

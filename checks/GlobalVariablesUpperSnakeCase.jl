@@ -11,7 +11,7 @@ Analysis.id(::Check) = "global-variables-upper-snake-case"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Casing of globals"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> is_assignment(n) && !is_field_assignment(n), n -> begin
         ids = get_all_assignees(n)
         for id in ids
@@ -28,6 +28,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             end
         end
     end)
+    return nothing
 end
 
 end # module GlobalVariablesUpperSnakeCase

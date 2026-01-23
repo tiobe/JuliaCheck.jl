@@ -64,7 +64,7 @@ function _parse_commandline(args::Vector{String})
     return parse_args(args, s)
 end
 
-function main(args::Vector{String})
+function main(args::Vector{String})::Nothing
     if isempty(args)
         _parse_commandline(["-h"])
         return nothing
@@ -113,6 +113,7 @@ function main(args::Vector{String})
     end
     print_violations(violation_printer, output_file_arg, violations)
     println()
+    return nothing
 end
 
 _has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"

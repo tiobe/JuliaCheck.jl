@@ -9,10 +9,11 @@ Analysis.id(::Check) = "implement-unions-as-consts"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Implement Unions as const"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_union_decl, node -> begin
         _check_union(this, ctxt, node)
     end)
+    return nothing
 end
 
 function _check_union(this::Check, ctxt::AnalysisContext, union::SyntaxNode)::Nothing

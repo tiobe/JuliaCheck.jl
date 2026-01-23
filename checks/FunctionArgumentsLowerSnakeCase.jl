@@ -9,7 +9,7 @@ Analysis.id(::Check) = "function-arguments-lower-snake-case"
 Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Function arguments must be written in \"lower_snake_case\""
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin
         fname = get_func_name(node)
         fname_str = string(fname)
@@ -28,9 +28,10 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             end
         end
     end)
+    return nothing
 end
 
-function _check_argument(this::Check, ctxt::AnalysisContext, f_name::AbstractString, f_arg::SyntaxNode)
+function _check_argument(this::Check, ctxt::AnalysisContext, f_name::AbstractString, f_arg::SyntaxNode)::Nothing
     if kind(f_arg) == K"::"
         f_arg = numchildren(f_arg) == 1 ? nothing : children(f_arg)[1]
     end
@@ -48,6 +49,7 @@ function _check_argument(this::Check, ctxt::AnalysisContext, f_name::AbstractStr
             "Argument '$arg_name' of function '$f_name' must be written in \"lower_snake_case\"."
             )
     end
+    return nothing
 end
 
 end # module FunctionArgumentsLowerSnakeCase

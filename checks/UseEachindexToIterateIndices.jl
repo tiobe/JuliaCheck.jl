@@ -11,8 +11,9 @@ Analysis.id(::Check) = "use-eachindex-to-iterate-indices"
 Analysis.severity(::Check) = 5
 Analysis.synopsis(::Check) = "Use eachindex() instead of a constructed range for iteration over a collection."
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"for", node -> _check(this, ctxt, node))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, for_node::SyntaxNode)::Nothing

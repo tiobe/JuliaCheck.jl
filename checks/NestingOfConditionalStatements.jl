@@ -12,11 +12,12 @@ Analysis.synopsis(::Check) = "Avoid deep nesting of conditional statements"
 const MAX_ALLOWED_NESTING_LEVELS = 3
 const USER_MSG = "This conditional expression is too deeply nested (deeper than $MAX_ALLOWED_NESTING_LEVELS levels)."
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_flow_cntrl, n -> _check(this, ctxt, n))
+    return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     @assert is_flow_cntrl(node) "Expected a flow control node, got [$(kind(node))]."
 
     # Count the nesting level of conditional statements
@@ -24,6 +25,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)
         length_of_keyword = length(string(kind(node)))
         report_violation(ctxt, this, node, USER_MSG; offsetspan=(0, length_of_keyword))
     end
+    return nothing
 end
 
 function _conditional_nesting_level(node::SyntaxNode)::Int

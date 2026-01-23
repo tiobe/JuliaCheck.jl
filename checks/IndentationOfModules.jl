@@ -41,6 +41,7 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
             end
         end
     end
+    return nothing
 end
 
 end # module IndentationOfModules

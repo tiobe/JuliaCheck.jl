@@ -7,8 +7,9 @@ Analysis.id(::Check) = "infinite-while-loop"
 Analysis.severity(::Check) = 5
 Analysis.synopsis(::Check) = "Do not use while true"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"while", n -> _check_while_node(this, ctxt, n))
+    return nothing
 end
 
 function _check_while_node(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing

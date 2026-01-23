@@ -9,16 +9,17 @@ Analysis.id(::Check) = "short-hand-function-too-complicated"
 Analysis.severity(::Check) = 3
 Analysis.synopsis(::Check) = "Short-hand notation with concise functions"
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", func -> begin
         body = get_func_body(func)
         if !isnothing(body) && kind(body) != K"block"
             _check(this, ctxt, func, body)
         end
     end)
+    return nothing
 end
 
-function _check(this::Check, ctxt::AnalysisContext, func::SyntaxNode, body::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, func::SyntaxNode, body::SyntaxNode)::Nothing
     report() = report_violation(ctxt, this, body,
         "Function '$(get_func_name(func))' is too complex for the shorthand notation; use keyword 'function'."
     )

@@ -10,10 +10,10 @@ Analysis.id(::Check) = "single-space-after-commas-and-semicolons"
 Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Commas and semicolons are followed, but not preceded, by a space."
 
-function Analysis.init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, node -> begin
         code = node.source.code
-        report_if_space(pos::Integer, func::Function, shouldhave::Integer, msg::String) = begin
+        report_if_space(pos::Integer, func::Function, shouldhave::Integer, msg::String)::Nothing = begin
             range = func(code, pos)
             if length(range) != shouldhave && !contains(code[range], '\n') # skip check if range contains a newline
                 report_violation(ctxt, this,
@@ -22,6 +22,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
                     msg
                     )
             end
+            return nothing
         end
         for m in eachmatch(r"[;,]", code) # Find each occurrence in code
             pos = m.offset
@@ -32,6 +33,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)
             end
         end
     end)
+    return nothing
 end
 
 function _find_whitespace_func(forward::Bool)::Function
