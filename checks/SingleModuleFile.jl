@@ -43,12 +43,6 @@ function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)
                         "Module '$mod_name' should be inside '$name_1st_mod' or in its own file."
                         )
             end
-            # Code outside a module is only a problem if there are multiple modules inside a file.
-            if length(modules) > 1
-                for node in kids[kids .∉ Ref(modules)]
-                    report_violation(ctxt, this, node, "Move this code into module '$name_1st_mod'.")
-                end
-            end
         end
     end
 end

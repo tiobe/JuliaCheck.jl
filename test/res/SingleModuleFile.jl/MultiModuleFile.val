@@ -12,15 +12,6 @@ module ThirdInFile
 Single module per file.
 Rule: single-module-file. Severity: 5
 
-SingleModuleFile.jl/MultiModuleFile.jl(11, 1):
-┌────────────────────────────────
-function out_of_module_is_wrong()
-    return nothing
-end
-#─┘ ── Move this code into module 'MultiModuleFile'.
-Single module per file.
-Rule: single-module-file. Severity: 5
-
 SingleModuleFile.jl/MultiModuleFile.jl(8, 8):
 module SecondModuleNotOK
 #      └───────────────┘ ── Module name SecondModuleNotOK should match its file name: MultiModuleFile.
