@@ -266,8 +266,8 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
 end
 
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
-        print_ast::Bool = false,
-        print_llt::Bool = false,
+        print_ast::Bool=false,
+        print_llt::Bool=false,
     )::Vector{Violation}
 
     if length(checks) >= 1

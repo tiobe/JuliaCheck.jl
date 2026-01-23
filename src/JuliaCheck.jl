@@ -106,8 +106,8 @@ function main(args::Vector{String})::Nothing
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
             new_violations = Analysis.run_analysis(sourcefile, fresh_checks;
-                print_ast = arguments["ast"],
-                print_llt = arguments["llt"])
+                print_ast=arguments["ast"],
+                print_llt=arguments["llt"])
             append!(violations, new_violations)
         end
     end
