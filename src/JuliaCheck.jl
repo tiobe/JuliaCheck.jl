@@ -4,15 +4,15 @@ using JuliaSyntax: first_byte, last_byte, SourceFile
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
-include("Properties.jl"); import .Properties
-include("TypeHelpers.jl"); import .TypeHelpers
+include("Properties.jl")
+include("TypeHelpers.jl")
 include("SyntaxNodeHelpers.jl")
 include("SymbolTable.jl")
 include("Analysis.jl")
 include("Output.jl")
 include("MutatingFunctionsHelpers.jl")
-include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
-include("CommentHelpers.jl"); import .CommentHelpers
+include("WhitespaceHelpers.jl")
+include("CommentHelpers.jl")
 
 using .Analysis
 using .Output
