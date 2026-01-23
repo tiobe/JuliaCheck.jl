@@ -1,0 +1,25 @@
+>> Processing file 'SingleModuleFile.jl/MultiModuleFile.jl'...
+
+SingleModuleFile.jl/MultiModuleFile.jl(8, 8):
+module SecondModuleNotOK
+#      └───────────────┘ ── Module 'SecondModuleNotOK' should be inside 'MultiModuleFile' or in its own file.
+Single module per file.
+Rule: single-module-file. Severity: 5
+
+SingleModuleFile.jl/MultiModuleFile.jl(15, 8):
+module ThirdInFile
+#      └─────────┘ ── Module 'ThirdInFile' should be inside 'MultiModuleFile' or in its own file.
+Single module per file.
+Rule: single-module-file. Severity: 5
+
+SingleModuleFile.jl/MultiModuleFile.jl(8, 8):
+module SecondModuleNotOK
+#      └───────────────┘ ── Module name SecondModuleNotOK should match its file name: MultiModuleFile.
+Single module per file.
+Rule: single-module-file. Severity: 5
+
+SingleModuleFile.jl/MultiModuleFile.jl(15, 8):
+module ThirdInFile
+#      └─────────┘ ── Module name ThirdInFile should match its file name: MultiModuleFile.
+Single module per file.
+Rule: single-module-file. Severity: 5
