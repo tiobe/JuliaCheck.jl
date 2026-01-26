@@ -22,7 +22,7 @@ function _check(this::Check, ctxt::AnalysisContext, mod::SyntaxNode)::Nothing
     comment_start = something(findnext('#', code, mod_end), length(code))
     if comment_start >= eol
         filepos = source_location(mod.source, mod_end)
-        report_violation(ctxt, this, filepos, range(mod_end-2, length=3), "Missing end module comment")
+        report_violation(ctxt, this, filepos, range(mod_end - 2; length=3), "Missing end module comment")
     else
         comment_range = comment_start:eol
         comment = code[comment_range]

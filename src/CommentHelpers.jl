@@ -23,7 +23,7 @@ function contains_comments(sn::SyntaxNode)::Bool
 end
 
 function get_comments(sn::SyntaxNode)::Vector{Comment}
-    comments = []
+    comments = Vector{Comment}()
     for (i, ch) in enumerate(sn.raw.children)
         if kind(ch) == K"Comment"
             range = normalized_green_child_range(sn, i)
@@ -38,9 +38,9 @@ Get the range and text representation of the direct children that are comment no
 Subsequent single-line comments are merged. Only sibling comments can ever belong to the same block.
 """
 function get_comment_blocks(sn::SyntaxNode)::Vector{CommentBlock}
-    blocks = []
+    blocks = Vector{CommentBlock}()
     green_children = sn.raw.children
-    curblock = []
+    curblock = Vector{Comment}()
     # Iterate through green children, combining consecutive comment siblings into blocks
     # if there is only whitespace between them
     for (i, ch) in enumerate(green_children)

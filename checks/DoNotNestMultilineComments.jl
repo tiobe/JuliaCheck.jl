@@ -22,7 +22,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
                 # Search for next comment inside comment
                 found::Union{UnitRange{Int}, Nothing} = findnext(ML_COMMENT, text, length(ML_COMMENT))
                 if !isnothing(found)
-                    found = (comment.range.start-1) .+ found
+                    found = (comment.range.start - 1) .+ found
                     report_violation(ctxt, this,
                         source_location(node.source, found.start),
                         found,

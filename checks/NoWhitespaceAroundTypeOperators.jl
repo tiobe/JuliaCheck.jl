@@ -36,7 +36,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
         linepos = source_location(node.source, start)
         report_violation(ctxt, this,
             linepos,
-            range(start, length=length(text_between)),
+            range(start; length=length(text_between)),
             "Omit whitespace around this operator"
             )
     end

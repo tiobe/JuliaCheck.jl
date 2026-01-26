@@ -1,8 +1,8 @@
 module AvoidGlobalVariables
 
 using ...Properties: is_global_decl, is_constant, find_lhs_of_kind
-using ...SyntaxNodeHelpers
 using ...SymbolTable
+using ...SyntaxNodeHelpers
 
 include("_common.jl")
 

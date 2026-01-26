@@ -121,7 +121,7 @@ function _has_julia_ext(file_arg::String)::Bool
 end
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
-    file_set = []
+    file_set = Vector{String}()
     for element in file_arg
         if isfile(element) && _has_julia_ext(element)
             push!(file_set, element)

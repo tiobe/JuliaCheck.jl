@@ -16,7 +16,7 @@ end
 
 function _check(this::Check, ctxt::AnalysisContext, modjule::SyntaxNode)::Nothing
     @assert kind(modjule) == K"module" "Expected a [module] node, got [$(kind(modjule))]."
-    @assert numchildren(modjule) == 2 "This module has a weird shape: "* string(modjule)
+    @assert numchildren(modjule) == 2 "This module has a weird shape: " * string(modjule)
     @assert kind(children(modjule)[2]) == K"block" "The second child of a [module] node is not a [block]!"
 
     mod_body = children(children(modjule)[2])

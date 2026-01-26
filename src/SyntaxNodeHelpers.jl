@@ -85,7 +85,7 @@ Return a list of all descendant nodes of the given node that match the predicate
 By default visits the full tree. Use `stop_traversal=true` to stop recursing into subtree when a node matches predicate.
 """
 function find_descendants(pred::Function, node::AnyTree, stop_traversal::Bool = false)::Vector{AnyTree}
-    out = []
+    out = Vector{AnyTree}()
     if pred(node)
         push!(out, node)
         if stop_traversal

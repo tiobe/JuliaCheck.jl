@@ -26,7 +26,7 @@ function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
             # their presence here, counting 4-1 extra spaces for each tab.
             indentation::Int = length(indenttext) + 3 * count(r"\t", indenttext)
             if rem(indentation, 4) > 0
-                rng = range(gl.range.stop - length(indenttext) + 1, length=length(indenttext))
+                rng = range(gl.range.stop - length(indenttext) + 1; length=length(indenttext))
                 pos = source_location(n.source, rng.start)
                 report_violation(ctxt, this, pos, rng, synopsis(this))
             end

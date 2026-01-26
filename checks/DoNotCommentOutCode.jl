@@ -2,7 +2,7 @@ module DoNotCommentOutCode
 
 using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
 using ...WhitespaceHelpers: combine_ranges
-using JuliaSyntax: kind, @K_str, source_location, JuliaSyntax as JS
+using JuliaSyntax: kind, @K_str, parseall, source_location
 
 include("_common.jl")
 
@@ -49,11 +49,11 @@ function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)::Nothing
     return nothing
 end
 
-# If JS can parse the comment contents, it must be code
+# If JuliaSyntax can parse the comment contents, it must be code
 function _contains_code(text::AbstractString)::Bool
     if !any(occursin(text), KEYWORDS) return false end
     try
-        JS.parseall(SyntaxNode, text)
+        parseall(SyntaxNode, text)
     catch
         return false
     end

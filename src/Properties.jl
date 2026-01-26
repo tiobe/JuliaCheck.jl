@@ -122,7 +122,7 @@ end
 
 function is_operator(node::AnyTree)::Bool
     return  JS.is_prefix_op_call(node) ||
-            is_infix_operator(node)  ||
+            is_infix_operator(node) ||
             JS.is_postfix_op_call(node)
 end
 function is_infix_operator(node::AnyTree)::Bool
@@ -372,7 +372,7 @@ of whether there are still named arguments in there.
 """
 function get_flattened_fn_arg_nodes(function_node::SyntaxNode)::Vector{SyntaxNode}
     func_arguments = get_func_arguments(function_node)
-    func_arg_nodes = []
+    func_arg_nodes = Vector{SyntaxNode}()
     for arg in func_arguments
         # Parameters signifies keyword (also known as named) arguments.
         # All named arguments are then reported in subnodes. For now, we don't
