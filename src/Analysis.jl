@@ -1,6 +1,8 @@
 module Analysis
 
-using JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext, source_location
+using JuliaSyntax
+
+import JuliaSyntax: SyntaxNode, GreenNode, kind, sourcetext, source_location
 import InteractiveUtils: subtypes
 
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
@@ -14,9 +16,6 @@ export dfs_traversal, find_syntaxnode_at_position, source_location
 # production code and tests.
 using ..Properties
 using ..SymbolTable
-
-const NullableGreenLeaf = Union{GreenLeaf, Nothing}
-const NullableSyntaxNode = Union{SyntaxNode, Nothing}
 
 "The abstract base type for all checks."
 abstract type Check end
@@ -43,6 +42,9 @@ sourcetext(gl::GreenLeaf)::String = gl.sourcefile.code[gl.range]
 "Returns the kind of the GreenNode inside the GreenLeaf."
 kind(gl::GreenLeaf) = kind(gl.node)
 source_location(gl::GreenLeaf) = source_location(gl.sourcefile, gl.range.start)
+
+const NullableGreenLeaf = Union{GreenLeaf, Nothing}
+const NullableSyntaxNode = Union{SyntaxNode, Nothing}
 
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode

@@ -1,7 +1,7 @@
 module SyntaxNodeHelpers
 
 using JuliaSyntax: SyntaxNode, GreenNode, kind, numchildren, children, source_location, is_operator,
-    is_infix_op_call, is_prefix_op_call, byte_range, is_leaf, NullableSyntaxNode
+    is_infix_op_call, is_prefix_op_call, byte_range, is_leaf
 import JuliaSyntax: @K_str, @KSet_str
 
 export ancestors, is_scope_construct, apply_to_operands, extract_special_value, find_node_at_position
