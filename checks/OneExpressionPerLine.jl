@@ -31,7 +31,7 @@ Analyzing deeper within concatenated statements may lead to duplicate reporting
 or storing of global data (both of which is not wanted).
 """
 function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    lines_to_report = Set{Integer}()
+    lines_to_report = Set{Int}()
     nodes_to_check = _get_subnodes_to_check(node)
     for subnode in nodes_to_check
         lines_to_report = union!(lines_to_report, _find_semicolon_lines(subnode))
@@ -76,7 +76,7 @@ function _has_semicolon_without_newline(green_children, green_idx::Integer)::Boo
 end
 
 function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
-    lines_to_report = Set{Integer}()
+    lines_to_report = Set{Int}()
     offset = 0
     green_children = children(node.raw)
     for green_idx in eachindex(green_children)

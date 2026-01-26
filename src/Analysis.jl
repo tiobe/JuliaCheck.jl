@@ -1,20 +1,22 @@
 module Analysis
 
+using JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext, source_location
+import InteractiveUtils: subtypes
+
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
 export GreenLeaf, find_greenleaf, kind, sourcetext
 export dfs_traversal, find_syntaxnode_at_position, source_location
 
-using JuliaSyntax
-
-import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext, source_location
-import InteractiveUtils: subtypes
 
 # Here to keep Properties importable as ..Properties by SymbolTable.
 # Mainly to ensure that it's imported in the same way by both
 # production code and tests.
 using ..Properties
 using ..SymbolTable
+
+const NullableGreenLeaf = Union{GreenLeaf, Nothing}
+const NullableSyntaxNode = Union{SyntaxNode, Nothing}
 
 "The abstract base type for all checks."
 abstract type Check end
@@ -26,7 +28,7 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 struct Violation
     check::Check
     sourcefile::SourceFile
-    linepos::Tuple{Int,Int} # The line and column of the violation
+    linepos::Tuple{Int, Int} # The line and column of the violation
     bufferrange::UnitRange{Integer} # The character range in the source code
     msg::String
 end
@@ -41,9 +43,6 @@ sourcetext(gl::GreenLeaf)::String = gl.sourcefile.code[gl.range]
 "Returns the kind of the GreenNode inside the GreenLeaf."
 kind(gl::GreenLeaf) = kind(gl.node)
 source_location(gl::GreenLeaf) = source_location(gl.sourcefile, gl.range.start)
-
-const NullableGreenLeaf = Union{GreenLeaf, Nothing}
-const NullableSyntaxNode = Union{SyntaxNode, Nothing}
 
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
@@ -154,7 +153,7 @@ end
     Use `offsetspan` to specify the range of the violation relative to the node's position.
  """
 function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String;
-    offsetspan::Union{Nothing, Tuple{Int,Int}}=nothing
+    offsetspan::Union{Nothing, Tuple{Int, Int}}=nothing
     )::Nothing
     linepos = JuliaSyntax.source_location(node)
     bufferrange = JuliaSyntax.byte_range(node)
@@ -171,7 +170,7 @@ end
 Reports a violation on location `linepos` and range `bufferrange` in the current context.
 """
 function report_violation(ctxt::AnalysisContext, check::Check,
-    linepos::Tuple{Int,Int},
+    linepos::Tuple{Int, Int},
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing

@@ -8,7 +8,9 @@ using ...Properties: is_module, is_toplevel, get_module_name
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "module-end-comment"
 Analysis.severity(::Check) = 9
-Analysis.synopsis(::Check) = "The end statement of a module should have a comment with the module name"
+function Analysis.synopsis(::Check)
+    return "The end statement of a module should have a comment with the module name"
+end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))

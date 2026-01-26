@@ -5,12 +5,13 @@ using ...SyntaxNodeHelpers
 
 include("_common.jl")
 
+""" Start of multiline comment in Julia """
+const ML_COMMENT = "#="
+
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "do-not-nest-multiline-comments"
 Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "Don't nest multiline comments"
-
-const ML_COMMENT = "#="
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, node -> begin

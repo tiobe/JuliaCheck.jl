@@ -1,9 +1,8 @@
 module IndentationLevelsAreFourSpaces
 
-include("_common.jl")
-
 using ...Properties: is_toplevel
-using ...SyntaxNodeHelpers
+
+include("_common.jl")
 
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "indentation-levels-are-four-spaces"

@@ -8,6 +8,7 @@ Analysis.id(::Check) = "too-many-types-in-unions"
 Analysis.severity(::Check) = 6
 Analysis.synopsis(::Check) = "Too many types in Unions"
 
+""" Maximum number of generic arguments in a Union type. """
 const MAX_UNION_TYPES = 4
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing

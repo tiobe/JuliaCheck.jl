@@ -15,7 +15,7 @@ end
 
 function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
     @assert kind(module_node) == K"module" "Expected a [module] node, got [$(kind(module_node))]."
-    @assert numchildren(module_node) == 2 "This module has a weird shape: "* string(module_node)
+    @assert numchildren(module_node) == 2 "This module has a weird shape: " * string(module_node)
     @assert kind(children(module_node)[2]) == K"block" "The second child of a [module] node is not a [block]!"
 
     # Filters on using, import, include.

@@ -7,7 +7,9 @@ using JuliaSyntax: sourcetext
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "leading-and-trailing-digits"
 Analysis.severity(::Check) = 3
-Analysis.synopsis(::Check) = "Floating-point numbers should always have one digit before the decimal point and at least one after"
+function Analysis.synopsis(::Check)
+    return "Floating-point numbers should always have one digit before the decimal point and at least one after"
+end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"Float", n -> _check_float_node(this, ctxt, n))

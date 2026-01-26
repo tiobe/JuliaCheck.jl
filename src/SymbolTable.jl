@@ -32,9 +32,10 @@ When searching for a symbol, we scan the stack of scopes of the current module,
 top to bottom. Symbols from other modules have to be qualified, or entered into
 the current module's global scope with a `using` declaration.
 =#
-
 const Scope = Dict{String, SymbolTableItem}
+
 const NestedScopes = Stack{Scope}
+
 """
 A module containing an identifier and a stack of scopes.
 
@@ -224,7 +225,7 @@ the abstract syntax tree. When a node is hit, this ensures that the
 syntax tree is updated as expected.
 
 The reason why this cannot easily be done as a part of other functionality
-(for example, also making this use predicate behaviour like the rules do)
+(for example, also making this use predicate behavior like the rules do)
 is that there is also a necessity to have this work on _exiting_ a node
 while preserving the state in between.
 

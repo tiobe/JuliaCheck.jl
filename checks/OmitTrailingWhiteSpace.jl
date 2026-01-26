@@ -1,8 +1,8 @@
 module OmitTrailingWhiteSpace
 
-include("_common.jl")
-
 using ...Properties: is_toplevel
+
+include("_common.jl")
 
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "omit-trailing-white-space"
@@ -20,7 +20,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
         line::Int = count("\n", code[1:m.offset]) + 1
         col::Int = m.offset - something(findprev('\n', code, m.offset), 1) + 1
         bufferrange = m.offset:m.offset + length(m.captures[1])
-        report_violation(ctxt, this, (line,col), bufferrange, synopsis(this))
+        report_violation(ctxt, this, (line, col), bufferrange, synopsis(this))
     end
     return nothing
 end

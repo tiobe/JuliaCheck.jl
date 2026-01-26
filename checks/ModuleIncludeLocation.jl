@@ -7,7 +7,9 @@ include("_common.jl")
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "module-include-location"
 Analysis.severity(::Check) = 9
-Analysis.synopsis(::Check) = "The list of included files should be after the list of imported packages"
+function Analysis.synopsis(::Check)
+    return "The list of included files should be after the list of imported packages"
+end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))

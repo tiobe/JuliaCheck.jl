@@ -8,7 +8,9 @@ using ...WhitespaceHelpers: normalized_green_child_range
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "long-form-functions-have-a-terminating-return-statement"
 Analysis.severity(::Check) = 3
-Analysis.synopsis(::Check) = "Long form functions should end with an explicit return statement"
+function Analysis.synopsis(::Check)
+    return "Long form functions should end with an explicit return statement"
+end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin

@@ -4,8 +4,34 @@ using ...Properties: get_number, is_constant, is_global_decl, is_literal_number
 
 include("_common.jl")
 
+""" Positive powers of 10 (up till 10^18) """
+const POWERS_OF_TEN_POSITIVE = Set{Int64}([10^i for i in 1:18])
+
+""" Negative powers of 10 (up till -10^18) """
+const POWERS_OF_TEN_NEGATIVE = Set{Int64}([-i for i in POWERS_OF_TEN_POSITIVE])
+
+""" Positive and negative powers of 10 """
+const POWERS_OF_TEN = POWERS_OF_TEN_POSITIVE ∪ POWERS_OF_TEN_NEGATIVE
+
+""" Positive powers of 2 (up till 2^20) """
+const POWERS_OF_TWO = Set{Int64}([2^i for i in 1:20])
+
+""" Integers with special meaning, such as number of seconds, degrees, etc . """
+const SOME_SPECIAL_INTS = Set{Int64}([0, 1,
+                                        60, # minutes, seconds
+                                        90, 180, 270, 360   # degrees
+                                    ])
+
+""" Integers that are not considered magical and may appear as constants. """
+const KNOWN_INTS = SOME_SPECIAL_INTS ∪ POWERS_OF_TEN ∪ POWERS_OF_TWO
+
+""" Floats that are not considered magical and may appear as constants. """
+const KNOWN_FLOATS = Set{Float64}([0.1, 0.01, 0.001, 0.0001, 0.5]) ∪
+                    Set{Float64}(convert.(Float64, POWERS_OF_TEN)) ∪
+                    Set{Float64}(convert.(Float64, SOME_SPECIAL_INTS))
+
 struct Check<:Analysis.Check
-    seen_before
+    seen_before::Set{Number}
 
     # FIXME Fine for integers but, for floats, we should
     # probably use a tolerance to compare them.
@@ -56,21 +82,6 @@ end
 
 # TODO Add (unit?) tests
 
-## Magic numbers
-# Integers
-const POWERS_OF_TEN_POSITIVE = Set{Int64}([10^i for i in 1:18])
-const POWERS_OF_TEN_NEGATIVE = Set{Int64}([-i for i in POWERS_OF_TEN_POSITIVE])
-const POWERS_OF_TEN = POWERS_OF_TEN_POSITIVE ∪ POWERS_OF_TEN_NEGATIVE
-const POWERS_OF_TWO = Set{Int64}([2^i for i in 1:20])
-const SOME_SPECIAL_INTS = Set{Int64}([0, 1,
-                                        60, # minutes, seconds
-                                        90, 180, 270, 360   # degrees
-                                    ])
-const KNOWN_INTS = SOME_SPECIAL_INTS ∪ POWERS_OF_TEN ∪ POWERS_OF_TWO
-# Floats
-const KNOWN_FLOATS = Set{Float64}([0.1, 0.01, 0.001, 0.0001, 0.5]) ∪
-                    Set{Float64}(convert.(Float64, POWERS_OF_TEN)) ∪
-                    Set{Float64}(convert.(Float64, SOME_SPECIAL_INTS))
 """
     is_magic_number(node::SyntaxNode)::Bool
 

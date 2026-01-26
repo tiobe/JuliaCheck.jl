@@ -1,10 +1,12 @@
 module DoNotCommentOutCode
 
-using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
+using ...CommentHelpers: Comment, CommentBlock, contains_comments, get_comment_blocks, get_range, get_text
+using JuliaSyntax: kind, parseall, source_location
 using ...WhitespaceHelpers: combine_ranges
-using JuliaSyntax: kind, @K_str, parseall, source_location
 
 include("_common.jl")
+
+const CommentOrCommentBlock = Union{Comment, CommentBlock}
 
 """
 Some keywords and other signifiers that need to be in the string in order for it to be considered code
@@ -60,7 +62,7 @@ function _contains_code(text::AbstractString)::Bool
     return true
 end
 
-function _contains_code(comment::Union{Comment, CommentBlock})::Bool
+function _contains_code(comment::CommentOrCommentBlock)::Bool
     return _contains_code(get_text(comment))
 end
 

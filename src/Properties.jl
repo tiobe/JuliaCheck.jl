@@ -3,7 +3,7 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
-export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
+export AnyTree, NullableNode, MAX_LINE_LENGTH,
 
     children, closes_module, closes_scope, expr_depth, expr_size,
 
@@ -33,10 +33,9 @@ const NullableString = Union{String, Nothing}
 const NullableNode = Union{AnyTree, Nothing}
 const NodeAndString = Tuple{AnyTree, NullableString}
 
-
 ## Global definitions
+""" Maximum allowed length of a source line. """
 const MAX_LINE_LENGTH = 92
-const EOL = (Sys.iswindows() ? "\n\r" : "\n")
 
 ## Functions
 
