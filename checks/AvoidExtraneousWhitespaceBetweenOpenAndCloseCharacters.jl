@@ -6,9 +6,11 @@ using ...Properties: is_toplevel
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "avoid-extraneous-whitespace-between-open-and-close-characters"
-severity(::Check) = 7
-synopsis(::Check) = "Avoid extraneous whitespace inside parentheses, square brackets or braces."
+Analysis.id(::Check) = "avoid-extraneous-whitespace-between-open-and-close-characters"
+Analysis.severity(::Check) = 7
+function Analysis.synopsis(::Check)::String
+    return "Avoid extraneous whitespace inside parentheses, square brackets or braces."
+end
 
 """
 Syntax node types for which whitespace should be checked.
@@ -100,7 +102,7 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
             location_msg = " before '$next_leaf_text'"
         else
             expected_spaces = 1 # Exactly one space between elements
-            location_msg = " between '$prev_leaf_text' and '$next_leaf_text'" 
+            location_msg = " between '$prev_leaf_text' and '$next_leaf_text'"
         end
 
         if !isnothing(expected_spaces) && length(cur.range) != expected_spaces
@@ -111,7 +113,7 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
     return nothing
 end
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, root -> _check(this, ctxt, root.source))
     return nothing
 end

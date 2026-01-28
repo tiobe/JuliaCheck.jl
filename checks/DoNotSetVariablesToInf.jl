@@ -5,11 +5,11 @@ using ...SyntaxNodeHelpers
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "do-not-set-variables-to-inf"
-severity(::Check) = 3
-synopsis(::Check) = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
+Analysis.id(::Check) = "do-not-set-variables-to-inf"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Do not set variables to Inf, Inf16, Inf32 or Inf64"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"=", node -> begin
         if numchildren(node) != 2
             @debug "Assignment with $(numchildren(node)) children instead of 2."
@@ -22,6 +22,7 @@ function init(this::Check, ctxt::AnalysisContext)
         end
 
     end)
+    return nothing
 end
 
 end # module DoNotSetVariablesToInf

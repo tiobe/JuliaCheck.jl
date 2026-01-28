@@ -17,7 +17,7 @@ assignments and call that mutate a variable. Currently, this list is:
 """
 function get_mutated_variables_in_scope(ctxt::AnalysisContext, scope_node::SyntaxNode)::Set{String}
     all_mutated_variables = Set{String}()
-    visitor_func = function(n::SyntaxNode)
+    visitor_func(n::SyntaxNode)::Nothing = begin
         if is_array_assignment(n)
             mutated_var = string(first(children(n)))
             push!(all_mutated_variables, mutated_var)
@@ -32,6 +32,7 @@ function get_mutated_variables_in_scope(ctxt::AnalysisContext, scope_node::Synta
             mutated_var = string(first(children(field_assignment)))
             push!(all_mutated_variables, mutated_var)
         end
+        return nothing
     end
     Analysis.dfs_traversal(ctxt, scope_node, visitor_func)
     return all_mutated_variables

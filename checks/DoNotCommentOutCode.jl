@@ -1,10 +1,12 @@
 module DoNotCommentOutCode
 
-using ...CommentHelpers: Comment, CommentBlock, get_comment_blocks, get_range, get_text, contains_comments
+using ...CommentHelpers: Comment, CommentBlock, contains_comments, get_comment_blocks, get_range, get_text
+using JuliaSyntax: kind, parseall, source_location
 using ...WhitespaceHelpers: combine_ranges
-using JuliaSyntax: kind, @K_str, source_location, JuliaSyntax as JS
 
 include("_common.jl")
+
+const CommentOrCommentBlock = Union{Comment, CommentBlock}
 
 """
 Some keywords and other signifiers that need to be in the string in order for it to be considered code
@@ -18,12 +20,12 @@ const KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "ex
         "type", "var", "(", ")"]
 
 struct Check<:Analysis.Check end
-id(::Check) = "do-not-comment-out-code"
-severity(::Check) = 9
-synopsis(::Check) = "Do not comment out code."
+Analysis.id(::Check) = "do-not-comment-out-code"
+Analysis.severity(::Check) = 9
+Analysis.synopsis(::Check) = "Do not comment out code."
 
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, contains_comments, n -> _check(this, ctxt, n))
     return nothing
 end
@@ -44,22 +46,23 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     return nothing
 end
 
-function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)
+function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)::Nothing
     report_violation(ctxt, this, range, "Comment contains code")
+    return nothing
 end
 
-# If JS can parse the comment contents, it must be code
+# If JuliaSyntax can parse the comment contents, it must be code
 function _contains_code(text::AbstractString)::Bool
     if !any(occursin(text), KEYWORDS) return false end
     try
-        JS.parseall(SyntaxNode, text)
+        parseall(SyntaxNode, text)
     catch
         return false
     end
     return true
 end
 
-function _contains_code(comment::Union{Comment, CommentBlock})::Bool
+function _contains_code(comment::CommentOrCommentBlock)::Bool
     return _contains_code(get_text(comment))
 end
 

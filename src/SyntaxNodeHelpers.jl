@@ -1,11 +1,11 @@
 module SyntaxNodeHelpers
 
-export ancestors, is_scope_construct, apply_to_operands, extract_special_value, find_node_at_position
-export SpecialValue
-
 using JuliaSyntax: SyntaxNode, GreenNode, kind, numchildren, children, source_location, is_operator,
     is_infix_op_call, is_prefix_op_call, byte_range, is_leaf
 import JuliaSyntax: @K_str, @KSet_str
+
+export ancestors, is_scope_construct, apply_to_operands, extract_special_value, find_node_at_position
+export SpecialValue
 
 const AnyTree = Union{SyntaxNode, GreenNode}
 
@@ -38,10 +38,19 @@ function apply_to_operands(node::SyntaxNode, func::Function)::Nothing
     return nothing
 end
 
+""" Identifiers representing Infinity. """
 const INF_VALUES = Set(["Inf", "Inf16", "Inf32", "Inf64"])
+
+""" Identifiers representing Not-a-Number floating point values. """
 const NAN_VALUES = Set(["NaN", "NaN16", "NaN32", "NaN64"])
+
+""" Identifiers representing Missing values. """
 const MISSING_VALUES = Set(["missing", "Missing"])
+
+""" Identifiers representing Nothing values. """
 const NOTHING_VALUES = Set(["nothing", "Nothing"])
+
+""" Set of all special values. """
 const SPECIAL_VALUES = union(INF_VALUES, NAN_VALUES, MISSING_VALUES, NOTHING_VALUES)
 
 """
@@ -85,7 +94,7 @@ Return a list of all descendant nodes of the given node that match the predicate
 By default visits the full tree. Use `stop_traversal=true` to stop recursing into subtree when a node matches predicate.
 """
 function find_descendants(pred::Function, node::AnyTree, stop_traversal::Bool = false)::Vector{AnyTree}
-    out = []
+    out = Vector{AnyTree}()
     if pred(node)
         push!(out, node)
         if stop_traversal
@@ -104,7 +113,7 @@ end
 Finds deepest node containing the given `pos`.
 If there is no `SyntaxNode` that contains the position, the `toplevel` node is returned.
 """
-function find_node_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode,Nothing}
+function find_node_at_position(node::SyntaxNode, pos::Integer)::NullableSyntaxNode
     # Check if the current node contains the position
     if ! (pos in byte_range(node))
         return nothing
@@ -113,7 +122,7 @@ function find_node_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode
     # Search through children to find the most specific node
     for child in something(children(node), [])
         found_child = find_node_at_position(child, pos)
-        if found_child !== nothing
+        if !isnothing(found_child)
             return found_child
         end
     end

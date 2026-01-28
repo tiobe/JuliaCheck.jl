@@ -7,12 +7,15 @@ using ...Properties: get_iteration_parts, is_range
 using ...SyntaxNodeHelpers: find_descendants
 
 struct Check<:Analysis.Check end
-id(::Check) = "use-eachindex-to-iterate-indices"
-severity(::Check) = 5
-synopsis(::Check) = "Use eachindex() instead of a constructed range for iteration over a collection."
+Analysis.id(::Check) = "use-eachindex-to-iterate-indices"
+Analysis.severity(::Check) = 5
+function Analysis.synopsis(::Check)::String
+    return "Use eachindex() instead of a constructed range for iteration over a collection."
+end
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"for", node -> _check(this, ctxt, node))
+    return nothing
 end
 
 function _check(this::Check, ctxt::AnalysisContext, for_node::SyntaxNode)::Nothing

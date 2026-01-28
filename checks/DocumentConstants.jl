@@ -6,15 +6,16 @@ using ...SyntaxNodeHelpers: find_descendants
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "document-constants"
-severity(::Check) = 7
-synopsis(::Check) = "Constants must have a docstring"
+Analysis.id(::Check) = "document-constants"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Constants must have a docstring"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, n -> kind(n) == K"const", n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, n -> kind(n) == K"const", n -> _check(this, ctxt, n))
+    return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
+function _check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)::Nothing
     @assert kind(const_node) == K"const" "Expected a [const] const_node, got $(kind(const_node))."
 
     if kind(const_node.parent) == K"doc"
@@ -32,6 +33,7 @@ function check(this::Check, ctxt::AnalysisContext, const_node::SyntaxNode)
                     )
         end
     end
+    return nothing
 end
 
-end
+end # module DocumentConstants

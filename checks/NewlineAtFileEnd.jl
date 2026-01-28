@@ -7,11 +7,11 @@ using ...WhitespaceHelpers: get_line_range
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "newline-at-file-end"
-severity(::Check) = 7
-synopsis(::Check) = "Single newline at the end of file"
+Analysis.id(::Check) = "newline-at-file-end"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Single newline at the end of file"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
     return nothing
 end

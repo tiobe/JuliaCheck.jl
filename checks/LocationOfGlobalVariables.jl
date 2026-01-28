@@ -5,15 +5,18 @@ include("_common.jl")
 using ...Properties: haschildren, is_export, is_global_decl, is_import, is_mod_toplevel
 
 struct Check<:Analysis.Check end
-id(::Check) = "location-of-global-variables"
-severity(::Check) = 7
-synopsis(::Check) = "Global variables should be placed at the top of a module or file"
-
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_global_decl, n -> check(this, ctxt, n))
+Analysis.id(::Check) = "location-of-global-variables"
+Analysis.severity(::Check) = 7
+function Analysis.synopsis(::Check)
+    return "Global variables should be placed at the top of a module or file"
 end
 
-function check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, is_global_decl, n -> _check(this, ctxt, n))
+    return nothing
+end
+
+function _check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)::Nothing
     @assert is_global_decl(glob_decl) "Expected a global declaration node, got $(kind(glob_decl))"
     toplevel = glob_decl.parent
     if !is_mod_toplevel(toplevel)
@@ -36,4 +39,4 @@ function check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)::Nothi
     return nothing
 end
 
-end
+end # LocationOfGlobalVariables

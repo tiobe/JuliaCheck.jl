@@ -6,35 +6,37 @@ using ...Properties: is_toplevel
 using ...SyntaxNodeHelpers
 
 struct Check<:Analysis.Check end
-id(::Check) = "single-space-after-commas-and-semicolons"
-severity(::Check) = 7
-synopsis(::Check) = "Commas and semicolons are followed, but not preceded, by a space."
+Analysis.id(::Check) = "single-space-after-commas-and-semicolons"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Commas and semicolons are followed, but not preceded, by a space."
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, node -> begin
         code = node.source.code
-        report_if_space(pos::Integer, func::Function, shouldhave::Integer, msg::String) = begin
+        report_if_space(pos::Integer, func::Function, shouldhave::Integer, msg::String)::Nothing = begin
             range = func(code, pos)
             if length(range) != shouldhave && !contains(code[range], '\n') # skip check if range contains a newline
-                report_violation(ctxt, this, 
-                    source_location(node.source, range.start), 
+                report_violation(ctxt, this,
+                    source_location(node.source, range.start),
                     range,
                     msg
                     )
             end
+            return nothing
         end
         for m in eachmatch(r"[;,]", code) # Find each occurrence in code
             pos = m.offset
             leaf = find_greenleaf(ctxt, pos) # Find the GreenLeaf containing the character
             if kind(leaf.node) ∉ KSet"Char Comment String" # Skip strings and comments
-                report_if_space(pos, find_whitespace_func(false), 0, "Unexpected whitespace")
-                report_if_space(pos, find_whitespace_func(true), 1, "Expected single whitespace")
+                report_if_space(pos, _find_whitespace_func(false), 0, "Unexpected whitespace")
+                report_if_space(pos, _find_whitespace_func(true), 1, "Expected single whitespace")
             end
         end
     end)
+    return nothing
 end
 
-function find_whitespace_func(forward::Bool)::Function
+function _find_whitespace_func(forward::Bool)::Function
     find = forward ? nextind : prevind
     return (s::AbstractString, start::Integer) -> begin
         p = find(s, start)

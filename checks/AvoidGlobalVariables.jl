@@ -1,8 +1,8 @@
 module AvoidGlobalVariables
 
 using ...Properties: is_global_decl, is_constant, find_lhs_of_kind
-using ...SyntaxNodeHelpers
 using ...SymbolTable
+using ...SyntaxNodeHelpers
 
 include("_common.jl")
 
@@ -10,11 +10,11 @@ struct Check<:Analysis.Check
     already_reported::Set{SyntaxNode}
     Check() = new(Set{SyntaxNode}())
 end
-id(::Check) = "avoid-global-variables"
-severity(::Check) = 3
-synopsis(::Check) = "Avoid global variables when possible"
+Analysis.id(::Check) = "avoid-global-variables"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Avoid global variables when possible"
 
-function init(this::Check, ctxt::AnalysisContext)
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_global_decl, node -> begin
         id = find_lhs_of_kind(K"Identifier", node)
         if isnothing(id)
@@ -35,6 +35,7 @@ function init(this::Check, ctxt::AnalysisContext)
         report_violation(ctxt, this, id, synopsis(this))
         return nothing
     end)
+    return nothing
 end
 
 end # module AvoidGlobalVariables

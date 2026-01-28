@@ -1,18 +1,18 @@
 module IndentationOfModules
 
-include("_common.jl")
-
 using JuliaSyntax: view
 using ...Properties: is_module, get_module_name
 using ...SyntaxNodeHelpers: ancestors
 using ...WhitespaceHelpers: normalized_green_child_range
 
-struct Check<:Analysis.Check end
-id(::Check) = "indentation-of-modules"
-severity(::Check) = 7
-synopsis(::Check) = "Do not indent top level module body, do indent submodules"
+include("_common.jl")
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+struct Check<:Analysis.Check end
+Analysis.id(::Check) = "indentation-of-modules"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Do not indent top level module body, do indent submodules"
+
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
     return nothing
 end
@@ -36,11 +36,12 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
             actual_indent = length(strip(view(module_node.source, ws_range), ['\r', '\n'])) # Only report on indent on current line (not newlines)
 
             if exp_indent != actual_indent
-                nudged_range = range(;stop=ws_range.stop, length=actual_indent)
+                nudged_range = range(; stop=ws_range.stop, length=actual_indent)
                 report_violation(ctxt, this, nudged_range, "Contents of module '$module_name' should have an indentation of width $exp_indent, but found $actual_indent")
             end
         end
     end
+    return nothing
 end
 
 end # module IndentationOfModules

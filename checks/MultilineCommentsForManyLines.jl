@@ -5,11 +5,11 @@ using ...CommentHelpers: CommentBlock, get_comment_blocks, get_range, contains_c
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "multiline-comments-for-many-lines"
-severity(::Check) = 9
-synopsis(::Check) = "Use multiline comments for large blocks."
+Analysis.id(::Check) = "multiline-comments-for-many-lines"
+Analysis.severity(::Check) = 9
+Analysis.synopsis(::Check) = "Use multiline comments for large blocks."
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, contains_comments, n -> _check(this, ctxt, n))
     return nothing
 end

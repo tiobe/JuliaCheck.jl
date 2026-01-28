@@ -4,15 +4,15 @@ using JuliaSyntax: first_byte, last_byte, SourceFile
 using ArgParse: ArgParseSettings, project_version, @add_arg_table!, parse_args
 using InteractiveUtils
 
-include("Properties.jl"); import .Properties
-include("TypeHelpers.jl"); import .TypeHelpers
+include("Properties.jl")
+include("TypeHelpers.jl")
 include("SyntaxNodeHelpers.jl")
 include("SymbolTable.jl")
 include("Analysis.jl")
 include("Output.jl")
 include("MutatingFunctionsHelpers.jl")
-include("WhitespaceHelpers.jl"); import .WhitespaceHelpers
-include("CommentHelpers.jl"); import .CommentHelpers
+include("WhitespaceHelpers.jl")
+include("CommentHelpers.jl")
 
 using .Analysis
 using .Output
@@ -64,7 +64,7 @@ function _parse_commandline(args::Vector{String})
     return parse_args(args, s)
 end
 
-function main(args::Vector{String})
+function main(args::Vector{String})::Nothing
     if isempty(args)
         _parse_commandline(["-h"])
         return nothing
@@ -106,19 +106,22 @@ function main(args::Vector{String})
             fresh_checks::Vector{Check} = map(type -> typeof(type)(), checks_to_run)
 
             new_violations = Analysis.run_analysis(sourcefile, fresh_checks;
-                print_ast = arguments["ast"],
-                print_llt = arguments["llt"])
+                print_ast=arguments["ast"],
+                print_llt=arguments["llt"])
             append!(violations, new_violations)
         end
     end
     print_violations(violation_printer, output_file_arg, violations)
     println()
+    return nothing
 end
 
-_has_julia_ext(file_arg::String)::Bool = lowercase(splitext(file_arg)[end]) == ".jl"
+function _has_julia_ext(file_arg::String)::Bool
+    return lowercase(splitext(file_arg)[end]) == ".jl"
+end
 
 function _get_files_to_analyze(file_arg::Vector{String})::Vector{String}
-    file_set = []
+    file_set = Vector{String}()
     for element in file_arg
         if isfile(element) && _has_julia_ext(element)
             push!(file_set, element)

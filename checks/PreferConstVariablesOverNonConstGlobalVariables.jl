@@ -6,11 +6,11 @@ using ...Properties: is_assignment, is_global_decl
 using ...SyntaxNodeHelpers: get_all_assignees, ancestors, is_scope_construct
 
 struct Check<:Analysis.Check end
-id(::Check) = "prefer-const-variables-over-non-const-global-variables"
-severity(::Check) = 3
-synopsis(::Check) = "Prefer const variables over non-const global variables"
+Analysis.id(::Check) = "prefer-const-variables-over-non-const-global-variables"
+Analysis.severity(::Check) = 3
+Analysis.synopsis(::Check) = "Prefer const variables over non-const global variables"
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> is_global_decl(n) && is_assignment(n), node -> begin
         lhs = first(children(node))
         if kind(lhs) ∈ KSet". ref" # Exclude mutation (field assignment `A.x = 1` or array mutation `A[i] = 1`)
@@ -23,6 +23,7 @@ function init(this::Check, ctxt::AnalysisContext)::Nothing
             end
         end
     end)
+    return nothing
 end
 
 function has_const_annotation(node::SyntaxNode)::Bool

@@ -1,14 +1,15 @@
 module Analysis
 
+using JuliaSyntax
+
+import JuliaSyntax: SyntaxNode, GreenNode, kind, sourcetext, source_location
+import InteractiveUtils: subtypes
+
 export AnalysisContext, Violation, run_analysis, register_syntaxnode_action, report_violation
 export Check, id, synopsis, severity, init
 export GreenLeaf, find_greenleaf, kind, sourcetext
 export dfs_traversal, find_syntaxnode_at_position, source_location
 
-using JuliaSyntax
-
-import JuliaSyntax: SyntaxNode, GreenNode, Kind, kind, sourcetext, source_location
-import InteractiveUtils: subtypes
 
 # Here to keep Properties importable as ..Properties by SymbolTable.
 # Mainly to ensure that it's imported in the same way by both
@@ -26,7 +27,7 @@ init(this::Check, ctxt) = error("init() not implemented for this check")
 struct Violation
     check::Check
     sourcefile::SourceFile
-    linepos::Tuple{Int,Int} # The line and column of the violation
+    linepos::Tuple{Int, Int} # The line and column of the violation
     bufferrange::UnitRange{Integer} # The character range in the source code
     msg::String
 end
@@ -42,6 +43,9 @@ sourcetext(gl::GreenLeaf)::String = gl.sourcefile.code[gl.range]
 kind(gl::GreenLeaf) = kind(gl.node)
 source_location(gl::GreenLeaf) = source_location(gl.sourcefile, gl.range.start)
 
+const NullableGreenLeaf = Union{GreenLeaf, Nothing}
+const NullableSyntaxNode = Union{SyntaxNode, Nothing}
+
 struct CheckRegistration
     predicate::Function # A predicate function that determines if the action applies to a SyntaxNode
     action::Function # The action to be performed on SyntaxNode when the predicate applies
@@ -54,16 +58,18 @@ struct AnalysisContext
     violations::Vector{Violation}
     symboltable::SymbolTableStruct
 
-    AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf}) = new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
+    function AnalysisContext(node::SyntaxNode, greenLeaves::Vector{GreenLeaf})
+        return new(node, greenLeaves, CheckRegistration[], Violation[], SymbolTableStruct())
+    end
 end
 
 "Finds GreenLeaf containing given position."
-function find_greenleaf(ctxt::AnalysisContext, pos::Int)::Union{GreenLeaf, Nothing}
+function find_greenleaf(ctxt::AnalysisContext, pos::Int)::NullableGreenLeaf
     return _find_greenleaf(ctxt.greenleaves, pos)
 end
 
 "Performs a binary search to find the GreenLeaf containing given position."
-function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, Nothing}
+function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::NullableGreenLeaf
     low = 1
     high = length(leaves)
     while low <= high
@@ -82,12 +88,12 @@ function _find_greenleaf(leaves::Vector{GreenLeaf}, pos::Int)::Union{GreenLeaf, 
     return nothing
 end
 
-function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)
+function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::GreenNode, pos::Int)::Nothing
     cs = children(node)
-    if cs === nothing
+    if isnothing(cs)
         rng = range(pos, prevind(sf.code, pos + node.span))
         push!(list, GreenLeaf(sf, node, rng))
-        return
+        return nothing
     end
 
     p = pos
@@ -95,6 +101,7 @@ function _get_green_leaves!(list::Vector{GreenLeaf}, sf::SourceFile, node::Green
         _get_green_leaves!(list, sf, child, p)
         p += child.span
     end
+    return nothing
 end
 
 function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
@@ -104,11 +111,11 @@ function _get_green_leaves(node::SyntaxNode)::Vector{GreenLeaf}
 end
 
 """
-    find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode, Nothing}
+    find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::NullableSyntaxNode
 
 Finds the most specific SyntaxNode that spans the given character position `pos`.
 """
-function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{SyntaxNode, Nothing}
+function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::NullableSyntaxNode
     # Check if the current node's range contains the position.
     if ! (pos in JuliaSyntax.byte_range(node))
         return nothing
@@ -117,7 +124,7 @@ function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{Synt
     # Iterate through children to find a more specific node.
     for child in something(children(node), [])
         found_child = find_syntaxnode_at_position(child, pos)
-        if found_child !== nothing
+        if ! isnothing(found_child)
             return found_child
         end
     end
@@ -127,11 +134,11 @@ function find_syntaxnode_at_position(node::SyntaxNode, pos::Integer)::Union{Synt
 end
 
 """
-    find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::Union{SyntaxNode, Nothing}
+    find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::NullableSyntaxNode
 
 Finds the most specific SyntaxNode that spans the given character position `pos`.
 """
-function find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::Union{SyntaxNode, Nothing}
+function find_syntaxnode_at_position(ctxt::AnalysisContext, pos::Integer)::NullableSyntaxNode
     return find_syntaxnode_at_position(ctxt.rootNode, pos)
 end
 
@@ -148,12 +155,12 @@ end
     Use `offsetspan` to specify the range of the violation relative to the node's position.
  """
 function report_violation(ctxt::AnalysisContext, check::Check, node::SyntaxNode, msg::String;
-    offsetspan::Union{Nothing, Tuple{Int,Int}}=nothing
+    offsetspan::Union{Nothing, Tuple{Int, Int}}=nothing
     )::Nothing
     linepos = JuliaSyntax.source_location(node)
     bufferrange = JuliaSyntax.byte_range(node)
 
-    if offsetspan !== nothing
+    if ! isnothing(offsetspan)
         bufferrange = range(bufferrange.start + offsetspan[1], length=offsetspan[2])
     end
 
@@ -165,7 +172,7 @@ end
 Reports a violation on location `linepos` and range `bufferrange` in the current context.
 """
 function report_violation(ctxt::AnalysisContext, check::Check,
-    linepos::Tuple{Int,Int},
+    linepos::Tuple{Int, Int},
     bufferrange::UnitRange{Int},
     msg::String
     )::Nothing
@@ -211,7 +218,7 @@ function dfs_traversal(ctxt::AnalysisContext, node::SyntaxNode, visitor_func::Fu
 
     # 3. Recursively visit children
     local children = JuliaSyntax.children(node)
-    if children === nothing
+    if isnothing(children)
         return
     end
     for child_node in children
@@ -240,7 +247,7 @@ function discover_checks()::Nothing
 end
 
 function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    visitor = function(n::SyntaxNode)
+    visitor(n::SyntaxNode)::Nothing = begin
         for reg in ctxt.registrations
             if reg.predicate(n)
                 #println("Invoking action for node type: ", reg.nodeType)
@@ -249,6 +256,7 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
                 #println("Not a match: $(reg.nodeType) vs $(kind(n))")
             end
         end
+        return nothing
     end
 
     # TODO: Is the enter and exit on the main level really necessary?
@@ -259,8 +267,8 @@ function _invoke_checks(ctxt::AnalysisContext, node::SyntaxNode)::Nothing
 end
 
 function run_analysis(sourcefile::SourceFile, checks::Vector{Check};
-        print_ast::Bool = false,
-        print_llt::Bool = false,
+        print_ast::Bool=false,
+        print_llt::Bool=false,
     )::Vector{Violation}
 
     if length(checks) >= 1

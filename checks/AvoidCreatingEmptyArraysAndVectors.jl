@@ -6,16 +6,16 @@ using ...SymbolTable: node_is_declaration_of_variable
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "avoid-creating-empty-arrays-and-vectors"
-severity(::Check) = 8
-synopsis(::Check) = "Avoid resizing arrays after initialization."
+Analysis.id(::Check) = "avoid-creating-empty-arrays-and-vectors"
+Analysis.severity(::Check) = 8
+Analysis.synopsis(::Check) = "Avoid resizing arrays after initialization."
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_assignment, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, is_assignment, n -> _check(this, ctxt, n))
     return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)::Nothing
+function _check(this::Check, ctxt::AnalysisContext, assignment_node::SyntaxNode)::Nothing
     if ! node_is_declaration_of_variable(ctxt.symboltable, first(children(assignment_node)))
         return
     end

@@ -5,11 +5,13 @@ include("_common.jl")
 using ...Properties: get_func_name, is_export, is_function, is_module
 
 struct Check<:Analysis.Check end
-id(::Check) = "underscore-prefix-for-private-functions"
-severity(::Check) = 8
-synopsis(::Check) = "Private functions are prefixed with one underscore _ character."
+Analysis.id(::Check) = "underscore-prefix-for-private-functions"
+Analysis.severity(::Check) = 8
+function Analysis.synopsis(::Check)::String
+    return "Private functions are prefixed with one underscore _ character."
+end
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
     return nothing
 end

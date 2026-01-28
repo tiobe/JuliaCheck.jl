@@ -6,12 +6,12 @@ using ...Properties: is_toplevel
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "consistent-line-endings"
-severity(::Check) = 7
-synopsis(::Check) = "Make sure that the line endings are consistent within a file"
+Analysis.id(::Check) = "consistent-line-endings"
+Analysis.severity(::Check) = 7
+Analysis.synopsis(::Check) = "Make sure that the line endings are consistent within a file"
 
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
     return nothing
 end

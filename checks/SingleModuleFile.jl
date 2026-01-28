@@ -5,16 +5,17 @@ using JuliaSyntax: filename
 using ...Properties: is_module
 
 struct Check<:Analysis.Check end
-id(::Check) = "single-module-file"
-severity(::Check) = 5
-synopsis(::Check) = "Single module per file"
+Analysis.id(::Check) = "single-module-file"
+Analysis.severity(::Check) = 5
+Analysis.synopsis(::Check) = "Single module per file"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_module, node -> check(this, ctxt, node))
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, is_module, node -> _check(this, ctxt, node))
+    return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)
-    @assert kind(module_node) == K"module" "Expected a [module] node, got [$(kind(node))]."
+function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
+    @assert kind(module_node) == K"module" "Expected a [module] node, got [$(kind(module_node))]."
     father = module_node.parent
     kids = children(father)
     if kind(father) == K"toplevel"
@@ -45,6 +46,7 @@ function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)
             end
         end
     end
+    return nothing
 end
 
 end # module SingleModuleFile

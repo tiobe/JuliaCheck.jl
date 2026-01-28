@@ -18,9 +18,9 @@ using ...WhitespaceHelpers:
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "space-around-binary-infix-operators"
-severity(::Check) = 7
-function synopsis(::Check)
+Analysis.id(::Check) = "space-around-binary-infix-operators"
+Analysis.severity(::Check) = 7
+function Analysis.synopsis(::Check)::String
     return "Selected binary infix operators and the = character are followed and preceded by a single space."
 end
 
@@ -33,7 +33,7 @@ Kinds for which the surrounding whitespace is not checked
 """
 const EXCLUDED_KINDS = [":", "."]
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(
         ctxt,
         _node_applicable,

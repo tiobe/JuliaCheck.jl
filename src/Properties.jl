@@ -3,7 +3,7 @@ module Properties
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
     head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
-export AnyTree, NullableNode, EOL, MAX_LINE_LENGTH,
+export AnyTree, NullableNode, MAX_LINE_LENGTH,
 
     children, closes_module, closes_scope, expr_depth, expr_size,
 
@@ -33,10 +33,9 @@ const NullableString = Union{String, Nothing}
 const NullableNode = Union{AnyTree, Nothing}
 const NodeAndString = Tuple{AnyTree, NullableString}
 
-
 ## Global definitions
+""" Maximum allowed length of a source line. """
 const MAX_LINE_LENGTH = 92
-const EOL = (Sys.iswindows() ? "\n\r" : "\n")
 
 ## Functions
 
@@ -108,7 +107,7 @@ function is_global_decl(node::AnyTree)::Bool
 end
 function is_constant(node::AnyTree)::Bool
     return kind(node) == K"const" ||
-           (kind(node) == K"global" && haschildren(node) &&
+            (kind(node) == K"global" && haschildren(node) &&
             kind(children(node)[1]) == K"const")
 end
 
@@ -122,7 +121,7 @@ end
 
 function is_operator(node::AnyTree)::Bool
     return  JS.is_prefix_op_call(node) ||
-            is_infix_operator(node)  ||
+            is_infix_operator(node) ||
             JS.is_postfix_op_call(node)
 end
 function is_infix_operator(node::AnyTree)::Bool
@@ -146,7 +145,7 @@ function is_range(node::SyntaxNode)::Bool
             (kind(kids[1]) == K"Identifier" && string(kids[1]) == "range")
             ||
             (kind(kids[2]) == K"Identifier" && string(kids[2]) == ":")
-           )
+            )
     end
     return false
 end
@@ -171,7 +170,7 @@ end
 
 function opens_scope(node::SyntaxNode)
     return is_function(node) ||
-           kind(node) ∈ [KSet"for while try do let macro generator"]
+            kind(node) ∈ [KSet"for while try do let macro generator"]
                                 # comprehensions contain a generator
 end
 function closes_scope(node::SyntaxNode)
@@ -225,11 +224,13 @@ function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
         # Probably a function "stub", which declares a function name but no methods.
         return []
     end
-    # This returns all the arguments without any further processing.
-    # As such, this may contain:
-    # - only positional arguments (direct children)
-    # - only keyword arguments    (grandchildren, children of a parameters node)
-    # - both                      (combination of children and parameters->grandchildren)
+    #=
+    This returns all the arguments without any further processing.
+    As such, this may contain:
+    - only positional arguments (direct children)
+    - only keyword arguments    (grandchildren, children of a parameters node)
+    - both                      (combination of children and parameters->grandchildren)
+    =#
     return children(call)[2:end]    # discard the function's name (1st identifier in this list)
 end
 
@@ -313,7 +314,7 @@ function get_imported_pkg(node::SyntaxNode)::String
     else
         pkg = children(node)[1]
         if kind(pkg) == K":" || # importing/using items from a package
-           kind(pkg) == K"as"   # import with an alias
+            kind(pkg) == K"as" # import with an alias
             pkg = children(pkg)[1]
         end
         @assert kind(pkg) == K"importpath"
@@ -370,7 +371,7 @@ of whether there are still named arguments in there.
 """
 function get_flattened_fn_arg_nodes(function_node::SyntaxNode)::Vector{SyntaxNode}
     func_arguments = get_func_arguments(function_node)
-    func_arg_nodes = []
+    func_arg_nodes = Vector{SyntaxNode}()
     for arg in func_arguments
         # Parameters signifies keyword (also known as named) arguments.
         # All named arguments are then reported in subnodes. For now, we don't
@@ -498,8 +499,8 @@ returned parts are `nothing` (but it is still a pair).
 function get_iteration_parts(for_loop::SyntaxNode)::Tuple{NullableNode, NullableNode}
     if kind(for_loop) == K"for"
         if !(haschildren(for_loop) &&
-              kind(first_child(for_loop)) == K"iteration"
-           )
+                kind(first_child(for_loop)) == K"iteration"
+            )
             @debug "for loop does not have an [iteration]" for_loop
             return nothing, nothing
         end

@@ -1,13 +1,13 @@
 module JSONViolationPrinter
 
-import ...Analysis: Violation, severity, id, synopsis
-import ..Output: shorthand, requiresfile, print_violations; using ..Output
-import JuliaSyntax: filename, source_location, SourceFile
-import JSON3
+using ...Analysis: Violation, severity, id, synopsis
+using JSON3
+using JuliaSyntax: filename, source_location
+using ..Output
 
 struct ViolationPrinter<:Output.ViolationPrinter end
-shorthand(::ViolationPrinter) = "json"
-requiresfile(::ViolationPrinter) = true
+Output.shorthand(::ViolationPrinter) = "json"
+Output.requiresfile(::ViolationPrinter) = true
 
 Base.@kwdef struct ViolationOutput
     line_start::Int64
@@ -22,9 +22,9 @@ Base.@kwdef struct ViolationOutput
     url::String
 end
 
-function print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
+function Output.print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
-    output_violations = []
+    output_violations = Vector{ViolationOutput}()
     for v in violations
         l_end, c_end = source_location(v.sourcefile, v.bufferrange.stop)
         push!(output_violations, ViolationOutput(

@@ -4,17 +4,18 @@ include("_common.jl")
 using ...Properties: get_imported_pkg, is_import, is_include, is_module
 
 struct Check<:Analysis.Check end
-id(::Check) = "module-single-import-line"
-severity(::Check) = 9
-synopsis(::Check) = "The list of packages should be in alphabetical order"
+Analysis.id(::Check) = "module-single-import-line"
+Analysis.severity(::Check) = 9
+Analysis.synopsis(::Check) = "The list of packages should be in alphabetical order"
 
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, is_module, n -> check(this, ctxt, n))
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, is_module, n -> _check(this, ctxt, n))
+    return nothing
 end
 
-function check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
+function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::Nothing
     @assert kind(module_node) == K"module" "Expected a [module] node, got [$(kind(module_node))]."
-    @assert numchildren(module_node) == 2 "This module has a weird shape: "* string(module_node)
+    @assert numchildren(module_node) == 2 "This module has a weird shape: " * string(module_node)
     @assert kind(children(module_node)[2]) == K"block" "The second child of a [module] node is not a [block]!"
 
     # Filters on using, import, include.

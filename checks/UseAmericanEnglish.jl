@@ -6,11 +6,11 @@ using JuliaSyntax: byte_range
 include("_common.jl")
 
 struct Check<:Analysis.Check end
-id(::Check) = "use-american-english"
-severity(::Check) = 9
-synopsis(::Check) = "Comments should be in the American-English language"
+Analysis.id(::Check) = "use-american-english"
+Analysis.severity(::Check) = 9
+Analysis.synopsis(::Check) = "Comments should be in the American-English language"
 
-function init(this::Check, ctxt::AnalysisContext)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     forbidden_words = _load_words(joinpath(@__DIR__, "_config", "words_en-GB.txt"))
     register_syntaxnode_action(ctxt, contains_comments, n -> _check_comment(this, ctxt, n, forbidden_words))
     register_syntaxnode_action(ctxt, n -> kind(n) == K"doc", n -> _check_docstring(this, ctxt, n, forbidden_words))

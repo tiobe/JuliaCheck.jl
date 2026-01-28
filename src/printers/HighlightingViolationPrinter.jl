@@ -1,14 +1,14 @@
 module HighlightingViolationPrinter
 
-import ...Analysis: Violation, severity, id, synopsis
-import ..Output: shorthand, requiresfile, print_violations; using ..Output
-import JuliaSyntax: SourceFile, JuliaSyntax as JS
+using ...Analysis: Violation, severity, id, synopsis
+using JuliaSyntax: filename, highlight, SourceFile
+using ..Output
 
 struct ViolationPrinter<:Output.ViolationPrinter end
-shorthand(::ViolationPrinter) = "highlighting"
-requiresfile(::ViolationPrinter) = false
+Output.shorthand(::ViolationPrinter) = "highlighting"
+Output.requiresfile(::ViolationPrinter) = false
 
-function print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
+function Output.print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
     append_period(s::String) = endswith(s, ".") ? s : s * "."
     for v in violations
         _report_violation(
@@ -29,16 +29,17 @@ end
 function _report_violation(sourcefile::SourceFile; index::Int, len::Int, line::Int, col::Int,
                             severity::Int, user_msg::String,
                             summary::String, rule_id::String)::Nothing
-    printstyled("\n$(JS.filename(sourcefile))($line, $col):\n";
+    printstyled("\n$(filename(sourcefile))($line, $col):\n";
                 underline=true)
-    JS.highlight(stdout, sourcefile, index:index+len-1;
-                 note=user_msg, notecolor=:yellow,
-                 context_lines_after=0, context_lines_before=0)
+    highlight(stdout, sourcefile, range(index; length=len);
+                note=user_msg, notecolor=:yellow,
+                context_lines_after=0, context_lines_before=0)
     printstyled("\n$summary"; color=:cyan)
     printstyled("\nRule:"; underline=true)
     printstyled(" $rule_id. ")
     printstyled("Severity:"; underline=true)
     printstyled(" $severity\n")
+    return nothing
 end
 
 end # module HighlightingViolationPrinter

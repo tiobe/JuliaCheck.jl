@@ -5,15 +5,18 @@ include("_common.jl")
 using JuliaSyntax: sourcetext
 
 struct Check<:Analysis.Check end
-id(::Check) = "leading-and-trailing-digits"
-severity(::Check) = 3
-synopsis(::Check) = "Floating-point numbers should always have one digit before the decimal point and at least one after"
-
-function init(this::Check, ctxt::AnalysisContext)
-    register_syntaxnode_action(ctxt, n -> kind(n) == K"Float", n -> checkFloatNode(this, ctxt, n))
+Analysis.id(::Check) = "leading-and-trailing-digits"
+Analysis.severity(::Check) = 3
+function Analysis.synopsis(::Check)
+    return "Floating-point numbers should always have one digit before the decimal point and at least one after"
 end
 
-function checkFloatNode(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
+function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
+    register_syntaxnode_action(ctxt, n -> kind(n) == K"Float", n -> _check_float_node(this, ctxt, n))
+    return nothing
+end
+
+function _check_float_node(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     text = sourcetext(node)
     index = findfirst('.', text)
 

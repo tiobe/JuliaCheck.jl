@@ -1,7 +1,7 @@
 module Output
 
 export ViolationPrinter, get_available_printers, shorthand, requiresfile, print_violations,
-       select_violation_printer, parse_output_file_arg
+        select_violation_printer, parse_output_file_arg
 
 import ..Analysis: Violation
 import InteractiveUtils: subtypes
