@@ -1,14 +1,13 @@
 module SimpleViolationPrinter
 
-import ...Analysis: Violation, severity, id
-import ..Output: shorthand, requiresfile, print_violations; using ..Output
-import JuliaSyntax: SourceFile
+using ...Analysis: Violation, severity, id
+using ..Output
 
 struct ViolationPrinter<:Output.ViolationPrinter end
-shorthand(::ViolationPrinter) = "simple"
-requiresfile(::ViolationPrinter) = false
+Output.shorthand(::ViolationPrinter) = "simple"
+Output.requiresfile(::ViolationPrinter) = false
 
-function print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
+function Output.print_violations(this::ViolationPrinter, outputfile::String, violations::Vector{Violation})::Nothing
     if length(violations) == 0
         println("No violations found.")
     else

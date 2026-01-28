@@ -127,7 +127,9 @@ end
 
     normalize(text) = strip(replace(text, "\r\n" => "\n", "\\" => "/")) * "\n"
     cd("res") do
-        @testset for printer in JuliaCheck.Output.get_available_printers()
+        printers = JuliaCheck.Output.get_available_printers()
+        @test length(printers) >= 3
+        @testset for printer in printers
             printer_cmd = JuliaCheck.Output.shorthand(printer)
             printer_file = "ViolationPrinter-$(printer_cmd).out"
             val_file = "ViolationPrinter-$(printer_cmd).val"
@@ -221,9 +223,10 @@ end
 @testitem "JuliaCheck self" begin
     import IOCapture
     isjuliafile = f -> endswith(f, ".jl")
-    checkfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "checks"), join=true))
-    srcfiles = filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), "src"), join=true))
-    files = union(checkfiles, srcfiles)
+    files = collect(Iterators.flatten(map(
+        dir -> filter(isjuliafile, readdir(joinpath(dirname(@__DIR__), dir), join=true)),
+        ["checks", "src", joinpath("src", "printers")]
+    )))
 
     args = ["--"]
     for file in files
