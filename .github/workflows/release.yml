@@ -27,7 +27,7 @@ jobs:
         id: gitversion # step id used as a reference for output values
         uses: gittools/actions/gitversion/execute@v4.1.0
       - name: Increment version in Project.toml
-        run: sed -i -E 's/^version = "[0-9.]+"/version = "${{ steps.gitversion.outputs.majorMinorPatch }}"/g' Project.toml
+        run: sed -i -E 's/^version\s*=\s*"[0-9.]+"/version = "${{ steps.gitversion.outputs.majorMinorPatch }}"/g' Project.toml
       - name: Commit version increment
         uses: stefanzweifel/git-auto-commit-action@v7.1.0
         with:
