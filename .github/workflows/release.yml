@@ -12,6 +12,8 @@ jobs:
       github.event.pull_request.merged == true &&
       github.base_ref == 'main')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -21,9 +23,16 @@ jobs:
         uses: gittools/actions/gitversion/setup@v4.1.0
         with:
           versionSpec: '6.4.x'
-      - name: Determine Version
+      - name: Determine version
         id: gitversion # step id used as a reference for output values
         uses: gittools/actions/gitversion/execute@v4.1.0
+      - name: Increment version in Project.toml
+        run: sed -i -E 's/^version\s*=\s*"[0-9.]+"/version = "${{ steps.gitversion.outputs.majorMinorPatch }}"/g' Project.toml
+      - name: Commit version increment
+        uses: stefanzweifel/git-auto-commit-action@v7.1.0
+        with:
+          branch: ${{ github.base_ref }}
+          commit_message: Increment package version
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
