@@ -4,7 +4,7 @@ import DataStructures: Stack
 
 using JuliaSyntax: SyntaxNode, @K_str, children, head, kind, sourcetext
 using ..Properties: find_lhs_of_kind, get_func_name, get_assignee, get_func_arguments,
-    get_module_name, get_var_from_assignment, haschildren, is_assignment, is_function,
+    get_module_name, get_var_from_assignment, haschildren, is_assignment, is_function, is_macro,
     is_global_decl, is_module, opens_scope, is_mod_toplevel
 using ..SyntaxNodeHelpers: ancestors, find_descendants, get_all_assignees
 using ..TypeHelpers: get_variable_type_from_node, is_different_type, TypeSpecifier
@@ -234,7 +234,7 @@ Currently logs new modules, functions, and (global) variables.
 function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::SyntaxNode)::Nothing
     if is_module(node)
         _enter_module!(table, node)
-    elseif is_function(node)
+    elseif is_function(node) || is_macro(node)
         _process_function!(table, node)
     elseif is_global_decl(node)
         _process_global!(table, node)

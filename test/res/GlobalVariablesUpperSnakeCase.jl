@@ -36,3 +36,8 @@ dict["a"] = "b" # Good: `dict` is not declared here
 
 # RM-37326, note 7: do not report on same global variable twice
 some_number, another_number, yet_another_number = 3, 1, 1 # Bad: yet_another_number
+
+# RM-37938: do not report inside macro body
+macro mymacro(expr::Expr)
+    some_name = "a"
+end

@@ -18,7 +18,7 @@ export AnyTree, NullableNode, MAX_LINE_LENGTH,
     haschildren, increase_counters, is_abstract, is_array_assignment, is_array_indx, is_assignment,
     is_broadcasting_assignment, is_constant, is_dot, is_eq_neq_comparison, is_eval_call, is_export,
     is_fat_snake_case, is_field_assignment, is_flow_cntrl, is_function, is_global_decl,
-    is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake,
+    is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake, is_macro,
     is_module, is_mutating_call, is_operator, is_range, is_separator, is_stop_point,
     is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, is_vect,
     is_call, is_mod_toplevel, inside,
@@ -70,6 +70,7 @@ is_assignment(node::AnyTree)::Bool = kind(node) == K"=" &&
     kind(node.parent) ∉ KSet"parameters tuple" # Do not consider keyword arguments an assignment
 is_dot(node::AnyTree)::Bool = kind(node) == K"."
 is_function(node::AnyTree)::Bool = kind(node) == K"function"
+is_macro(node::AnyTree)::Bool = kind(node) == K"macro"
 is_struct(node::AnyTree)::Bool = kind(node) == K"struct"
 is_abstract(node::AnyTree)::Bool = kind(node) == K"abstract"
 is_array_indx(node::AnyTree)::Bool = kind(node) == K"ref"
@@ -184,7 +185,7 @@ end
 Return the node carrying the function's name.
 """
 function get_func_name(node::SyntaxNode)::NullableNode
-    @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
+    @assert (is_function(node) || is_macro(node)) "Expected a [function] or [macro] node, got [$(kind(node))]."
     fname = find_lhs_of_kind(K"Identifier", node)
     if isnothing(fname)
         # We give it one more chance to find the function's name: it will return
@@ -218,7 +219,7 @@ end
 Return a list of nodes representing the arguments of a function.
 """
 function get_func_arguments(node::SyntaxNode)::Vector{SyntaxNode}
-    @assert is_function(node) "Expected a [function] node, got [$(kind(node))]."
+    @assert (is_function(node) || is_macro(node)) "Expected a [function] or [macro] node, got [$(kind(node))]."
     call = find_lhs_of_kind(K"call", children(node)[1])
     if isnothing(call)
         # Probably a function "stub", which declares a function name but no methods.
