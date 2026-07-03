@@ -41,3 +41,10 @@ some_number, another_number, yet_another_number = 3, 1, 1 # Bad: yet_another_num
 macro mymacro(expr::Expr)
     some_name = "a"
 end
+
+# RM-37939: do not report inside struct definition
+Base.@kwdef struct NiceStruct
+    my_bool = true
+end
+
+some_number_also = 1 # Bad: put violation at end to check scopes are exited properly

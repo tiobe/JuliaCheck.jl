@@ -35,3 +35,9 @@ some_number, another_number, yet_another_number = 3, 1, 1 # Bad: yet_another_num
 #                            └────────────────┘ ── Variable 'yet_another_number' should be written in UPPER_SNAKE_CASE.
 Casing of globals.
 Rule: global-variables-upper-snake-case. Severity: 3
+
+GlobalVariablesUpperSnakeCase.jl(50, 1):
+some_number_also = 1 # Bad: put violation at end to check scopes are exited properly
+└──────────────┘ ── Variable 'some_number_also' should be written in UPPER_SNAKE_CASE.
+Casing of globals.
+Rule: global-variables-upper-snake-case. Severity: 3
