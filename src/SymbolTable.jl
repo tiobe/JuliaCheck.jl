@@ -243,6 +243,8 @@ function update_symbol_table_on_node_enter!(table::SymbolTableStruct, node::Synt
             is_mod_toplevel(node.parent) # Top-level assignment defines a global variable
         scope = is_assignment_to_global ? _global_scope(table) : _current_scope(table)
         _process_assignment!(scope, node)
+    elseif opens_scope(node)
+        _enter_scope!(table)
     end
     return nothing
 end

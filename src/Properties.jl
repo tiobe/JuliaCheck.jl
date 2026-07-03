@@ -171,8 +171,7 @@ end
 
 function opens_scope(node::SyntaxNode)
     return is_function(node) ||
-            kind(node) ∈ [KSet"for while try do let macro generator"]
-                                # comprehensions contain a generator
+            kind(node) ∈ KSet"for while try do let macro generator struct"
 end
 function closes_scope(node::SyntaxNode)
     return kind(node) == K"end" && opens_scope(node.parent)
