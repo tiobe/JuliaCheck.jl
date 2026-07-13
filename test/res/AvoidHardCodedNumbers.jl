@@ -1,3 +1,12 @@
+module GoodStyleFirstRound
+
+# Check that if a first mention of a number literal is in an allowed context,
+# the line number refers to the first faulty mention
+
+allowed_usage_in_array = [37.940, 37.941, 37.942]
+
+end #GoodStyleFirstRound
+
 module BadStyle
 
 energy = m * 4.493_775_893_684_088e16
@@ -19,6 +28,9 @@ wraparound_overflow_19_neg = 8446744073709551616
 wraparound_overflow_20_neg = -7766279631452241920
 
 nok_floats = max(1.1, 1.1, 0.2, 1.1, 1000.1, 1.1, 0.2, 0.2, 1000.1)
+
+first_wrong_usage = 37.940
+
 end # BadStyle
 
 module GoodStyle
@@ -57,5 +69,8 @@ another_vectorwraparound_overflow_19 = -8446744073709551616
 another_vectorwraparound_overflow_20 = 7766279631452241920
 another_vectorwraparound_overflow_19_neg = -7766279631452241920
 another_vectorwraparound_overflow_20_neg = 8446744073709551616
+
+# Should report on the line number of first_wrong_usage, not allowed_usage_in_array
+second_wrong_usage = 37.940
 
 end # BadStyle2ndRound
