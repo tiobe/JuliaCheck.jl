@@ -54,7 +54,7 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
         if haskey(this.seen_before, n)
             first_seen_line = this.seen_before[n]
             current_line, _ = source_location(node)
-            extra_msg = first_seen_line == current_line ? "earlier on the same line" : "at line $previous_line"
+            extra_msg = first_seen_line == current_line ? "earlier on the same line" : "at line $first_seen_line"
             report_violation(ctxt, this, node, "Hard-coded number '$n' (first used $extra_msg) should be a const variable.")
         else
             first_seen_line, _ = source_location(node)
