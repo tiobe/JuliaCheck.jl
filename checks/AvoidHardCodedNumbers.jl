@@ -52,13 +52,13 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     if !_is_const_declaration(node) && !_in_array_assignment(node) && _is_magic_number(node)
         n = get_number(node)
         if haskey(this.seen_before, n)
-            previous_line = this.seen_before[n]
+            first_seen_line = this.seen_before[n]
             current_line, _ = source_location(node)
-            extra_msg = previous_line == current_line ? "earlier on the same line" : "at line $previous_line"
+            extra_msg = first_seen_line == current_line ? "earlier on the same line" : "at line $previous_line"
             report_violation(ctxt, this, node, "Hard-coded number '$n' (first used $extra_msg) should be a const variable.")
         else
-            line, _ = source_location(node)
-            this.seen_before[n] = line
+            first_seen_line, _ = source_location(node)
+            this.seen_before[n] = first_seen_line
         end
     end
     return nothing
