@@ -1,7 +1,7 @@
 module NewlineAtFileEnd
 
 using JuliaSyntax
-using ...Properties: is_toplevel
+using ...Properties: is_highest_toplevel
 using ...WhitespaceHelpers: get_line_range
 
 include("_common.jl")
@@ -12,7 +12,7 @@ Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Single newline at the end of file"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_highest_toplevel, n -> _check(this, ctxt, n))
     return nothing
 end
 

@@ -1,6 +1,6 @@
 >> Processing file 'NewlineAtFileEnd.jl/NewlineWithDoubleToplevel.jl'...
 
-NewlineAtFileEnd.jl\NewlineAtFileEnd_no_nl.jl(8, 0):
+NewlineAtFileEnd.jl\NewlineWithDoubleToplevel.jl(7, 0):
 const LOCATION = Location();
 └──────────────────────────┘ ── No newline found at end of file.
 Single newline at the end of file.
