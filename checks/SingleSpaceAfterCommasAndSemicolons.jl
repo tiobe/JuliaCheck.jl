@@ -2,7 +2,7 @@ module SingleSpaceAfterCommasAndSemicolons
 
 include("_common.jl")
 
-using ...Properties: is_toplevel
+using ...Properties: is_root_node
 using ...SyntaxNodeHelpers
 
 struct Check<:Analysis.Check end
@@ -11,7 +11,7 @@ Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Commas and semicolons are followed, but not preceded, by a space."
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, node -> begin
+    register_syntaxnode_action(ctxt, is_root_node, node -> begin
         code = node.source.code
         report_if_space(pos::Integer, func::Function, shouldhave::Integer, msg::String)::Nothing = begin
             range = func(code, pos)

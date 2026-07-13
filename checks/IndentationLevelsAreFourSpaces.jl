@@ -1,6 +1,6 @@
 module IndentationLevelsAreFourSpaces
 
-using ...Properties: is_toplevel
+using ...Properties: is_root_node
 
 include("_common.jl")
 
@@ -10,7 +10,7 @@ Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Indentation should be a multiple of four spaces"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, n -> begin
+    register_syntaxnode_action(ctxt, is_root_node, n -> begin
         for gl in ctxt.greenleaves
             # We will inspect nodes of kind [NewlineWs] containing indentation spaces
             # and possibly (most of the time, in fact) starting with a line break, but
