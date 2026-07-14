@@ -3,7 +3,7 @@ module ModuleEndComment
 include("_common.jl")
 
 using JuliaSyntax: last_byte
-using ...Properties: is_module, is_toplevel, get_module_name
+using ...Properties: is_module, get_module_name
 
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "module-end-comment"

@@ -1,7 +1,7 @@
 module ConsistentLineEndings
 
 using JuliaSyntax: SourceFile, JuliaSyntax as JS
-using ...Properties: is_toplevel
+using ...Properties: is_root_node
 
 include("_common.jl")
 
@@ -12,7 +12,7 @@ Analysis.synopsis(::Check) = "Make sure that the line endings are consistent wit
 
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_root_node, n -> _check(this, ctxt, n))
     return nothing
 end
 

@@ -1,0 +1,7 @@
+>> Processing file 'NewlineAtFileEnd.jl/NewlineWithDoubleToplevel.jl'...
+
+NewlineAtFileEnd.jl\NewlineWithDoubleToplevel.jl(7, 0):
+const LOCATION = Location();
+└──────────────────────────┘ ── No newline found at end of file.
+Single newline at the end of file.
+Rule: newline-at-file-end. Severity: 7
