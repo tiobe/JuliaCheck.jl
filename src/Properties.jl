@@ -91,7 +91,7 @@ is_stop_point(node::AnyTree)::Bool =
     kind(node) ∈ KSet"function module do let toplevel macro"
 
 function is_root_node(node::AnyTree)::Bool
-    return is_toplevel(node) && isnothing(node.parent)
+    return isnothing(node.parent)
 end
 
 function is_eval_call(node::AnyTree)::Bool
