@@ -19,7 +19,7 @@ export AnyTree, NullableNode, MAX_LINE_LENGTH,
     is_broadcasting_assignment, is_constant, is_dot, is_eq_neq_comparison, is_eval_call, is_export,
     is_fat_snake_case, is_field_assignment, is_flow_cntrl, is_function, is_global_decl,
     is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake, is_macro,
-    is_module, is_mutating_call, is_operator, is_range, is_separator, is_stop_point,
+    is_module, is_mutating_call, is_operator, is_range, is_root_node, is_separator, is_stop_point,
     is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, is_vect,
     is_call, is_mod_toplevel, inside,
 
@@ -89,6 +89,10 @@ is_array_assignment(n::SyntaxNode)::Bool = is_array_indx(n) && is_assignment(n.p
 # When searching for a parent node of a certain kind, we stop at these nodes:
 is_stop_point(node::AnyTree)::Bool =
     kind(node) ∈ KSet"function module do let toplevel macro"
+
+function is_root_node(node::AnyTree)::Bool
+    return isnothing(node.parent)
+end
 
 function is_eval_call(node::AnyTree)::Bool
     return kind(node) == K"macrocall" &&

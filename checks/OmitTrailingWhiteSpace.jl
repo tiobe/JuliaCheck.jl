@@ -1,6 +1,6 @@
 module OmitTrailingWhiteSpace
 
-using ...Properties: is_toplevel
+using ...Properties: is_root_node
 
 include("_common.jl")
 
@@ -10,7 +10,7 @@ Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "Omit spaces at the end of a line"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_root_node, n -> _check(this, ctxt, n))
     return nothing
 end
 
@@ -26,4 +26,3 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
 end
 
 end # module OmitTrailingWhiteSpace
-

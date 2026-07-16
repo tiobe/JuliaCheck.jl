@@ -1,6 +1,6 @@
 module DoNotNestMultilineComments
 
-using ...Properties: is_toplevel
+using ...Properties: is_root_node
 using ...SyntaxNodeHelpers
 
 include("_common.jl")
@@ -14,7 +14,7 @@ Analysis.severity(::Check) = 9
 Analysis.synopsis(::Check) = "Don't nest multiline comments"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, node -> begin
+    register_syntaxnode_action(ctxt, is_root_node, node -> begin
         code = node.source.code
         comments = filter(gl -> kind(gl) == K"Comment", ctxt.greenleaves)
         for comment in comments

@@ -1,7 +1,7 @@
 module AvoidExtraneousWhitespaceBetweenOpenAndCloseCharacters
 
 using JuliaSyntax: SourceFile, has_flags, head, PARENS_FLAG, is_prefix_call
-using ...Properties: is_toplevel
+using ...Properties: is_root_node
 
 include("_common.jl")
 
@@ -114,7 +114,7 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
 end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, is_toplevel, root -> _check(this, ctxt, root.source))
+    register_syntaxnode_action(ctxt, is_root_node, root -> _check(this, ctxt, root.source))
     return nothing
 end
 
