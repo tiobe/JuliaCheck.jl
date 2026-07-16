@@ -1,7 +1,7 @@
 module Properties
 
-import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
+import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str, TRIPLE_STRING_FLAG,
+    has_flags, head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
 export AnyTree, NullableNode, MAX_LINE_LENGTH,
 
@@ -20,7 +20,7 @@ export AnyTree, NullableNode, MAX_LINE_LENGTH,
     is_fat_snake_case, is_field_assignment, is_flow_cntrl, is_function, is_global_decl,
     is_import, is_include, is_infix_operator, is_literal_number, is_loop, is_lower_snake, is_macro,
     is_module, is_mutating_call, is_operator, is_range, is_root_node, is_separator, is_stop_point,
-    is_struct, is_toplevel, is_type_op, is_union_decl, is_upper_camel_case, is_vect,
+    is_struct, is_toplevel, is_triple_quote, is_type_op, is_union_decl, is_upper_camel_case, is_vect,
     is_call, is_mod_toplevel, inside,
 
     lines_count, opens_scope,
@@ -77,6 +77,7 @@ is_array_indx(node::AnyTree)::Bool = kind(node) == K"ref"
 is_vect(node::AnyTree)::Bool = kind(node) == K"vect"
 is_call(node::AnyTree)::Bool = kind(node) == K"call"
 
+
 is_loop(node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_separator(node::AnyTree)::Bool = kind(node) in KSet", ;"
 is_flow_cntrl(node::AnyTree)::Bool = kind(node) in KSet"if for while try"
@@ -114,6 +115,10 @@ function is_constant(node::AnyTree)::Bool
     return kind(node) == K"const" ||
             (kind(node) == K"global" && haschildren(node) &&
             kind(children(node)[1]) == K"const")
+end
+
+function is_triple_quote(node::AnyTree)::Bool
+    return kind(node) == K"string" && has_flags(node, TRIPLE_STRING_FLAG)
 end
 
 function is_union_decl(node::SyntaxNode)::Bool

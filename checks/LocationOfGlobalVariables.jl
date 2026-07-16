@@ -2,7 +2,8 @@ module LocationOfGlobalVariables
 
 include("_common.jl")
 
-using ...Properties: haschildren, is_export, is_global_decl, is_import, is_mod_toplevel
+using ...Properties: haschildren, is_export, is_global_decl, is_import, is_mod_toplevel,
+                     is_triple_quote
 
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "location-of-global-variables"
@@ -28,15 +29,27 @@ function _check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)::Noth
         if node === glob_decl
             return # we are done
         end
-        if ! (is_import(node) || is_export(node) || is_global_decl(node))
-            # If we find a node that is not an import, export or global
-            # declaration between the start of the module and the global
-            # declaration under study, we report a violation.
-            report_violation(ctxt, this, glob_decl, synopsis(this))
-            return
+        if _is_allowed_before_const(node)
+            continue
         end
+        # Docstring constructions depend on whether the second child node is in the 'allowed list'.
+        # First child is the docstring. Second child is the node we need to check.
+        if kind(node) == K"doc"
+            commented_node = children(node)[2]
+            if _is_allowed_before_const(commented_node)
+                continue
+            end
+        end
+        report_violation(ctxt, this, glob_decl, synopsis(this))
     end
     return nothing
+end
+
+# Imports, exports, (other) global declarations and triple-quote comments are allowed
+# to be present before global declarations. Regular #-prefixed comments do not show
+# up in the syntax tree; they are only present in the green tree.
+function _is_allowed_before_const(node::SyntaxNode)::Bool
+    return is_import(node) || is_export(node) || is_global_decl(node) || is_triple_quote(node)
 end
 
 end # LocationOfGlobalVariables
