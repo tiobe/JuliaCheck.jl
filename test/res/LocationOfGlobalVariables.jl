@@ -29,6 +29,12 @@ module MyGoodStylePackage
     include("SomeSubmodule.jl")  # except `include` for a submodule
     import .SomeSubmodule
 
+    # a comment is no problem
+
+    """
+    a long form comment is no problem either
+    """
+
     const MY_GLOB = 42
 
     function foo()::Nothing
