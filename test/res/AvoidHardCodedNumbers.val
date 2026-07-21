@@ -80,6 +80,6 @@ Rule: avoid-hard-coded-numbers. Severity: 3
 
 AvoidHardCodedNumbers.jl(74, 22):
 second_wrong_usage = 37.940
-#                    └────┘ ── Hard-coded number '37.94' (first used at line 32) should be a const variable.
+#                    └────┘ ── Hard-coded number '37.940' (first used at line 32) should be a const variable.
 Avoid hard-coded numbers.
 Rule: avoid-hard-coded-numbers. Severity: 3
