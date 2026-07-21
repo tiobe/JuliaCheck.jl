@@ -46,12 +46,6 @@ module MyGoodStylePackage
     import .SomeSubmodule
 
     # a comment is no problem
-
-    """
-    a long form comment is no problem either
-    """
-
-    const MY_GLOB = 42
     
     """
     and neither is a docstring right in front of a global

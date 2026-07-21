@@ -2,8 +2,7 @@ module LocationOfGlobalVariables
 
 include("_common.jl")
 
-using ...Properties: haschildren, is_export, is_global_decl, is_import, is_mod_toplevel,
-                     is_triple_quote
+using ...Properties: haschildren, is_export, is_global_decl, is_import, is_mod_toplevel
 
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "location-of-global-variables"
@@ -45,11 +44,10 @@ function _check(this::Check, ctxt::AnalysisContext, glob_decl::SyntaxNode)::Noth
     return nothing
 end
 
-# Imports, exports, (other) global declarations and triple-quote comments are allowed
-# to be present before global declarations. Regular #-prefixed comments do not show
-# up in the syntax tree; they are only present in the green tree.
+# Imports, exports, (other) global declarations are allowed
+# to be present before global declarations.
 function _is_allowed_before_const(node::SyntaxNode)::Bool
-    return is_import(node) || is_export(node) || is_global_decl(node) || is_triple_quote(node)
+    return is_import(node) || is_export(node) || is_global_decl(node)
 end
 
 end # LocationOfGlobalVariables
