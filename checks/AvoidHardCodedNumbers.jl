@@ -1,5 +1,7 @@
 module AvoidHardCodedNumbers
 
+import JuliaSyntax: sourcetext
+
 using ...Properties: get_number, is_constant, is_global_decl, is_literal_number
 
 include("_common.jl")
@@ -31,11 +33,11 @@ const KNOWN_FLOATS = Set{Float64}([0.1, 0.01, 0.001, 0.0001, 0.5]) ∪
                     Set{Float64}(convert.(Float64, SOME_SPECIAL_INTS))
 
 struct Check<:Analysis.Check
-    seen_before::Set{Number}
+    number_occurrence::Dict{Number, SyntaxNode}
 
     # FIXME Fine for integers but, for floats, we should
     # probably use a tolerance to compare them.
-    Check() = new(Set{Number}())
+    Check() = new(Dict{Number, SyntaxNode}())
 end
 Analysis.id(::Check) = "avoid-hard-coded-numbers"
 Analysis.severity(::Check) = 3
@@ -51,10 +53,14 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
     @assert is_literal_number(node) "Expected a node with a literal number, got $(kind(node))"
     if !_is_const_declaration(node) && !_in_array_assignment(node) && _is_magic_number(node)
         n = get_number(node)
-        if n ∈ this.seen_before
-            report_violation(ctxt, this, node, "Hard-coded number '$n' should be a const variable.")
+        if !haskey(this.number_occurrence, n)
+            this.number_occurrence[n] = node
         else
-            push!(this.seen_before, n)
+            first_instance_line, _ = source_location(this.number_occurrence[n])
+            current_instance_line, _ = source_location(node)
+            number_text = sourcetext(node)
+            extra_msg = first_instance_line == current_instance_line ? "earlier on the same line" : "at line $first_instance_line"
+            report_violation(ctxt, this, node, "Hard-coded number '$number_text' (first used $extra_msg) should be a const variable.")
         end
     end
     return nothing
