@@ -1,7 +1,7 @@
 module Properties
 
 import JuliaSyntax: Kind, GreenNode, SyntaxNode, SourceFile, @K_str, @KSet_str,
-    has_flags, head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
+    head, is_dotted, is_leaf, kind, numchildren, sourcetext, span, untokenize, JuliaSyntax as JS
 
 export AnyTree, NullableNode, MAX_LINE_LENGTH,
 
@@ -76,7 +76,6 @@ is_abstract(node::AnyTree)::Bool = kind(node) == K"abstract"
 is_array_indx(node::AnyTree)::Bool = kind(node) == K"ref"
 is_vect(node::AnyTree)::Bool = kind(node) == K"vect"
 is_call(node::AnyTree)::Bool = kind(node) == K"call"
-
 
 is_loop(node::AnyTree)::Bool = kind(node) in KSet"while for"
 is_separator(node::AnyTree)::Bool = kind(node) in KSet", ;"
