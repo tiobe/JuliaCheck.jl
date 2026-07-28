@@ -65,14 +65,27 @@ end
 
 function _has_semicolon_child(node::SyntaxNode)::Bool
     green = children(node.raw)
-    return any(idx -> _has_semicolon_without_newline(green, idx), eachindex(green))
+    return any(idx -> _is_semicolon_followed_by_nontrivia(green, idx), eachindex(green))
 end
 
-function _has_semicolon_without_newline(green_children, green_idx::Integer)::Bool
+function _is_semicolon_followed_by_nontrivia(green_children, green_idx::Integer)::Bool
     current_gc = green_children[green_idx]
+    if kind(current_gc) != K";"
+        return false
+    end
+
     next_i = nextind(green_children, green_idx)
-    next_gc = checkbounds(Bool, green_children, next_i) ? green_children[next_i] : nothing
-    return kind(current_gc) == K";" && !isnothing(next_gc) && kind(next_gc) != K"NewlineWs"
+    while checkbounds(Bool, green_children, next_i)
+        next_gc = green_children[next_i]
+        if kind(next_gc) == K"NewlineWs"
+            return false
+        elseif kind(next_gc) ∈ KSet"Comment Whitespace"
+            next_i = nextind(green_children, next_i)
+        else
+            return true
+        end
+    end
+    return false
 end
 
 function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
@@ -80,7 +93,7 @@ function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
     offset = 0
     green_children = children(node.raw)
     for green_idx in eachindex(green_children)
-        if (_has_semicolon_without_newline(green_children, green_idx))
+        if (_is_semicolon_followed_by_nontrivia(green_children, green_idx))
             node_line, _ = source_location(node.source, node.position)
             push!(lines_to_report, first(node_line) + offset)
         end

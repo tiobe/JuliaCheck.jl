@@ -61,10 +61,17 @@ array_def = [];
 push!(array_def, 1);
 
 # Another tricky one
-some_string = "yeah; it's a string with a ; in it";
+some_string = "yeah; it's a string with a ; in it"; # Some comment
 
 module innocent_mistake
     clumsy_setup = []
     push!(clumsy_setup, 1)
-    push!(clumsy_setup, 2);
+    push!(clumsy_setup, 2); # Some comment
 end
+
+module using_comments_RM37947
+    x = 5 #= Block comments... =#; #=  ...are also allowed =#
+    x + 5; # This is a comment2
+end
+
+
