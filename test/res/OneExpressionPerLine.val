@@ -29,3 +29,15 @@ OneExpressionPerLine.jl(17, 0):
 └──────────────────────┘ ── Do not concatenate statements with a semicolon.
 The number of expressions per line is limited to one.
 Rule: one-expression-per-line. Severity: 7
+
+OneExpressionPerLine.jl(23, 0):
+        b = 6; a = 4; # Violation expected here
+└─────────────────────────────────────────────┘ ── Do not concatenate statements with a semicolon.
+The number of expressions per line is limited to one.
+Rule: one-expression-per-line. Severity: 7
+
+OneExpressionPerLine.jl(29, 0):
+            a= 7; b = 9; # Violation also expected here
+└─────────────────────────────────────────────────────┘ ── Do not concatenate statements with a semicolon.
+The number of expressions per line is limited to one.
+Rule: one-expression-per-line. Severity: 7

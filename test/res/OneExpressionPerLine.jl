@@ -17,6 +17,19 @@ module inline_cleverness
     x = 5; x + 5; x * 5;
 end
 
+module module_with_deep_nesting
+    if true
+        a = 5;
+        b = 6; a = 4; # Violation expected here
+    else
+        a = 5
+        if false
+            a = 6;
+        else
+            a= 7; b = 9; # Violation also expected here
+        end
+    end
+end
 
 # Good style:
 for bar::Int64 in range(1, 3)
