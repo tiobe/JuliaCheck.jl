@@ -17,7 +17,12 @@ const KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "ex
         "for", "function", "global", "if", "import", "let", "local", "macro", "module",
         "quote", "return", "struct", "try", "using", "while", "catch", "finally", "else",
         "elseif", "end", "abstract", "as", "doc", "mutable", "outer", "primitive", "public",
-        "type", "var", "(", ")"]
+        "type", "var"]
+
+const WORD_KEYWORD_REGEX = Regex("\\b(" * join(WORD_KEYWORDS, "|") * ")\\b")
+
+const SYMBOL_HINTS = ["(", ")", "[", "]", "{", "}", "=", "::", "->"]
+const SINGLE_IDENTIFIER_REGEX = r"^[A-Za-z_][A-Za-z0-9_]*$"
 
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "do-not-comment-out-code"
@@ -51,9 +56,15 @@ function _report(ctxt::AnalysisContext, this::Check, range::UnitRange)::Nothing
     return nothing
 end
 
-# If JuliaSyntax can parse the comment contents, it must be code
+""" Returns true only for comments that look code-like and can be parsed as Julia code. """
 function _contains_code(text::AbstractString)::Bool
-    if !any(occursin(text), KEYWORDS) return false end
+    if _is_single_identifier(text)
+        # A single identifier is valid Julia code, but should not be considered commented-out code
+        return false
+    end
+    if !_has_code_markers(text)
+        return false
+    end
     try
         parseall(SyntaxNode, text)
     catch
@@ -64,6 +75,14 @@ end
 
 function _contains_code(comment::CommentOrCommentBlock)::Bool
     return _contains_code(get_text(comment))
+end
+
+function _is_single_identifier(text::AbstractString)::Bool
+    return occursin(SINGLE_IDENTIFIER_REGEX, strip(text))
+end
+
+function _has_code_markers(text::AbstractString)::Bool
+    return occursin(WORD_KEYWORD_REGEX, text) || any(sym -> occursin(sym, text), SYMBOL_HINTS)
 end
 
 end # module DoNotCommentOutCode
