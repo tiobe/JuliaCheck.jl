@@ -13,7 +13,7 @@ Some keywords and other signifiers that need to be in the string in order for it
 
 Based on [keywords from JuliaSyntax.jl](https://github.com/JuliaLang/JuliaSyntax.jl/blob/99e975a726a82994de3f8e961e6fa8d39aed0d37/src/julia/kinds.jl#L209)
 """
-const KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "export",
+const WORD_KEYWORDS = ["baremodule", "begin", "break", "const", "continue", "do", "export",
         "for", "function", "global", "if", "import", "let", "local", "macro", "module",
         "quote", "return", "struct", "try", "using", "while", "catch", "finally", "else",
         "elseif", "end", "abstract", "as", "doc", "mutable", "outer", "primitive", "public",
