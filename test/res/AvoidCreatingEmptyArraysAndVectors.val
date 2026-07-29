@@ -1,37 +1,73 @@
 >> Processing file 'AvoidCreatingEmptyArraysAndVectors.jl'...
 
-AvoidCreatingEmptyArraysAndVectors.jl(3, 1):
-a_wrong = empty([1.0, 2.0, 3.0])
+AvoidCreatingEmptyArraysAndVectors.jl(43, 1):
+resize!(w_pre_allocate, index-1)
 └──────────────────────────────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
 
-AvoidCreatingEmptyArraysAndVectors.jl(4, 1):
-b_wrong = empty([1.0, 2.0, 3.0], String)
-└──────────────────────────────────────┘ ── Avoid resizing arrays after initialization.
+AvoidCreatingEmptyArraysAndVectors.jl(49, 1):
+push!(w, 1)
+└─────────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
 
-AvoidCreatingEmptyArraysAndVectors.jl(5, 1):
-c_wrong = Array{Float64}[]
-└────────────────────────┘ ── Avoid resizing arrays after initialization.
+AvoidCreatingEmptyArraysAndVectors.jl(50, 1):
+pushfirst!(w, 1)
+└──────────────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
 
-AvoidCreatingEmptyArraysAndVectors.jl(8, 5):
-    d_wrong = []
-#   └──────────┘ ── Avoid resizing arrays after initialization.
+AvoidCreatingEmptyArraysAndVectors.jl(51, 1):
+pop!(w)
+└─────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
 
-AvoidCreatingEmptyArraysAndVectors.jl(12, 1):
-v = []
-└────┘ ── Avoid resizing arrays after initialization.
+AvoidCreatingEmptyArraysAndVectors.jl(52, 1):
+popfirst!(w)
+└──────────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
 
-AvoidCreatingEmptyArraysAndVectors.jl(17, 1):
-w = []
-└────┘ ── Avoid resizing arrays after initialization.
+AvoidCreatingEmptyArraysAndVectors.jl(53, 1):
+append!(w, [2, 3])
+└────────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(54, 1):
+prepend!(w, [2, 3])
+└─────────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(55, 1):
+insert!(w, 1, 5)
+└──────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(56, 1):
+deleteat!(w, 1)
+└─────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(57, 1):
+splice!(w, 4:3, 2)
+└────────────────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(58, 1):
+empty!(w)
+└───────┘ ── Avoid resizing arrays after initialization.
+Avoid resizing arrays after initialization.
+Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
+
+AvoidCreatingEmptyArraysAndVectors.jl(59, 1):
+resize!(w, 100)
+└─────────────┘ ── Avoid resizing arrays after initialization.
 Avoid resizing arrays after initialization.
 Rule: avoid-creating-empty-arrays-and-vectors. Severity: 8
