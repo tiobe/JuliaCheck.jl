@@ -31,6 +31,13 @@ module module_with_deep_nesting
     end
 end
 
+if true
+    a = 1; b = 2; # Expect violation between 1 and b
+    if true
+        b = 1; c = 2; # Expect violation between 1 and c
+    end
+end
+
 # Good style:
 for bar::Int64 in range(1, 3)
     println("bar ", bar)

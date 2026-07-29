@@ -1,8 +1,8 @@
 module OneExpressionPerLine
 
-using JuliaSyntax: is_leaf, source_location
+using JuliaSyntax: source_location, SourceFile
+using ...Properties: is_root_node
 using ...SyntaxNodeHelpers: ancestors
-using ...WhitespaceHelpers: get_line_range
 
 include("_common.jl")
 
@@ -12,99 +12,72 @@ Analysis.severity(::Check) = 7
 Analysis.synopsis(::Check) = "The number of expressions per line is limited to one."
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
-    register_syntaxnode_action(ctxt, n -> n == ctxt.rootNode, n -> _check(this, ctxt, n))
+    register_syntaxnode_action(ctxt, is_root_node, root -> _check(this, ctxt, root.source))
     return nothing
 end
 
 """
-Any statement with a semicolon in its trivia deserves further consideration.
+Check that a semicolon is not used to separate statements.
+"""
+function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
+    for i in eachindex(ctxt.greenleaves)
+        cur = ctxt.greenleaves[i]
+        if kind(cur) != K";"
+            continue
+        end
 
-Excludes vcat and parameter usage of ;. See also the Julia documentation:
+        pos = cur.range.start
+        node = find_syntaxnode_at_position(ctxt, pos)
+        if !_should_check(node)
+            continue
+        end
+
+        if !_is_at_end_of_line(ctxt.greenleaves, i)
+            report_violation(ctxt, this, source_location(sf, pos), cur.range, "Do not concatenate statements with a semicolon.")
+        end
+    end
+    return nothing
+end
+
+"""
+Excludes `vcat` and `parameter` usage of `;`.
+
+See the Julia documentation:
 https://docs.julialang.org/en/v1/base/punctuation/
 
 > semicolons separate statements, begin a list of keyword arguments in
 > function declarations or calls, or are used to separate array literals
 > for vertical concatenation
-
-We also stick intentionally to analyzing the highest level statement that can be found.
-Analyzing deeper within concatenated statements may lead to duplicate reporting
-or storing of global data (both of which is not wanted).
 """
-function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
-    lines_to_report = Set{Int}()
-    nodes_to_check = _get_subnodes_to_check(node)
-    for subnode in nodes_to_check
-        lines_to_report = union!(lines_to_report, _find_semicolon_lines(subnode))
-    end
-    for violation_line in sort(collect(lines_to_report))
-        range = get_line_range(violation_line, node.source)
-        report_violation(ctxt, this, (violation_line, 0), range, "Do not concatenate statements with a semicolon.")
-    end
-    return nothing
+function _should_check(node::SyntaxNode)::Bool
+    return !any(n -> kind(n) ∈ KSet"parameters typed_vcat vcat", ancestors(node, include_self=true))
 end
 
-function _get_subnodes_to_check(node::SyntaxNode)::Set{SyntaxNode}
-    nodes_to_check = Set{SyntaxNode}()
-    if !is_leaf(node)
-        if _has_semicolon_child(node)
-            push!(nodes_to_check, node)
-        else
-            for child_node in children(node)
-                if !_is_allowed_context(child_node)
-                    union!(nodes_to_check, _get_subnodes_to_check(child_node))
-                end
-            end
-        end
-    end
-    return nodes_to_check
-end
-
-function _is_allowed_context(node::SyntaxNode)::Bool
-    return kind(node) ∈ KSet"parameters typed_vcat vcat"
-end
-
-function _has_semicolon_child(node::SyntaxNode)::Bool
-    green = children(node.raw)
-    return any(idx -> _is_semicolon_followed_by_nontrivia(green, idx), eachindex(green))
-end
-
-function _is_semicolon_followed_by_nontrivia(green_children, green_idx::Integer)::Bool
-    current_gc = green_children[green_idx]
-    if kind(current_gc) != K";"
-        return false
+function _is_at_end_of_line(leaves::Vector{GreenLeaf}, idx::Integer)::Bool
+    i = Int(idx)
+    if i >= lastindex(leaves)
+        return true
     end
 
-    next_i = nextind(green_children, green_idx)
-    while checkbounds(Bool, green_children, next_i)
-        next_gc = green_children[next_i]
-        if kind(next_gc) == K"NewlineWs"
-            return false
-        elseif kind(next_gc) ∈ KSet"Comment Whitespace"
-            next_i = nextind(green_children, next_i)
-        else
+    for j in (i + 1):lastindex(leaves)
+        leaf = leaves[j]
+        k = kind(leaf)
+
+        if k == K"Comment"
+            continue # Ignore comments after semicolon
+        elseif k == K"NewlineWs"
             return true
+        elseif k == K"Whitespace"
+            if contains(sourcetext(leaf), '\n') || contains(sourcetext(leaf), '\r')
+                return true
+            end
+            continue
+        else
+            return false
         end
     end
-    return false
-end
 
-function _find_semicolon_lines(node::SyntaxNode)::Set{Integer}
-    lines_to_report = Set{Int}()
-    offset = 0
-    green_children = children(node.raw)
-    for green_idx in eachindex(green_children)
-        if (_is_semicolon_followed_by_nontrivia(green_children, green_idx))
-            node_line, _ = source_location(node.source, node.position)
-            push!(lines_to_report, first(node_line) + offset)
-        end
-        # Sometimes, blocks of semicolons span multiple lines.
-        # If a newline is encountered and another semicolon is encountered after that,
-        # a new violation should be reported on the second line.
-        if kind(green_children[green_idx]) == K"NewlineWs"
-            offset = offset + 1
-        end
-    end
-    return lines_to_report
+    return true
 end
 
 end # module OneExpressionPerLine
