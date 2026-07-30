@@ -1,31 +1,3 @@
-
-# Bad
-a_wrong = empty([1.0, 2.0, 3.0])
-b_wrong = empty([1.0, 2.0, 3.0], String)
-c_wrong = Array{Float64}[]
-
-function init_array_wrong()
-    d_wrong = []
-    return d_wrong
-end
-
-v = []
-for i in 1:100
-    push!(v, i^2)
-end
-
-w = []
-N = 100
-for _ in 1:N
-    value = rand(1:10)
-    if iseven(value)
-        push!(w, value)
-        push!(w, value ÷ 2)
-    else
-        push!(w, value)
-    end
-end
-
 # Good
 c_right = Array{Float64}(undef, 5)
 v_comprehension = [i^2 for i in 1:100]
@@ -64,4 +36,24 @@ for _ in 1:N
         index += 1
     end
 end
+# For resize!() we have contradicting requirements:
+# 1. The `ASML Guidelines and Rules for the Julia Language` document says this is allowed
+# 2. https://redmine.tiobe.com/issues/37941#note-9 says it is not allowed.
+# We are taking the decision that is made last, which is 2
 resize!(w_pre_allocate, index-1)
+
+
+# Bad
+
+w = []
+push!(w, 1)
+pushfirst!(w, 1)
+pop!(w)
+popfirst!(w)
+append!(w, [2, 3])
+prepend!(w, [2, 3])
+insert!(w, 1, 5)
+deleteat!(w, 1)
+splice!(w, 4:3, 2)
+empty!(w)
+resize!(w, 100)
