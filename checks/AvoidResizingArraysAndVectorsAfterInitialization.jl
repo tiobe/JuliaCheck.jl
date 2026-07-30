@@ -1,9 +1,12 @@
-module AvoidCreatingEmptyArraysAndVectors
+module AvoidResizingArraysAndVectorsAfterInitialization
 
 using ...Properties: get_call_name_from_call_node, is_mutating_call
 
 include("_common.jl")
 
+"""
+An enumeration of all known functions that mutate arrays and vectors.
+"""
 const ARRAY_MUTATING_CALLS = Set([
     "push!",
     "pushfirst!",
@@ -20,9 +23,9 @@ const ARRAY_MUTATING_CALLS = Set([
     ])
 
 struct Check<:Analysis.Check end
-Analysis.id(::Check) = "avoid-creating-empty-arrays-and-vectors"
+Analysis.id(::Check) = "avoid-resizing-arrays-and-vectors-after-initialization"
 Analysis.severity(::Check) = 8
-Analysis.synopsis(::Check) = "Avoid resizing arrays after initialization."
+Analysis.synopsis(::Check) = "Avoid resizing arrays and vectors after initialization"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_mutating_call, n -> _check(this, ctxt, n))
@@ -32,9 +35,9 @@ end
 function _check(this::Check, ctxt::AnalysisContext, call_node::SyntaxNode)::Nothing
     name = get_call_name_from_call_node(call_node)
     if name ∈ ARRAY_MUTATING_CALLS
-        report_violation(ctxt, this, call_node, "Avoid resizing arrays after initialization.")
+        report_violation(ctxt, this, call_node, synopsis(this))
     end
     return nothing
 end
 
-end # end AvoidCreatingEmptyArraysAndVectors
+end # module AvoidResizingArraysAndVectorsAfterInitialization

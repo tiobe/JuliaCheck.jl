@@ -1,0 +1,73 @@
+>> Processing file 'AvoidResizingArraysAndVectorsAfterInitialization.jl'...
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(43, 1):
+resize!(w_pre_allocate, index-1)
+└──────────────────────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(49, 1):
+push!(w, 1)
+└─────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(50, 1):
+pushfirst!(w, 1)
+└──────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(51, 1):
+pop!(w)
+└─────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(52, 1):
+popfirst!(w)
+└──────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(53, 1):
+append!(w, [2, 3])
+└────────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(54, 1):
+prepend!(w, [2, 3])
+└─────────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(55, 1):
+insert!(w, 1, 5)
+└──────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(56, 1):
+deleteat!(w, 1)
+└─────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(57, 1):
+splice!(w, 4:3, 2)
+└────────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(58, 1):
+empty!(w)
+└───────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
+
+AvoidResizingArraysAndVectorsAfterInitialization.jl(59, 1):
+resize!(w, 100)
+└─────────────┘ ── Avoid resizing arrays and vectors after initialization.
+Avoid resizing arrays and vectors after initialization.
+Rule: avoid-resizing-arrays-and-vectors-after-initialization. Severity: 8
