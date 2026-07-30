@@ -17,6 +17,26 @@ module inline_cleverness
     x = 5; x + 5; x * 5;
 end
 
+module module_with_deep_nesting
+    if true
+        a = 5;
+        b = 6; a = 4; # Violation expected here
+    else
+        a = 5
+        if false
+            a = 6;
+        else
+            a= 7; b = 9; # Violation also expected here
+        end
+    end
+end
+
+if true
+    a = 1; b = 2; # Expect violation between 1 and b
+    if true
+        b = 1; c = 2; # Expect violation between 1 and c
+    end
+end
 
 # Good style:
 for bar::Int64 in range(1, 3)
@@ -61,10 +81,17 @@ array_def = [];
 push!(array_def, 1);
 
 # Another tricky one
-some_string = "yeah; it's a string with a ; in it";
+some_string = "yeah; it's a string with a ; in it"; # Some comment
 
 module innocent_mistake
     clumsy_setup = []
     push!(clumsy_setup, 1)
-    push!(clumsy_setup, 2);
+    push!(clumsy_setup, 2); # Some comment
 end
+
+module using_comments_RM37947
+    x = 5 #= Block comments... =#; #=  ...are also allowed =#
+    x + 5; # This is a comment2
+end
+
+

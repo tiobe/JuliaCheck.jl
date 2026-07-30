@@ -32,7 +32,7 @@ optional arguments:
 
 When using the list of enabled rules, you must use `--` to separate that list from the list of files to be checked. E.g.:
 ```
-julia src/JuliaCheck.jl --enable module-name-casing single-module-file -- file_to_check.jl
+julia --project=. src/JuliaCheck.jl --enable module-name-casing single-module-file -- file_to_check.jl
 ```
 
 The equivalent call from Julia's REPL, after importing JuliaCheck, would be:
