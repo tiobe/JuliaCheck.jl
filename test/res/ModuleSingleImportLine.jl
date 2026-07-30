@@ -11,9 +11,9 @@ end # module BadStyle
 module ReportOnlyOnceOnUsingOrdering
 
     using A
-    using D
+    import D
     using C
-    using B
+    import B
 
 end # module ReportOnlyOnceOnIncludeOrdering
 
@@ -44,10 +44,18 @@ module GoodStyle
 
     using JuliaSyntax: GreenNode, SyntaxNode, children
     using LinearAlgebra
-    using Random
-    using Statistics
+    using Metrology
+    using MLBase # RM-37946: test for case insensitive ordering
     using Test
 
 end # module GoodStyle
+
+module CaseInsensitiveOrderingForIncludes # RM-37946
+
+    include("JuliaA.jl")
+    include("JULIAB.jl")
+    include("JuliaC.jl")
+
+end # module GoodStyle2
 
 end # module_single_import_line
