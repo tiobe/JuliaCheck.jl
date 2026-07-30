@@ -32,7 +32,7 @@ function _check(this::Check, ctxt::AnalysisContext, sf::SourceFile)::Nothing
             continue
         end
 
-        if !_is_at_end_of_line(ctxt.greenleaves, i)
+        if !_has_only_trivia_until_line_end(ctxt.greenleaves, i)
             report_violation(ctxt, this, source_location(sf, pos), cur.range, "Do not concatenate statements with a semicolon.")
         end
     end
@@ -53,13 +53,17 @@ function _should_check(node::SyntaxNode)::Bool
     return !any(n -> kind(n) ∈ KSet"parameters typed_vcat vcat", ancestors(node, include_self=true))
 end
 
-function _is_at_end_of_line(leaves::Vector{GreenLeaf}, idx::Integer)::Bool
-    i = Int(idx)
-    if i >= lastindex(leaves)
+"""
+Return `true` if only trivia remains on the line after `idx` and `false` otherwise.
+
+Trivia includes comments and whitespace.
+"""
+function _has_only_trivia_until_line_end(leaves::Vector{GreenLeaf}, idx::Integer)::Bool
+    if idx >= lastindex(leaves)
         return true
     end
 
-    for j in (i + 1):lastindex(leaves)
+    for j in (idx + 1):lastindex(leaves)
         leaf = leaves[j]
         k = kind(leaf)
 
