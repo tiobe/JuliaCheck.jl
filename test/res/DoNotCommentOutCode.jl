@@ -40,3 +40,16 @@ while index <= 10
     println("$index")
     index += 2
 end
+
+function fix_false_positives_for_single_identifiers_RM37944()
+
+    ## GeneralReadoutSettings
+    index = 3
+
+    ## continueIsAlsoAKeyword
+    index = 4
+
+    # do (once)
+    index = 5
+end
+
