@@ -9,6 +9,7 @@ function rules()::Nothing
     for check in available_checks
         print("|`$(Analysis.id(check))`|$(Analysis.synopsis(check))|\n")
     end
+    return nothing
 end
 
 rules()

@@ -2,10 +2,10 @@ name = "JuliaCheck"
 uuid = "7b5e9987-6321-4ad2-a98c-8fb2c158333b"
 version = "0.54.0"
 authors = [
-            "Juanma Bellon <juan.bellon@tiobe.com>",
+            "Anne Brouwers <anne.brouwers@tiobe.com>",
             "Dennie Reniers <dennie.reniers@tiobe.com>",
             "Paul van Zon <paul.van.zon@tiobe.com>",
-            "Anne Brouwers <anne.brouwers@tiobe.com>"
+            "Juanma Bellon <juan.bellon@tiobe.com>"
 ]
 
 [deps]
