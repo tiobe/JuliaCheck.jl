@@ -16,37 +16,41 @@ Pkg.add(url="https://github.com/tiobe/JuliaCheck.jl")
 
 ## Usage
 
-Invocation of JuliaCheck:
+JuliaCheck supports the following arguments:
 ```
-usage: JuliaCheck.jl [--enable RULES [RULES...]] [-v] [--ast] [--llt]
-                     [--output OUTPUT] [--outputfile OUTPUTFILE]
-                     [--version] [-h] infiles...
+usage: julia -m JuliaCheck [--enable RULES [RULES...]] [-v] [--ast] [--llt]
+                 [--output OUTPUT] [--outputfile OUTPUTFILE]
+                 [--version] [-h] infiles...
 
 Code checker for Julia programming language.
 
 positional arguments:
-  infiles               One or more Julia files to check with
-                        available rules.
+  infiles               One or more Julia files or directories to
+                        check with available rules.
 
 optional arguments:
   --enable RULES [RULES...]
                         List of rules to check on the given files.
   -v, --verbose         Print debugging information.
   --ast                 Print syntax tree for each input file.
-  --llt                 Print green tree for each input file.
-  --version             show version information and exit
+  --llt                 Print lossless tree for each input file.
   --output OUTPUT       Select output type. Allowed types:
                         highlighting, json, simple. (default:
                         "highlighting")
   --outputfile OUTPUTFILE
                         Write output to the given file. If left empty,
                         this will write to command line.
+  --version             show version information and exit
   -h, --help            show this help message and exit
 ```
 
-When using the list of enabled rules, you must use `--` to separate that list from the list of files to be checked. For example:
+When providing a list of enabled rules, you must use `--` to separate that list from the list of files to be checked.
+
+If the `--enable` option is not provided, all rules are checked.
+
+Example:
 ```
-julia -e "import Pkg; Pkg.add("JuliaCheck")
+julia -e 'import Pkg; Pkg.add("JuliaCheck")'
 julia -m JuliaCheck --enable module-name-casing single-module-file -- file_to_check.jl
 ```
 
@@ -55,8 +59,6 @@ The equivalent call from Julia's REPL would be:
 import JuliaCheck
 JuliaCheck.main(["--enable", "module-name-casing", "single-module-file", "--", "file_to_check.jl"])
 ```
-
-If no rules are specified in the command line, all rules are checked.
 
 ## Available rules
 
