@@ -6,7 +6,7 @@ using ...Properties: find_lhs_of_kind, is_upper_camel_case
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "prefix-of-abstract-type-names"
 Analysis.severity(::Check) = 4
-Analysis.synopsis(::Check) = "Abstract type names should be prefixed by \"Abstract\"."
+Analysis.synopsis(::Check) = "Abstract type names should be prefixed by \"Abstract\""
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"abstract", node -> _check(this, ctxt, node))
@@ -27,4 +27,3 @@ function _check(this::Check, ctxt::AnalysisContext, node::SyntaxNode)::Nothing
 end
 
 end # module PrefixOfAbstractTypeNames
-

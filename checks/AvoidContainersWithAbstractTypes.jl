@@ -40,7 +40,7 @@ const ABSTRACT_NUMBER_TYPES = Set([
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "avoid-containers-with-abstract-types"
 Analysis.severity(::Check) = 6
-Analysis.synopsis(::Check) = "Avoid containers with abstract types."
+Analysis.synopsis(::Check) = "Avoid containers with abstract types"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, _is_container, n -> _check(this, ctxt, n))

@@ -1,7 +1,12 @@
 name = "JuliaCheck"
 uuid = "7b5e9987-6321-4ad2-a98c-8fb2c158333b"
-authors = ["Juanma Bellon <juan.bellon@tiobe.com>"]
 version = "0.54.0"
+authors = [
+            "Anne Brouwers <anne.brouwers@tiobe.com>",
+            "Dennie Reniers <dennie.reniers@tiobe.com>",
+            "Paul van Zon <paul.van.zon@tiobe.com>",
+            "Juanma Bellon <juan.bellon@tiobe.com>"
+]
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"
@@ -21,7 +26,7 @@ JuliaSyntax = "1"
 Test = "1.11.0"
 TestItemRunner = "1.1.0"
 TestItems = "1.0.0"
-julia = "1.0"
+julia = "1.12"
 
 [extras]
 IOCapture = "b5f81e59-6552-4d32-b1f0-c071b021bf89"

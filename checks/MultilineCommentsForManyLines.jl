@@ -7,7 +7,7 @@ include("_common.jl")
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "multiline-comments-for-many-lines"
 Analysis.severity(::Check) = 9
-Analysis.synopsis(::Check) = "Use multiline comments for large blocks."
+Analysis.synopsis(::Check) = "Use multiline comments for large blocks"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, contains_comments, n -> _check(this, ctxt, n))

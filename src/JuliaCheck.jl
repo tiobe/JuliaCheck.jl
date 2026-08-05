@@ -64,7 +64,7 @@ function _parse_commandline(args::Vector{String})
     return parse_args(args, s)
 end
 
-function main(args::Vector{String})::Nothing
+function @main(args::Vector{String})::Nothing
     if isempty(args)
         _parse_commandline(["-h"])
         return nothing

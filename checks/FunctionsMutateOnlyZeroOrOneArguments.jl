@@ -8,7 +8,7 @@ include("_common.jl")
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "functions-mutate-only-zero-or-one-arguments"
 Analysis.severity(::Check) = 3
-Analysis.synopsis(::Check) = "Functions should change only one or zero argument(s)."
+Analysis.synopsis(::Check) = "Functions should change only one or zero argument(s)"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_function, n -> _check_function(this, ctxt, n))

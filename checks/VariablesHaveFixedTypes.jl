@@ -23,7 +23,7 @@ and doing this completely would be a _lot_ of specific cases.
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "variables-have-fixed-types"
 Analysis.severity(::Check) = 3
-Analysis.synopsis(::Check) = "Types of variables should not change."
+Analysis.synopsis(::Check) = "Types of variables should not change"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_assignment, n -> _check(this, ctxt, n))

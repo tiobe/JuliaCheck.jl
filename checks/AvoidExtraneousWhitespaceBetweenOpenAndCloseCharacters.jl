@@ -9,7 +9,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "avoid-extraneous-whitespace-between-open-and-close-characters"
 Analysis.severity(::Check) = 7
 function Analysis.synopsis(::Check)::String
-    return "Avoid extraneous whitespace inside parentheses, square brackets or braces."
+    return "Avoid extraneous whitespace inside parentheses, square brackets or braces"
 end
 
 """

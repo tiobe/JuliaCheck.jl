@@ -8,7 +8,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "underscore-prefix-for-private-functions"
 Analysis.severity(::Check) = 8
 function Analysis.synopsis(::Check)::String
-    return "Private functions are prefixed with one underscore _ character."
+    return "Private functions are prefixed with one underscore _ character"
 end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
@@ -49,10 +49,10 @@ function _check(this::Check, ctxt::AnalysisContext, module_node::SyntaxNode)::No
     all_exported_names = _get_exported_function_names(module_content_node)
     for function_node in _get_function_nodes(module_content_node)
         function_name_node = get_func_name(function_node)
-        if kind(function_name_node.parent) == K"."
-            continue # Do not trigger on extension of a function defined in another module
-        end
         if !isnothing(function_name_node)
+            if kind(function_name_node.parent) == K"."
+                continue # Do not trigger on extension of a function defined in another module
+            end
             function_name = string(function_name_node)
             has_underscore = startswith(function_name, "_")
             if has_underscore && function_name ∈ all_exported_names

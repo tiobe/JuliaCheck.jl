@@ -27,7 +27,7 @@ const SINGLE_IDENTIFIER_REGEX = r"^[A-Za-z_][A-Za-z0-9_]*$"
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "do-not-comment-out-code"
 Analysis.severity(::Check) = 9
-Analysis.synopsis(::Check) = "Do not comment out code."
+Analysis.synopsis(::Check) = "Do not comment out code"
 
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing

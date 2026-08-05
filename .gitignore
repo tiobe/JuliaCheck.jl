@@ -1,7 +1,6 @@
 Manifest.toml
 /.vscode/**
 !/.vscode/launch.json
-!/.vscode/DebugCheck.jl
 /test/test.jl
 *.jl-
 *.swp
