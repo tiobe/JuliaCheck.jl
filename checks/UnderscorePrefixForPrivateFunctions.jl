@@ -8,7 +8,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "underscore-prefix-for-private-functions"
 Analysis.severity(::Check) = 8
 function Analysis.synopsis(::Check)::String
-    return "Private functions are prefixed with one underscore _ character."
+    return "Private functions are prefixed with one underscore _ character"
 end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing

@@ -8,7 +8,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "module-import-location"
 Analysis.severity(::Check) = 9
 function Analysis.synopsis(::Check)
-    return "Packages should be imported after the module keyword."
+    return "Packages should be imported after the module keyword"
 end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing

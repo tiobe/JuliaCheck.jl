@@ -21,7 +21,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "space-around-binary-infix-operators"
 Analysis.severity(::Check) = 7
 function Analysis.synopsis(::Check)::String
-    return "Selected binary infix operators and the = character are followed and preceded by a single space."
+    return "Selected binary infix operators and the = character are followed and preceded by a single space"
 end
 
 """

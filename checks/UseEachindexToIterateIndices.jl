@@ -10,7 +10,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "use-eachindex-to-iterate-indices"
 Analysis.severity(::Check) = 5
 function Analysis.synopsis(::Check)::String
-    return "Use eachindex() instead of a constructed range for iteration over a collection."
+    return "Use eachindex() instead of a constructed range for iteration over a collection"
 end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing

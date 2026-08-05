@@ -10,7 +10,7 @@ struct Check<:Analysis.Check end
 Analysis.id(::Check) = "exclamation-mark-in-function-identifier-if-mutating"
 Analysis.severity(::Check) = 4
 function Analysis.synopsis(::Check)::String
-    return "Only functions postfixed with an exclamation mark can mutate an argument."
+    return "Only functions postfixed with an exclamation mark can mutate an argument"
 end
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing

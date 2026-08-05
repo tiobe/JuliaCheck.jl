@@ -8,7 +8,7 @@ using ...SyntaxNodeHelpers
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "single-space-after-commas-and-semicolons"
 Analysis.severity(::Check) = 7
-Analysis.synopsis(::Check) = "Commas and semicolons are followed, but not preceded, by a space."
+Analysis.synopsis(::Check) = "Commas and semicolons are followed, but not preceded, by a space"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_root_node, node -> begin

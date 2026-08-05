@@ -9,7 +9,7 @@ include("_common.jl")
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "one-expression-per-line"
 Analysis.severity(::Check) = 7
-Analysis.synopsis(::Check) = "The number of expressions per line is limited to one."
+Analysis.synopsis(::Check) = "The number of expressions per line is limited to one"
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, is_root_node, root -> _check(this, ctxt, root.source))

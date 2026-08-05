@@ -7,7 +7,7 @@ using ...Properties: find_lhs_of_kind, is_lower_snake, get_struct_members
 struct Check<:Analysis.Check end
 Analysis.id(::Check) = "struct-members-are-in-lower-snake-case"
 Analysis.severity(::Check) = 8
-Analysis.synopsis(::Check) = "Struct members should be in \"lower_snake_case\"."
+Analysis.synopsis(::Check) = "Struct members should be in \"lower_snake_case\""
 
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) === K"struct", node -> begin
