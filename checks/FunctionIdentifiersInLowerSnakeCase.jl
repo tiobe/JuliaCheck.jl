@@ -12,8 +12,7 @@ Analysis.synopsis(::Check) = "Function name should be written in \"lower_snake_c
 function Analysis.init(this::Check, ctxt::AnalysisContext)::Nothing
     register_syntaxnode_action(ctxt, n -> kind(n) == K"function", node -> begin
         fname = get_func_name(node)
-
-        if kind(fname.parent) == K"."
+        if isnothing(fname) || (kind(fname.parent) == K".")
             return #RM-37316: do not trigger on extension of a function defined in another module
         end
         _check_function_name(this, ctxt, fname)
