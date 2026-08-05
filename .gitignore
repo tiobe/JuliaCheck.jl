@@ -1,8 +1,6 @@
 Manifest.toml
 /.vscode/**
 !/.vscode/launch.json
-!/.vscode/DebugCheck.jl
-!/.vscode/GenRulesMd.jl
 /test/test.jl
 *.jl-
 *.swp
