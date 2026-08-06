@@ -1,12 +1,7 @@
 name = "JuliaCheck"
 uuid = "7b5e9987-6321-4ad2-a98c-8fb2c158333b"
 version = "0.54.1"
-authors = [
-            "Anne Brouwers <anne.brouwers@tiobe.com>",
-            "Dennie Reniers <dennie.reniers@tiobe.com>",
-            "Paul van Zon <paul.van.zon@tiobe.com>",
-            "Juanma Bellon <juan.bellon@tiobe.com>"
-]
+authors = ["Anne Brouwers <anne.brouwers@tiobe.com>", "Dennie Reniers <dennie.reniers@tiobe.com>", "Paul van Zon <paul.van.zon@tiobe.com>", "Juanma Bellon <juan.bellon@tiobe.com>"]
 
 [deps]
 ArgParse = "c7e460c6-2fb9-53a9-8c5b-16f535851c63"

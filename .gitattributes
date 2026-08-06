@@ -1,32 +1,15 @@
 # Auto detect text files and perform LF normalization
 * text=auto
 
-# Check out val files with lf, actual output EOL will be converted in tests for Windows
-*.val text eol=lf
-
 # Fix syntax highlighting on GitHub to allow comments
 .vscode/*.json linguist-language=JSON-with-Comments
 
 # Julia
 *.jl linguist-language=Julia
 
-# Ensure line endings stay consistent for this test
-test/TestConsistentLineEndings.jl text eol=lf
-
 # Documents
 *.md       text diff=markdown
 *.txt      text
-
-# Scripts
-*.bash     text eol=lf
-*.fish     text eol=lf
-*.ksh      text eol=lf
-*.sh       text eol=lf
-*.zsh      text eol=lf
-# These are explicitly windows files and should use crlf
-*.bat      text eol=crlf
-*.cmd      text eol=crlf
-*.ps1      text eol=crlf
 
 # Serialisation
 *.json     text
@@ -34,10 +17,3 @@ test/TestConsistentLineEndings.jl text eol=lf
 *.xml      text
 *.yaml     text
 *.yml      text
-
-#
-# Exclude files from exporting
-#
-.gitattributes export-ignore
-.gitignore     export-ignore
-.gitkeep       export-ignore
